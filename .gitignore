@@ -7,3 +7,9 @@ temp
 .httr-oauth
 .DS_Store
 .quarto
+.vscode
+*.xlsx
+desktop.ini
+*.zip
+*.csv
+*.RDS
