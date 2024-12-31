@@ -1,0 +1,6 @@
+{"results":[{"columns":[{"name":"CONTAMINANT_TYPE_CODE","type":"VARCHAR2"},{"name":"CONTAMINANT_TYPE_NAME","type":"VARCHAR2"},{"name":"CONTAMINANT_TYPE_DESC","type":"VARCHAR2"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"contaminant_type_code":"C","contaminant_type_name":"Chemical","contaminant_type_desc":"Chemical","tmsp_last_updt":"25-APR-07"}
+,{"contaminant_type_code":"M","contaminant_type_name":"Microbial","contaminant_type_desc":"Microbial","tmsp_last_updt":"25-APR-07"}
+,{"contaminant_type_code":"R","contaminant_type_name":"Radiological","contaminant_type_desc":"Radiological","tmsp_last_updt":"25-APR-07"}
+]}]}

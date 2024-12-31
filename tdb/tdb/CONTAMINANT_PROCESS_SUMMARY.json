@@ -1,0 +1,589 @@
+,"items":
+[
+{"contaminant_process_id":2146747694,"contaminant_id":10520,"treatment_process_id":1176996650,"date_of_literature_search":"December 2021","tmsp_last_updt":"01-JUL-22"}
+,{"contaminant_process_id":2146747695,"contaminant_id":10520,"treatment_process_id":1174340674,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747712,"contaminant_id":11020,"treatment_process_id":1174340674,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747713,"contaminant_id":10520,"treatment_process_id":-1277754943,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747714,"contaminant_id":11020,"treatment_process_id":-1277754943,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":10062,"contaminant_id":10041,"treatment_process_id":-1467636837,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10560,"contaminant_id":10140,"treatment_process_id":-1467636837,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11000,"contaminant_id":10220,"treatment_process_id":2088586280,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10246,"contaminant_id":10040,"treatment_process_id":1176996650,"date_of_literature_search":"2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":10222,"contaminant_id":10100,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2009","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10240,"contaminant_id":10060,"treatment_process_id":-2103528007,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10241,"contaminant_id":10042,"treatment_process_id":-1467636837,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10247,"contaminant_id":10040,"treatment_process_id":-2103528007,"date_of_literature_search":"2009","tmsp_last_updt":"17-JUN-11"}
+,{"contaminant_process_id":10320,"contaminant_id":10021,"treatment_process_id":-2103528007,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":11681,"contaminant_id":10023,"treatment_process_id":-979193564,"date_of_literature_search":"August 2009","tmsp_last_updt":"20-JAN-11"}
+,{"contaminant_process_id":10341,"contaminant_id":10023,"treatment_process_id":-1118142891,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10343,"contaminant_id":10023,"treatment_process_id":1934681921,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10360,"contaminant_id":10040,"treatment_process_id":2074826383,"date_of_literature_search":"2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":10500,"contaminant_id":10200,"treatment_process_id":-2054608628,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10520,"contaminant_id":10200,"treatment_process_id":-979193564,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10945,"contaminant_id":10280,"treatment_process_id":-1234021623,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11001,"contaminant_id":10340,"treatment_process_id":-346223903,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":11069,"contaminant_id":10360,"treatment_process_id":372675748,"date_of_literature_search":"August 2009","tmsp_last_updt":"20-AUG-09"}
+,{"contaminant_process_id":11202,"contaminant_id":10320,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11164,"contaminant_id":10280,"treatment_process_id":2109700949,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11840,"contaminant_id":10560,"treatment_process_id":2074826383,"date_of_literature_search":"August 2010","tmsp_last_updt":"27-APR-11"}
+,{"contaminant_process_id":11163,"contaminant_id":10022,"treatment_process_id":-2103528007,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11203,"contaminant_id":10320,"treatment_process_id":2109700949,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11204,"contaminant_id":10320,"treatment_process_id":2074826383,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11223,"contaminant_id":10380,"treatment_process_id":-300168699,"date_of_literature_search":"July 2011","tmsp_last_updt":"29-JUL-11"}
+,{"contaminant_process_id":11300,"contaminant_id":10380,"treatment_process_id":-1644188630,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11267,"contaminant_id":10100,"treatment_process_id":1934681921,"date_of_literature_search":"April 2009","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11283,"contaminant_id":10440,"treatment_process_id":-2054608628,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-AUG-09"}
+,{"contaminant_process_id":11340,"contaminant_id":10022,"treatment_process_id":2088586280,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11363,"contaminant_id":10480,"treatment_process_id":-1277754943,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11368,"contaminant_id":10480,"treatment_process_id":510273414,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11860,"contaminant_id":10560,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2010","tmsp_last_updt":"16-MAR-11"}
+,{"contaminant_process_id":11424,"contaminant_id":10500,"treatment_process_id":-979193564,"date_of_literature_search":"June 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11441,"contaminant_id":10320,"treatment_process_id":372675748,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11442,"contaminant_id":10340,"treatment_process_id":10000,"date_of_literature_search":"July 2009","tmsp_last_updt":"08-JUL-11"}
+,{"contaminant_process_id":11660,"contaminant_id":10160,"treatment_process_id":-1467636837,"date_of_literature_search":"December 2009","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11461,"contaminant_id":10340,"treatment_process_id":2088586280,"date_of_literature_search":"July 2009","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":11462,"contaminant_id":10340,"treatment_process_id":-1234021623,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":11920,"contaminant_id":10540,"treatment_process_id":1667135053,"date_of_literature_search":"August 2010","tmsp_last_updt":"26-AUG-10"}
+,{"contaminant_process_id":12000,"contaminant_id":10580,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2010","tmsp_last_updt":"26-AUG-10"}
+,{"contaminant_process_id":12040,"contaminant_id":10560,"treatment_process_id":-979193564,"date_of_literature_search":"August 2010","tmsp_last_updt":"02-SEP-10"}
+,{"contaminant_process_id":12340,"contaminant_id":10660,"treatment_process_id":10000,"date_of_literature_search":"2010","tmsp_last_updt":"21-SEP-10"}
+,{"contaminant_process_id":12120,"contaminant_id":10660,"treatment_process_id":2109700949,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12300,"contaminant_id":10640,"treatment_process_id":1176996650,"date_of_literature_search":"August 2010","tmsp_last_updt":"08-JUN-11"}
+,{"contaminant_process_id":12303,"contaminant_id":10640,"treatment_process_id":510273414,"date_of_literature_search":"August 2010","tmsp_last_updt":"08-JUN-11"}
+,{"contaminant_process_id":12320,"contaminant_id":10520,"treatment_process_id":2109700949,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":12360,"contaminant_id":10700,"treatment_process_id":1176996650,"date_of_literature_search":"July 2010","tmsp_last_updt":"06-OCT-11"}
+,{"contaminant_process_id":12380,"contaminant_id":10700,"treatment_process_id":-2062922688,"date_of_literature_search":"July 2010","tmsp_last_updt":"16-MAY-11"}
+,{"contaminant_process_id":12400,"contaminant_id":10700,"treatment_process_id":1181590563,"date_of_literature_search":"July 2010","tmsp_last_updt":"13-MAY-11"}
+,{"contaminant_process_id":12420,"contaminant_id":10700,"treatment_process_id":1934681921,"date_of_literature_search":"July 2010","tmsp_last_updt":"16-AUG-11"}
+,{"contaminant_process_id":12520,"contaminant_id":10680,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2010","tmsp_last_updt":"24-NOV-10"}
+,{"contaminant_process_id":12600,"contaminant_id":10620,"treatment_process_id":-300168699,"date_of_literature_search":"August 2010","tmsp_last_updt":"28-SEP-10"}
+,{"contaminant_process_id":12620,"contaminant_id":10740,"treatment_process_id":1176996650,"date_of_literature_search":"November 2010","tmsp_last_updt":"03-NOV-10"}
+,{"contaminant_process_id":12640,"contaminant_id":10740,"treatment_process_id":2088586280,"date_of_literature_search":"November 2010","tmsp_last_updt":"03-NOV-10"}
+,{"contaminant_process_id":12641,"contaminant_id":10740,"treatment_process_id":10000,"date_of_literature_search":"November 2010","tmsp_last_updt":"03-NOV-10"}
+,{"contaminant_process_id":13520,"contaminant_id":10840,"treatment_process_id":2074826383,"date_of_literature_search":"October 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":12781,"contaminant_id":10820,"treatment_process_id":-2054608628,"date_of_literature_search":"September 2010","tmsp_last_updt":"10-NOV-10"}
+,{"contaminant_process_id":12822,"contaminant_id":10740,"treatment_process_id":-2054608628,"date_of_literature_search":"November 2010","tmsp_last_updt":"09-NOV-10"}
+,{"contaminant_process_id":12840,"contaminant_id":10740,"treatment_process_id":-300168699,"date_of_literature_search":"November 2010","tmsp_last_updt":"16-FEB-11"}
+,{"contaminant_process_id":13500,"contaminant_id":10840,"treatment_process_id":-2103528007,"date_of_literature_search":"October 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":12880,"contaminant_id":10840,"treatment_process_id":-300168699,"date_of_literature_search":"2010","tmsp_last_updt":"14-FEB-11"}
+,{"contaminant_process_id":12920,"contaminant_id":10840,"treatment_process_id":-1467636837,"date_of_literature_search":"2010","tmsp_last_updt":"14-FEB-11"}
+,{"contaminant_process_id":12940,"contaminant_id":10840,"treatment_process_id":-1234021623,"date_of_literature_search":"2010","tmsp_last_updt":"10-FEB-11"}
+,{"contaminant_process_id":13620,"contaminant_id":10920,"treatment_process_id":2074826383,"date_of_literature_search":"April 2012","tmsp_last_updt":"19-JUN-12"}
+,{"contaminant_process_id":13940,"contaminant_id":10940,"treatment_process_id":-2103528007,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":10061,"contaminant_id":10001,"treatment_process_id":-2103528007,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10141,"contaminant_id":10060,"treatment_process_id":2074826383,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10144,"contaminant_id":10060,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"14-JAN-10"}
+,{"contaminant_process_id":10146,"contaminant_id":10060,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":11700,"contaminant_id":10260,"treatment_process_id":-1277754943,"date_of_literature_search":"2009","tmsp_last_updt":"11-APR-11"}
+,{"contaminant_process_id":11880,"contaminant_id":10560,"treatment_process_id":-300168699,"date_of_literature_search":"August 2010","tmsp_last_updt":"03-AUG-11"}
+,{"contaminant_process_id":11960,"contaminant_id":10580,"treatment_process_id":-2103528007,"date_of_literature_search":"August 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":10203,"contaminant_id":10060,"treatment_process_id":-300168699,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10660,"contaminant_id":-13570946,"treatment_process_id":1667135053,"date_of_literature_search":"March 2007","tmsp_last_updt":"11-JAN-11"}
+,{"contaminant_process_id":10192,"contaminant_id":10060,"treatment_process_id":-1277754943,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10260,"contaminant_id":10160,"treatment_process_id":-1861125809,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10263,"contaminant_id":10160,"treatment_process_id":2074826383,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10266,"contaminant_id":10021,"treatment_process_id":-300168699,"date_of_literature_search":"June 2009","tmsp_last_updt":"10-AUG-09"}
+,{"contaminant_process_id":10269,"contaminant_id":10180,"treatment_process_id":-1118142891,"date_of_literature_search":"2009","tmsp_last_updt":"18-AUG-09"}
+,{"contaminant_process_id":10273,"contaminant_id":10060,"treatment_process_id":-1644188630,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10280,"contaminant_id":10041,"treatment_process_id":1934681921,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11020,"contaminant_id":10340,"treatment_process_id":-1467636837,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":10344,"contaminant_id":10041,"treatment_process_id":-1118142891,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10902,"contaminant_id":10220,"treatment_process_id":-979193564,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10347,"contaminant_id":10023,"treatment_process_id":-2054608628,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":12200,"contaminant_id":10660,"treatment_process_id":-1467636837,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":10363,"contaminant_id":10041,"treatment_process_id":2074826383,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10401,"contaminant_id":10040,"treatment_process_id":2088586280,"date_of_literature_search":"2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":10481,"contaminant_id":10220,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10841,"contaminant_id":10140,"treatment_process_id":10000,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10640,"contaminant_id":1176389556,"treatment_process_id":10000,"date_of_literature_search":"August 2017","tmsp_last_updt":"27-JUN-18"}
+,{"contaminant_process_id":10642,"contaminant_id":10240,"treatment_process_id":2074826383,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10881,"contaminant_id":10220,"treatment_process_id":1934681921,"date_of_literature_search":"August 2009","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":10882,"contaminant_id":10220,"treatment_process_id":2074826383,"date_of_literature_search":"August  2009","tmsp_last_updt":"12-NOV-09"}
+,{"contaminant_process_id":10947,"contaminant_id":10240,"treatment_process_id":2088586280,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11024,"contaminant_id":10340,"treatment_process_id":-300168699,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":11027,"contaminant_id":10341,"treatment_process_id":-2062922688,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":11063,"contaminant_id":10340,"treatment_process_id":2074826383,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":11068,"contaminant_id":10360,"treatment_process_id":-1234021623,"date_of_literature_search":"August 2009","tmsp_last_updt":"20-AUG-09"}
+,{"contaminant_process_id":11100,"contaminant_id":10022,"treatment_process_id":-1118142891,"date_of_literature_search":"2009","tmsp_last_updt":"12-NOV-09"}
+,{"contaminant_process_id":11105,"contaminant_id":10022,"treatment_process_id":1181590563,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11108,"contaminant_id":10080,"treatment_process_id":-979193564,"date_of_literature_search":"2014","tmsp_last_updt":"22-FEB-17"}
+,{"contaminant_process_id":11120,"contaminant_id":10022,"treatment_process_id":1934681921,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11201,"contaminant_id":10022,"treatment_process_id":1667135053,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11220,"contaminant_id":10260,"treatment_process_id":-300168699,"date_of_literature_search":"2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11222,"contaminant_id":10380,"treatment_process_id":-2054608628,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11244,"contaminant_id":10440,"treatment_process_id":2109700949,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-OCT-09"}
+,{"contaminant_process_id":11264,"contaminant_id":10440,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-OCT-09"}
+,{"contaminant_process_id":11265,"contaminant_id":10440,"treatment_process_id":-300168699,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-AUG-09"}
+,{"contaminant_process_id":11440,"contaminant_id":10320,"treatment_process_id":1174340674,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11280,"contaminant_id":10300,"treatment_process_id":-1644188630,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":11284,"contaminant_id":10300,"treatment_process_id":-2054608628,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":11287,"contaminant_id":10460,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"14-SEP-10"}
+,{"contaminant_process_id":11367,"contaminant_id":10480,"treatment_process_id":-1467636837,"date_of_literature_search":"December 2009","tmsp_last_updt":"18-JAN-11"}
+,{"contaminant_process_id":11324,"contaminant_id":10340,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2009","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":11365,"contaminant_id":10480,"treatment_process_id":-1234021623,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11420,"contaminant_id":10500,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":12201,"contaminant_id":10660,"treatment_process_id":-979193564,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12220,"contaminant_id":10660,"treatment_process_id":2088586280,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12480,"contaminant_id":10700,"treatment_process_id":2088586280,"date_of_literature_search":"July 2010","tmsp_last_updt":"13-FEB-11"}
+,{"contaminant_process_id":12260,"contaminant_id":10600,"treatment_process_id":1176996650,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":12502,"contaminant_id":10620,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2010","tmsp_last_updt":"27-SEP-10"}
+,{"contaminant_process_id":12281,"contaminant_id":10640,"treatment_process_id":2074826383,"date_of_literature_search":"August 2010","tmsp_last_updt":"08-JUN-11"}
+,{"contaminant_process_id":12760,"contaminant_id":10740,"treatment_process_id":1174340674,"date_of_literature_search":"November 2010","tmsp_last_updt":"03-NOV-10"}
+,{"contaminant_process_id":12960,"contaminant_id":10840,"treatment_process_id":10000,"date_of_literature_search":"2010","tmsp_last_updt":"07-FEB-11"}
+,{"contaminant_process_id":12505,"contaminant_id":10620,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2010","tmsp_last_updt":"10-NOV-10"}
+,{"contaminant_process_id":13040,"contaminant_id":10140,"treatment_process_id":-979193564,"date_of_literature_search":"2009","tmsp_last_updt":"20-JAN-11"}
+,{"contaminant_process_id":13160,"contaminant_id":10600,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":13180,"contaminant_id":10860,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13260,"contaminant_id":10860,"treatment_process_id":10000,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13281,"contaminant_id":10860,"treatment_process_id":2088586280,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13300,"contaminant_id":10860,"treatment_process_id":372675748,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13320,"contaminant_id":10860,"treatment_process_id":1174340674,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13344,"contaminant_id":10860,"treatment_process_id":1934681921,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13380,"contaminant_id":10860,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13400,"contaminant_id":10860,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13482,"contaminant_id":10380,"treatment_process_id":-1861125809,"date_of_literature_search":"July 2011","tmsp_last_updt":"13-OCT-11"}
+,{"contaminant_process_id":13501,"contaminant_id":10341,"treatment_process_id":-2103528007,"date_of_literature_search":"June 2009","tmsp_last_updt":"23-NOV-11"}
+,{"contaminant_process_id":13540,"contaminant_id":10181,"treatment_process_id":-2103528007,"date_of_literature_search":"2009","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":13820,"contaminant_id":10940,"treatment_process_id":372675748,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13840,"contaminant_id":10940,"treatment_process_id":10000,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":11620,"contaminant_id":10240,"treatment_process_id":1934681921,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":13100,"contaminant_id":10560,"treatment_process_id":-1644188630,"date_of_literature_search":"2011","tmsp_last_updt":"03-AUG-11"}
+,{"contaminant_process_id":11740,"contaminant_id":10520,"treatment_process_id":2074826383,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13140,"contaminant_id":10700,"treatment_process_id":2109700949,"date_of_literature_search":"April 2011","tmsp_last_updt":"17-MAY-11"}
+,{"contaminant_process_id":-1816255882,"contaminant_id":1176143754,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":-1771323989,"contaminant_id":253534853,"treatment_process_id":372675748,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1376724799,"contaminant_id":1175876466,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1648326267,"contaminant_id":1175876466,"treatment_process_id":2074826383,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-2106791607,"contaminant_id":253534853,"treatment_process_id":1667135053,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1369444338,"contaminant_id":253534853,"treatment_process_id":510273414,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1239592745,"contaminant_id":1175876466,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1966937388,"contaminant_id":-1013719332,"treatment_process_id":2109700949,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":-887519585,"contaminant_id":1176143754,"treatment_process_id":263654386,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":-688724639,"contaminant_id":1176143754,"treatment_process_id":-2062922688,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":-676827794,"contaminant_id":1176389556,"treatment_process_id":2074826383,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":-449799850,"contaminant_id":1175876466,"treatment_process_id":510273414,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-391228171,"contaminant_id":253534853,"treatment_process_id":-30174904,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1883101360,"contaminant_id":-107821529,"treatment_process_id":-1118142891,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":-1824386823,"contaminant_id":253534853,"treatment_process_id":-1306063973,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1773571479,"contaminant_id":253534853,"treatment_process_id":1181590563,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1717141097,"contaminant_id":-1336577584,"treatment_process_id":372675748,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":495349083,"contaminant_id":1176389556,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":746908253,"contaminant_id":1176389556,"treatment_process_id":263654386,"date_of_literature_search":"August 2017","tmsp_last_updt":"31-MAY-18"}
+,{"contaminant_process_id":-1698838545,"contaminant_id":-107821529,"treatment_process_id":-979193564,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":-1617900619,"contaminant_id":-107821529,"treatment_process_id":-1467636837,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":-1388332715,"contaminant_id":-1336577584,"treatment_process_id":-1306063973,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1299838125,"contaminant_id":253534853,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":1176299817,"contaminant_id":253534853,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":1176398819,"contaminant_id":1175876466,"treatment_process_id":263654386,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1176472549,"contaminant_id":1176389556,"treatment_process_id":372675748,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":-1285917246,"contaminant_id":1175876466,"treatment_process_id":-1306063973,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1176841095,"contaminant_id":1176389556,"treatment_process_id":-2103528007,"date_of_literature_search":"August 2017","tmsp_last_updt":"31-MAY-18"}
+,{"contaminant_process_id":-1265545888,"contaminant_id":-1336577584,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1250056062,"contaminant_id":1176389556,"treatment_process_id":-979193564,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":-1212897568,"contaminant_id":-13570946,"treatment_process_id":-1277754943,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":1230592515,"contaminant_id":1176389556,"treatment_process_id":510273414,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":1358080096,"contaminant_id":253534853,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-919304226,"contaminant_id":-13570946,"treatment_process_id":2074826383,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":1634736535,"contaminant_id":253534853,"treatment_process_id":-1277754943,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-846524001,"contaminant_id":253534853,"treatment_process_id":1942020127,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":444036773,"contaminant_id":1175876466,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1909576442,"contaminant_id":253534853,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-818222938,"contaminant_id":-13570946,"treatment_process_id":-300168699,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":1969410801,"contaminant_id":1176389556,"treatment_process_id":1174340674,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":2146747650,"contaminant_id":1176389556,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":-759314711,"contaminant_id":-1336577584,"treatment_process_id":-300168699,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-730045881,"contaminant_id":-1336577584,"treatment_process_id":-30174904,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-722926356,"contaminant_id":-13570946,"treatment_process_id":-1467636837,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":-668640867,"contaminant_id":-1013719332,"treatment_process_id":1176996650,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":-640246599,"contaminant_id":-1013719332,"treatment_process_id":-2054608628,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":-504591270,"contaminant_id":253534853,"treatment_process_id":-1644188630,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-473711688,"contaminant_id":-13570946,"treatment_process_id":-2054608628,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":-408321793,"contaminant_id":658891153,"treatment_process_id":-1467636837,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":-382214178,"contaminant_id":-1336577584,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-10789175,"contaminant_id":-1013719332,"treatment_process_id":-1467636837,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":46752813,"contaminant_id":-1336577584,"treatment_process_id":2074826383,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":97081199,"contaminant_id":-13570946,"treatment_process_id":1934681921,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":109771891,"contaminant_id":-1336577584,"treatment_process_id":2109700949,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1192823293,"contaminant_id":658891153,"treatment_process_id":-2054608628,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":1898298329,"contaminant_id":658891153,"treatment_process_id":-300168699,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":976055442,"contaminant_id":-1013719332,"treatment_process_id":-2103528007,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":-1476150760,"contaminant_id":1175876466,"treatment_process_id":1934681921,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1093676239,"contaminant_id":1176143754,"treatment_process_id":1934681921,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":-1036967859,"contaminant_id":1176143754,"treatment_process_id":-1306063973,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":-1547136225,"contaminant_id":-1013719332,"treatment_process_id":2074826383,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":-100102563,"contaminant_id":1175876466,"treatment_process_id":1174340674,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":225759755,"contaminant_id":1176143754,"treatment_process_id":1176996650,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":234203920,"contaminant_id":-1336577584,"treatment_process_id":510273414,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":288232054,"contaminant_id":-13570946,"treatment_process_id":-1118142891,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":327135191,"contaminant_id":-1336577584,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":336781770,"contaminant_id":-13570946,"treatment_process_id":-979193564,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":352471721,"contaminant_id":-1013719332,"treatment_process_id":-2062922688,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":488686585,"contaminant_id":-1336577584,"treatment_process_id":2088586280,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":856097764,"contaminant_id":-1013719332,"treatment_process_id":-1118142891,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":1020957182,"contaminant_id":1176143754,"treatment_process_id":2074826383,"date_of_literature_search":"April 2007","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":1095565729,"contaminant_id":658891153,"treatment_process_id":372675748,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":1096040867,"contaminant_id":-13570946,"treatment_process_id":2109700949,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":1185458833,"contaminant_id":1176389556,"treatment_process_id":2088586280,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":1185471416,"contaminant_id":1183142251,"treatment_process_id":-1118142891,"date_of_literature_search":"July 2007","tmsp_last_updt":"12-JAN-10"}
+,{"contaminant_process_id":1185966692,"contaminant_id":253534853,"treatment_process_id":2088586280,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":1185992323,"contaminant_id":1175876466,"treatment_process_id":1181590563,"date_of_literature_search":"April 2007","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":1187188222,"contaminant_id":-1336577584,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1187294598,"contaminant_id":-1336577584,"treatment_process_id":1934681921,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1188308249,"contaminant_id":-1336577584,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1188940696,"contaminant_id":-1013719332,"treatment_process_id":1934681921,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":1188951056,"contaminant_id":-1013719332,"treatment_process_id":-1277754943,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":1188957450,"contaminant_id":658891153,"treatment_process_id":-2103528007,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":1188962182,"contaminant_id":-13570946,"treatment_process_id":372675748,"date_of_literature_search":"March 2007","tmsp_last_updt":"09-DEC-09"}
+,{"contaminant_process_id":1188962766,"contaminant_id":-107821529,"treatment_process_id":1934681921,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-FEB-11"}
+,{"contaminant_process_id":11780,"contaminant_id":10540,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2010","tmsp_last_updt":"24-MAR-11"}
+,{"contaminant_process_id":10780,"contaminant_id":10280,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":1231733297,"contaminant_id":253534853,"treatment_process_id":1934681921,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":1338721889,"contaminant_id":1175876466,"treatment_process_id":1667135053,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1419037876,"contaminant_id":-1336577584,"treatment_process_id":-1644188630,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1458779817,"contaminant_id":658891153,"treatment_process_id":2074826383,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-DEC-09"}
+,{"contaminant_process_id":1493682008,"contaminant_id":1183142251,"treatment_process_id":-2054608628,"date_of_literature_search":"July 2007","tmsp_last_updt":"12-JAN-10"}
+,{"contaminant_process_id":1587621293,"contaminant_id":1176389556,"treatment_process_id":1181590563,"date_of_literature_search":"April 2007","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":1790171068,"contaminant_id":-1336577584,"treatment_process_id":-1277754943,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1823763005,"contaminant_id":-107821529,"treatment_process_id":2109700949,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-FEB-11"}
+,{"contaminant_process_id":1884598351,"contaminant_id":-1336577584,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2054777871,"contaminant_id":253534853,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2007","tmsp_last_updt":"14-JAN-11"}
+,{"contaminant_process_id":2099780347,"contaminant_id":-1013719332,"treatment_process_id":-300168699,"date_of_literature_search":"March 2007","tmsp_last_updt":"03-DEC-09"}
+,{"contaminant_process_id":2121470788,"contaminant_id":253534853,"treatment_process_id":-2062922688,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":-1309101136,"contaminant_id":1175876466,"treatment_process_id":-1644188630,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1179549346,"contaminant_id":1175876466,"treatment_process_id":-1277754943,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":569838845,"contaminant_id":1175876466,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1191960824,"contaminant_id":1175876466,"treatment_process_id":-346223903,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2068322440,"contaminant_id":1175876466,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":-1218565902,"contaminant_id":1175876466,"treatment_process_id":-30174904,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":1193068440,"contaminant_id":1175876466,"treatment_process_id":-2062922688,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":10100,"contaminant_id":10001,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10202,"contaminant_id":10042,"treatment_process_id":-2054608628,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10143,"contaminant_id":10100,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2009","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11800,"contaminant_id":10540,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2010","tmsp_last_updt":"20-AUG-10"}
+,{"contaminant_process_id":10221,"contaminant_id":10060,"treatment_process_id":-1861125809,"date_of_literature_search":"Jun 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10248,"contaminant_id":10160,"treatment_process_id":-979193564,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10267,"contaminant_id":10023,"treatment_process_id":-300168699,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10270,"contaminant_id":10041,"treatment_process_id":-300168699,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10349,"contaminant_id":10041,"treatment_process_id":2109700949,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11360,"contaminant_id":10320,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10342,"contaminant_id":10023,"treatment_process_id":-1277754943,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10361,"contaminant_id":10040,"treatment_process_id":-979193564,"date_of_literature_search":"March 2010","tmsp_last_updt":"11-MAR-10"}
+,{"contaminant_process_id":10380,"contaminant_id":10040,"treatment_process_id":263654386,"date_of_literature_search":"2009","tmsp_last_updt":"16-SEP-10"}
+,{"contaminant_process_id":10440,"contaminant_id":10041,"treatment_process_id":-979193564,"date_of_literature_search":"2009","tmsp_last_updt":"25-JAN-10"}
+,{"contaminant_process_id":10441,"contaminant_id":10023,"treatment_process_id":-1234021623,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10442,"contaminant_id":10023,"treatment_process_id":2074826383,"date_of_literature_search":"July 2009","tmsp_last_updt":"20-JAN-11"}
+,{"contaminant_process_id":10460,"contaminant_id":10023,"treatment_process_id":1176996650,"date_of_literature_search":"July 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10461,"contaminant_id":10200,"treatment_process_id":-2103528007,"date_of_literature_search":"September 2008","tmsp_last_updt":"23-NOV-11"}
+,{"contaminant_process_id":10464,"contaminant_id":10200,"treatment_process_id":2074826383,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10620,"contaminant_id":10140,"treatment_process_id":1176996650,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10644,"contaminant_id":10240,"treatment_process_id":263654386,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10820,"contaminant_id":10280,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10803,"contaminant_id":10280,"treatment_process_id":-2054608628,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10804,"contaminant_id":10280,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10880,"contaminant_id":10280,"treatment_process_id":2088586280,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10901,"contaminant_id":10220,"treatment_process_id":372675748,"date_of_literature_search":"August  2009","tmsp_last_updt":"12-NOV-09"}
+,{"contaminant_process_id":10943,"contaminant_id":10320,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10962,"contaminant_id":10280,"treatment_process_id":510273414,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11002,"contaminant_id":10341,"treatment_process_id":263654386,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-FEB-10"}
+,{"contaminant_process_id":11021,"contaminant_id":10340,"treatment_process_id":372675748,"date_of_literature_search":"July 2009","tmsp_last_updt":"07-JUL-11"}
+,{"contaminant_process_id":11980,"contaminant_id":10580,"treatment_process_id":-1861125809,"date_of_literature_search":"August 2010","tmsp_last_updt":"20-AUG-10"}
+,{"contaminant_process_id":11029,"contaminant_id":10360,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2009","tmsp_last_updt":"26-FEB-10"}
+,{"contaminant_process_id":11060,"contaminant_id":10341,"treatment_process_id":-346223903,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":11064,"contaminant_id":10080,"treatment_process_id":1181590563,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":13200,"contaminant_id":10880,"treatment_process_id":-2054608628,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUL-11"}
+,{"contaminant_process_id":11067,"contaminant_id":10360,"treatment_process_id":-1467636837,"date_of_literature_search":"August 2009","tmsp_last_updt":"20-AUG-09"}
+,{"contaminant_process_id":11085,"contaminant_id":10360,"treatment_process_id":2088586280,"date_of_literature_search":"August 2009","tmsp_last_updt":"26-FEB-10"}
+,{"contaminant_process_id":11086,"contaminant_id":10080,"treatment_process_id":372675748,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11107,"contaminant_id":10280,"treatment_process_id":2074826383,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11160,"contaminant_id":10080,"treatment_process_id":-1467636837,"date_of_literature_search":"2014","tmsp_last_updt":"13-MAR-17"}
+,{"contaminant_process_id":11225,"contaminant_id":10440,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"28-OCT-09"}
+,{"contaminant_process_id":11361,"contaminant_id":10480,"treatment_process_id":-979193564,"date_of_literature_search":"August 2009","tmsp_last_updt":"18-JAN-11"}
+,{"contaminant_process_id":11364,"contaminant_id":10480,"treatment_process_id":-1118142891,"date_of_literature_search":"August 2009","tmsp_last_updt":"18-JAN-11"}
+,{"contaminant_process_id":13201,"contaminant_id":10860,"treatment_process_id":2074826383,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":11370,"contaminant_id":10480,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11371,"contaminant_id":10480,"treatment_process_id":-300168699,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":12180,"contaminant_id":10660,"treatment_process_id":-1118142891,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12501,"contaminant_id":10620,"treatment_process_id":1181590563,"date_of_literature_search":"August 2010","tmsp_last_updt":"28-SEP-10"}
+,{"contaminant_process_id":12660,"contaminant_id":10760,"treatment_process_id":-2103528007,"date_of_literature_search":"September 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":13240,"contaminant_id":10860,"treatment_process_id":-300168699,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":12740,"contaminant_id":10780,"treatment_process_id":10000,"date_of_literature_search":"October 2010","tmsp_last_updt":"09-NOV-10"}
+,{"contaminant_process_id":12900,"contaminant_id":10840,"treatment_process_id":1176996650,"date_of_literature_search":"2010","tmsp_last_updt":"07-FEB-11"}
+,{"contaminant_process_id":13280,"contaminant_id":10880,"treatment_process_id":-1118142891,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUN-11"}
+,{"contaminant_process_id":13282,"contaminant_id":10880,"treatment_process_id":-1277754943,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUL-11"}
+,{"contaminant_process_id":10063,"contaminant_id":10041,"treatment_process_id":10000,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10140,"contaminant_id":10060,"treatment_process_id":372675748,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":13220,"contaminant_id":10860,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13360,"contaminant_id":10881,"treatment_process_id":2088586280,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUN-11"}
+,{"contaminant_process_id":11720,"contaminant_id":10260,"treatment_process_id":-979193564,"date_of_literature_search":"June 2009","tmsp_last_updt":"13-APR-11"}
+,{"contaminant_process_id":11760,"contaminant_id":10520,"treatment_process_id":-2054608628,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":10188,"contaminant_id":10060,"treatment_process_id":1174340674,"date_of_literature_search":"June 2009","tmsp_last_updt":"18-AUG-09"}
+,{"contaminant_process_id":11820,"contaminant_id":10560,"treatment_process_id":2088586280,"date_of_literature_search":"August 2010","tmsp_last_updt":"28-APR-11"}
+,{"contaminant_process_id":10223,"contaminant_id":10060,"treatment_process_id":-1234021623,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10243,"contaminant_id":10060,"treatment_process_id":1176996650,"date_of_literature_search":"June 2009","tmsp_last_updt":"18-AUG-09"}
+,{"contaminant_process_id":10420,"contaminant_id":10041,"treatment_process_id":2088586280,"date_of_literature_search":"2009","tmsp_last_updt":"27-JAN-11"}
+,{"contaminant_process_id":10272,"contaminant_id":10181,"treatment_process_id":1942020127,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10860,"contaminant_id":10140,"treatment_process_id":-346223903,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10382,"contaminant_id":10140,"treatment_process_id":-2054608628,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10402,"contaminant_id":10040,"treatment_process_id":-2062922688,"date_of_literature_search":"2009","tmsp_last_updt":"11-MAR-10"}
+,{"contaminant_process_id":10480,"contaminant_id":253534853,"treatment_process_id":2074826383,"date_of_literature_search":"April 2007","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":10580,"contaminant_id":10240,"treatment_process_id":1176996650,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10643,"contaminant_id":10140,"treatment_process_id":2088586280,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10700,"contaminant_id":10260,"treatment_process_id":-2103528007,"date_of_literature_search":"2009","tmsp_last_updt":"19-APR-11"}
+,{"contaminant_process_id":10701,"contaminant_id":10260,"treatment_process_id":-1467636837,"date_of_literature_search":"2009","tmsp_last_updt":"19-APR-11"}
+,{"contaminant_process_id":10720,"contaminant_id":10260,"treatment_process_id":2109700949,"date_of_literature_search":"2009","tmsp_last_updt":"18-APR-11"}
+,{"contaminant_process_id":10740,"contaminant_id":10260,"treatment_process_id":1181590563,"date_of_literature_search":"2009","tmsp_last_updt":"19-APR-11"}
+,{"contaminant_process_id":10802,"contaminant_id":10280,"treatment_process_id":-30174904,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":10900,"contaminant_id":10220,"treatment_process_id":-1467636837,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10940,"contaminant_id":10300,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"15-SEP-10"}
+,{"contaminant_process_id":10941,"contaminant_id":10300,"treatment_process_id":1181590563,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":11900,"contaminant_id":10560,"treatment_process_id":1181590563,"date_of_literature_search":"August 2010","tmsp_last_updt":"01-MAR-11"}
+,{"contaminant_process_id":10946,"contaminant_id":10001,"treatment_process_id":510273414,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10964,"contaminant_id":10220,"treatment_process_id":-2103528007,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10960,"contaminant_id":10023,"treatment_process_id":-1467636837,"date_of_literature_search":"December 2009","tmsp_last_updt":"26-FEB-10"}
+,{"contaminant_process_id":11022,"contaminant_id":10341,"treatment_process_id":1934681921,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-FEB-10"}
+,{"contaminant_process_id":11025,"contaminant_id":10341,"treatment_process_id":510273414,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-FEB-10"}
+,{"contaminant_process_id":11026,"contaminant_id":10340,"treatment_process_id":-2054608628,"date_of_literature_search":"July 2009","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":11030,"contaminant_id":10341,"treatment_process_id":1176996650,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-FEB-10"}
+,{"contaminant_process_id":11061,"contaminant_id":10341,"treatment_process_id":2088586280,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":11062,"contaminant_id":10080,"treatment_process_id":-1234021623,"date_of_literature_search":"2014","tmsp_last_updt":"22-FEB-17"}
+,{"contaminant_process_id":11081,"contaminant_id":10022,"treatment_process_id":372675748,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11082,"contaminant_id":10022,"treatment_process_id":-1277754943,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11103,"contaminant_id":10080,"treatment_process_id":-300168699,"date_of_literature_search":"2014","tmsp_last_updt":"22-FEB-17"}
+,{"contaminant_process_id":11940,"contaminant_id":10580,"treatment_process_id":2074826383,"date_of_literature_search":"August 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":11140,"contaminant_id":10380,"treatment_process_id":-979193564,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11141,"contaminant_id":10380,"treatment_process_id":2074826383,"date_of_literature_search":"July 2011","tmsp_last_updt":"02-AUG-11"}
+,{"contaminant_process_id":11200,"contaminant_id":10022,"treatment_process_id":10000,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11221,"contaminant_id":10380,"treatment_process_id":-1467636837,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11242,"contaminant_id":10440,"treatment_process_id":1934681921,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-AUG-09"}
+,{"contaminant_process_id":11243,"contaminant_id":10440,"treatment_process_id":-1118142891,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-OCT-09"}
+,{"contaminant_process_id":11281,"contaminant_id":10300,"treatment_process_id":-1234021623,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":11262,"contaminant_id":10460,"treatment_process_id":-2054608628,"date_of_literature_search":"June 2009","tmsp_last_updt":"17-AUG-10"}
+,{"contaminant_process_id":11362,"contaminant_id":10480,"treatment_process_id":1934681921,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11421,"contaminant_id":10500,"treatment_process_id":-1118142891,"date_of_literature_search":"June 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11423,"contaminant_id":10060,"treatment_process_id":-979193564,"date_of_literature_search":"July 2009","tmsp_last_updt":"09-MAR-10"}
+,{"contaminant_process_id":11480,"contaminant_id":10040,"treatment_process_id":1934681921,"date_of_literature_search":"March 2010","tmsp_last_updt":"11-MAR-10"}
+,{"contaminant_process_id":12020,"contaminant_id":10620,"treatment_process_id":-1467636837,"date_of_literature_search":"August 2010","tmsp_last_updt":"27-SEP-10"}
+,{"contaminant_process_id":12460,"contaminant_id":10700,"treatment_process_id":263654386,"date_of_literature_search":"July 2010","tmsp_last_updt":"30-MAR-11"}
+,{"contaminant_process_id":12100,"contaminant_id":10600,"treatment_process_id":1934681921,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":12140,"contaminant_id":10660,"treatment_process_id":1934681921,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12162,"contaminant_id":10660,"treatment_process_id":2074826383,"date_of_literature_search":"July 2010","tmsp_last_updt":"19-MAY-11"}
+,{"contaminant_process_id":12301,"contaminant_id":10640,"treatment_process_id":263654386,"date_of_literature_search":"August 2010","tmsp_last_updt":"08-JUN-11"}
+,{"contaminant_process_id":12381,"contaminant_id":10520,"treatment_process_id":1934681921,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":12440,"contaminant_id":10700,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2010","tmsp_last_updt":"28-MAR-11"}
+,{"contaminant_process_id":12761,"contaminant_id":10740,"treatment_process_id":-1467636837,"date_of_literature_search":"November 2010","tmsp_last_updt":"09-NOV-10"}
+,{"contaminant_process_id":12580,"contaminant_id":10680,"treatment_process_id":-300168699,"date_of_literature_search":"August 2010","tmsp_last_updt":"16-SEP-10"}
+,{"contaminant_process_id":12780,"contaminant_id":10820,"treatment_process_id":-1118142891,"date_of_literature_search":"September 2010","tmsp_last_updt":"10-NOV-10"}
+,{"contaminant_process_id":12941,"contaminant_id":10840,"treatment_process_id":-2054608628,"date_of_literature_search":"2010","tmsp_last_updt":"14-FEB-11"}
+,{"contaminant_process_id":12980,"contaminant_id":10840,"treatment_process_id":-979193564,"date_of_literature_search":"2010","tmsp_last_updt":"08-FEB-11"}
+,{"contaminant_process_id":13480,"contaminant_id":10380,"treatment_process_id":2088586280,"date_of_literature_search":"July 2011","tmsp_last_updt":"02-AUG-11"}
+,{"contaminant_process_id":13502,"contaminant_id":10140,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2009","tmsp_last_updt":"23-NOV-11"}
+,{"contaminant_process_id":13560,"contaminant_id":10160,"treatment_process_id":1934681921,"tmsp_last_updt":"29-FEB-12"}
+,{"contaminant_process_id":13600,"contaminant_id":10920,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2012","tmsp_last_updt":"19-JUN-12"}
+,{"contaminant_process_id":13660,"contaminant_id":10920,"treatment_process_id":-1861125809,"date_of_literature_search":"April 2012","tmsp_last_updt":"19-JUN-12"}
+,{"contaminant_process_id":13740,"contaminant_id":10940,"treatment_process_id":2074826383,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13760,"contaminant_id":10940,"treatment_process_id":2109700949,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13780,"contaminant_id":10940,"treatment_process_id":-1467636837,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13800,"contaminant_id":10940,"treatment_process_id":-1234021623,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13801,"contaminant_id":10940,"treatment_process_id":-1861125809,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13860,"contaminant_id":10940,"treatment_process_id":-1644188630,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13900,"contaminant_id":10900,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2012","tmsp_last_updt":"03-SEP-14"}
+,{"contaminant_process_id":14000,"contaminant_id":10940,"treatment_process_id":-1306063973,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14020,"contaminant_id":10940,"treatment_process_id":1934681921,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14040,"contaminant_id":10940,"treatment_process_id":-2054608628,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14060,"contaminant_id":10940,"treatment_process_id":1174340674,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14080,"contaminant_id":10940,"treatment_process_id":-30174904,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":10060,"contaminant_id":10041,"treatment_process_id":1176996650,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10080,"contaminant_id":10001,"treatment_process_id":263654386,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10101,"contaminant_id":10001,"treatment_process_id":-2062922688,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10147,"contaminant_id":10060,"treatment_process_id":-2054608628,"date_of_literature_search":"June 2009","tmsp_last_updt":"02-SEP-09"}
+,{"contaminant_process_id":10120,"contaminant_id":10060,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":10142,"contaminant_id":10060,"treatment_process_id":2109700949,"date_of_literature_search":"June 2009","tmsp_last_updt":"19-AUG-09"}
+,{"contaminant_process_id":12261,"contaminant_id":10600,"treatment_process_id":263654386,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":12302,"contaminant_id":10520,"treatment_process_id":-300168699,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":12305,"contaminant_id":10520,"treatment_process_id":-979193564,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":10201,"contaminant_id":10042,"treatment_process_id":10000,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10242,"contaminant_id":10042,"treatment_process_id":-2103528007,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10261,"contaminant_id":10041,"treatment_process_id":-2054608628,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10245,"contaminant_id":10001,"treatment_process_id":1176996650,"date_of_literature_search":"June 2009","tmsp_last_updt":"18-DEC-09"}
+,{"contaminant_process_id":10249,"contaminant_id":10160,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10262,"contaminant_id":10040,"treatment_process_id":510273414,"date_of_literature_search":"2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":10264,"contaminant_id":10021,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10265,"contaminant_id":10021,"treatment_process_id":372675748,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-SEP-09"}
+,{"contaminant_process_id":10300,"contaminant_id":10021,"treatment_process_id":-1234021623,"date_of_literature_search":"June 2009","tmsp_last_updt":"14-JAN-10"}
+,{"contaminant_process_id":10346,"contaminant_id":10023,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2009","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":10362,"contaminant_id":10023,"treatment_process_id":-1861125809,"date_of_literature_search":"June 2009","tmsp_last_updt":"26-FEB-10"}
+,{"contaminant_process_id":10381,"contaminant_id":-1336577584,"treatment_process_id":1667135053,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":10383,"contaminant_id":10140,"treatment_process_id":-300168699,"date_of_literature_search":"2009","tmsp_last_updt":"25-JAN-10"}
+,{"contaminant_process_id":10400,"contaminant_id":10140,"treatment_process_id":-1861125809,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":10462,"contaminant_id":10220,"treatment_process_id":10000,"date_of_literature_search":"August 2009","tmsp_last_updt":"16-SEP-09"}
+,{"contaminant_process_id":10463,"contaminant_id":10200,"treatment_process_id":-1861125809,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10540,"contaminant_id":10200,"treatment_process_id":-300168699,"date_of_literature_search":"September 2008","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":10681,"contaminant_id":-107821529,"treatment_process_id":2074826383,"date_of_literature_search":"March 2007","tmsp_last_updt":"07-FEB-11"}
+,{"contaminant_process_id":10702,"contaminant_id":10260,"treatment_process_id":-1118142891,"date_of_literature_search":"2009","tmsp_last_updt":"11-APR-11"}
+,{"contaminant_process_id":10703,"contaminant_id":10260,"treatment_process_id":2074826383,"date_of_literature_search":"2009","tmsp_last_updt":"18-APR-11"}
+,{"contaminant_process_id":11661,"contaminant_id":-13570946,"treatment_process_id":-1861125809,"date_of_literature_search":"March 2007","tmsp_last_updt":"02-MAR-10"}
+,{"contaminant_process_id":10821,"contaminant_id":10280,"treatment_process_id":-1277754943,"date_of_literature_search":"June 2009","tmsp_last_updt":"03-MAR-10"}
+,{"contaminant_process_id":11680,"contaminant_id":10480,"treatment_process_id":1181590563,"date_of_literature_search":"August 2009","tmsp_last_updt":"26-FEB-10"}
+,{"contaminant_process_id":12503,"contaminant_id":10620,"treatment_process_id":2109700949,"date_of_literature_search":"August 2010","tmsp_last_updt":"28-SEP-10"}
+,{"contaminant_process_id":10942,"contaminant_id":10300,"treatment_process_id":-2103528007,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":10963,"contaminant_id":10001,"treatment_process_id":-979193564,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":10980,"contaminant_id":10001,"treatment_process_id":10000,"date_of_literature_search":"June 2009","tmsp_last_updt":"25-DEC-09"}
+,{"contaminant_process_id":11028,"contaminant_id":10341,"treatment_process_id":2074826383,"date_of_literature_search":"June 2009","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":11040,"contaminant_id":10360,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2009","tmsp_last_updt":"20-AUG-09"}
+,{"contaminant_process_id":11041,"contaminant_id":10360,"treatment_process_id":-300168699,"date_of_literature_search":"August 2009","tmsp_last_updt":"05-OCT-09"}
+,{"contaminant_process_id":11066,"contaminant_id":10022,"treatment_process_id":-2054608628,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11080,"contaminant_id":10022,"treatment_process_id":-1467636837,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11083,"contaminant_id":10140,"treatment_process_id":2074826383,"date_of_literature_search":"2009","tmsp_last_updt":"10-SEP-15"}
+,{"contaminant_process_id":11101,"contaminant_id":10080,"treatment_process_id":-1118142891,"date_of_literature_search":"2014","tmsp_last_updt":"28-MAR-17"}
+,{"contaminant_process_id":11102,"contaminant_id":10022,"treatment_process_id":2109700949,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11161,"contaminant_id":10380,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2011","tmsp_last_updt":"29-JUL-11"}
+,{"contaminant_process_id":11321,"contaminant_id":10440,"treatment_process_id":510273414,"date_of_literature_search":"July 2009","tmsp_last_updt":"28-OCT-09"}
+,{"contaminant_process_id":11181,"contaminant_id":10380,"treatment_process_id":372675748,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":13720,"contaminant_id":10940,"treatment_process_id":-979193564,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":11260,"contaminant_id":10022,"treatment_process_id":1174340674,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11266,"contaminant_id":10440,"treatment_process_id":-1234021623,"date_of_literature_search":"August 2009","tmsp_last_updt":"28-AUG-09"}
+,{"contaminant_process_id":11426,"contaminant_id":10500,"treatment_process_id":2088586280,"date_of_literature_search":"June 2009","tmsp_last_updt":"16-MAR-10"}
+,{"contaminant_process_id":11282,"contaminant_id":10300,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"11-DEC-09"}
+,{"contaminant_process_id":11285,"contaminant_id":10460,"treatment_process_id":-1234021623,"date_of_literature_search":"June 2009","tmsp_last_updt":"06-JAN-10"}
+,{"contaminant_process_id":11325,"contaminant_id":10380,"treatment_process_id":-346223903,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11341,"contaminant_id":10022,"treatment_process_id":-1234021623,"date_of_literature_search":"2009","tmsp_last_updt":"05-JAN-10"}
+,{"contaminant_process_id":11342,"contaminant_id":10460,"treatment_process_id":-30174904,"date_of_literature_search":"June 2009","tmsp_last_updt":"14-SEP-10"}
+,{"contaminant_process_id":11366,"contaminant_id":10480,"treatment_process_id":-1644188630,"date_of_literature_search":"August 2009","tmsp_last_updt":"29-OCT-09"}
+,{"contaminant_process_id":11380,"contaminant_id":10380,"treatment_process_id":1176996650,"date_of_literature_search":"July 2011","tmsp_last_updt":"28-JUL-11"}
+,{"contaminant_process_id":11381,"contaminant_id":10340,"treatment_process_id":1176996650,"date_of_literature_search":"July 2009","tmsp_last_updt":"08-JUL-11"}
+,{"contaminant_process_id":11422,"contaminant_id":10500,"treatment_process_id":-1467636837,"date_of_literature_search":"June 2009","tmsp_last_updt":"16-MAR-10"}
+,{"contaminant_process_id":11463,"contaminant_id":10340,"treatment_process_id":-979193564,"date_of_literature_search":"July 2009","tmsp_last_updt":"26-DEC-09"}
+,{"contaminant_process_id":11520,"contaminant_id":10260,"treatment_process_id":1934681921,"date_of_literature_search":"2009","tmsp_last_updt":"11-APR-11"}
+,{"contaminant_process_id":12560,"contaminant_id":10680,"treatment_process_id":-2054608628,"date_of_literature_search":"August 2010","tmsp_last_updt":"24-NOV-10"}
+,{"contaminant_process_id":12680,"contaminant_id":10760,"treatment_process_id":2074826383,"date_of_literature_search":"September 2010","tmsp_last_updt":"22-NOV-11"}
+,{"contaminant_process_id":13680,"contaminant_id":10900,"treatment_process_id":2088586280,"date_of_literature_search":"April 2012","tmsp_last_updt":"19-JUN-12"}
+,{"contaminant_process_id":12721,"contaminant_id":10780,"treatment_process_id":1176996650,"date_of_literature_search":"October 2010","tmsp_last_updt":"09-NOV-10"}
+,{"contaminant_process_id":12800,"contaminant_id":10700,"treatment_process_id":10000,"date_of_literature_search":"July 2010","tmsp_last_updt":"11-FEB-11"}
+,{"contaminant_process_id":12820,"contaminant_id":10840,"treatment_process_id":1667135053,"date_of_literature_search":"2010","tmsp_last_updt":"10-FEB-11"}
+,{"contaminant_process_id":12860,"contaminant_id":10740,"treatment_process_id":-1861125809,"date_of_literature_search":"November 2010","tmsp_last_updt":"09-NOV-10"}
+,{"contaminant_process_id":13080,"contaminant_id":10260,"treatment_process_id":-2062922688,"date_of_literature_search":"2009","tmsp_last_updt":"11-APR-11"}
+,{"contaminant_process_id":13120,"contaminant_id":10560,"treatment_process_id":10000,"date_of_literature_search":"2011","tmsp_last_updt":"28-APR-11"}
+,{"contaminant_process_id":13283,"contaminant_id":10880,"treatment_process_id":-1467636837,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUN-11"}
+,{"contaminant_process_id":13301,"contaminant_id":10860,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2017","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13340,"contaminant_id":10860,"treatment_process_id":-346223903,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13341,"contaminant_id":10860,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13342,"contaminant_id":10860,"treatment_process_id":-1644188630,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13343,"contaminant_id":10860,"treatment_process_id":2109700949,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":13420,"contaminant_id":10881,"treatment_process_id":-1277754943,"date_of_literature_search":"March 2011","tmsp_last_updt":"15-JUL-11"}
+,{"contaminant_process_id":13460,"contaminant_id":10380,"treatment_process_id":1934681921,"date_of_literature_search":"July 2011","tmsp_last_updt":"06-OCT-11"}
+,{"contaminant_process_id":13481,"contaminant_id":10380,"treatment_process_id":-1234021623,"date_of_literature_search":"July 2011","tmsp_last_updt":"02-AUG-11"}
+,{"contaminant_process_id":13880,"contaminant_id":10900,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2012","tmsp_last_updt":"03-SEP-14"}
+,{"contaminant_process_id":13960,"contaminant_id":10940,"treatment_process_id":510273414,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14187,"contaminant_id":10600,"treatment_process_id":2088586280,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14126,"contaminant_id":10961,"treatment_process_id":10000,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14148,"contaminant_id":10961,"treatment_process_id":2088586280,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14124,"contaminant_id":10961,"treatment_process_id":1174340674,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14121,"contaminant_id":10961,"treatment_process_id":1176996650,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14127,"contaminant_id":10961,"treatment_process_id":263654386,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14147,"contaminant_id":10600,"treatment_process_id":2109700949,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14149,"contaminant_id":10600,"treatment_process_id":-2062922688,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14167,"contaminant_id":10961,"treatment_process_id":-2103528007,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14168,"contaminant_id":10600,"treatment_process_id":510273414,"date_of_literature_search":"July 2014","tmsp_last_updt":"03-MAR-15"}
+,{"contaminant_process_id":14310,"contaminant_id":10520,"treatment_process_id":510273414,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14308,"contaminant_id":10940,"treatment_process_id":263654386,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14309,"contaminant_id":10520,"treatment_process_id":263654386,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14311,"contaminant_id":11060,"treatment_process_id":2074826383,"date_of_literature_search":"2013","tmsp_last_updt":"24-MAY-16"}
+,{"contaminant_process_id":14312,"contaminant_id":11060,"treatment_process_id":-979193564,"date_of_literature_search":"2013","tmsp_last_updt":"14-JUN-16"}
+,{"contaminant_process_id":14327,"contaminant_id":11060,"treatment_process_id":-346223903,"date_of_literature_search":"2013","tmsp_last_updt":"24-MAY-16"}
+,{"contaminant_process_id":14347,"contaminant_id":10940,"treatment_process_id":-300168699,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14367,"contaminant_id":11080,"treatment_process_id":1174340674,"date_of_literature_search":"2014","tmsp_last_updt":"12-MAR-17"}
+,{"contaminant_process_id":14368,"contaminant_id":11080,"treatment_process_id":10000,"date_of_literature_search":"2014","tmsp_last_updt":"12-MAR-17"}
+,{"contaminant_process_id":14407,"contaminant_id":11080,"treatment_process_id":2088586280,"date_of_literature_search":"2014","tmsp_last_updt":"12-MAR-17"}
+,{"contaminant_process_id":14371,"contaminant_id":11080,"treatment_process_id":263654386,"date_of_literature_search":"2014","tmsp_last_updt":"27-MAR-17"}
+,{"contaminant_process_id":14372,"contaminant_id":11080,"treatment_process_id":510273414,"date_of_literature_search":"2014","tmsp_last_updt":"28-MAR-17"}
+,{"contaminant_process_id":14373,"contaminant_id":11080,"treatment_process_id":-2103528007,"date_of_literature_search":"2014","tmsp_last_updt":"28-MAR-17"}
+,{"contaminant_process_id":14374,"contaminant_id":11080,"treatment_process_id":2109700949,"date_of_literature_search":"2014","tmsp_last_updt":"13-MAR-17"}
+,{"contaminant_process_id":14375,"contaminant_id":10080,"treatment_process_id":263654386,"date_of_literature_search":"2014","tmsp_last_updt":"27-MAR-17"}
+,{"contaminant_process_id":14376,"contaminant_id":10080,"treatment_process_id":-2103528007,"date_of_literature_search":"2014","tmsp_last_updt":"13-MAR-17"}
+,{"contaminant_process_id":14377,"contaminant_id":11080,"treatment_process_id":-1467636837,"date_of_literature_search":"2014","tmsp_last_updt":"12-MAR-17"}
+,{"contaminant_process_id":14387,"contaminant_id":10080,"treatment_process_id":1176996650,"tmsp_last_updt":"09-MAR-17"}
+,{"contaminant_process_id":14388,"contaminant_id":11080,"treatment_process_id":2074826383,"date_of_literature_search":"2014","tmsp_last_updt":"28-MAR-17"}
+,{"contaminant_process_id":14247,"contaminant_id":10980,"treatment_process_id":-346223903,"date_of_literature_search":"June 2021","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":14248,"contaminant_id":10980,"treatment_process_id":2074826383,"date_of_literature_search":"June 2021","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":14287,"contaminant_id":11040,"treatment_process_id":-346223903,"tmsp_last_updt":"10-SEP-15"}
+,{"contaminant_process_id":14288,"contaminant_id":11040,"treatment_process_id":2074826383,"tmsp_last_updt":"10-SEP-15"}
+,{"contaminant_process_id":14307,"contaminant_id":10520,"treatment_process_id":-2103528007,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14369,"contaminant_id":11080,"treatment_process_id":1934681921,"date_of_literature_search":"2014","tmsp_last_updt":"13-MAR-17"}
+,{"contaminant_process_id":14267,"contaminant_id":10981,"treatment_process_id":2074826383,"date_of_literature_search":"2014","tmsp_last_updt":"25-MAY-18"}
+,{"contaminant_process_id":14268,"contaminant_id":10981,"treatment_process_id":1176996650,"date_of_literature_search":"2014","tmsp_last_updt":"27-JUN-18"}
+,{"contaminant_process_id":14289,"contaminant_id":11000,"treatment_process_id":2088586280,"date_of_literature_search":"2014","tmsp_last_updt":"30-MAY-18"}
+,{"contaminant_process_id":14348,"contaminant_id":11020,"treatment_process_id":2074826383,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14349,"contaminant_id":11020,"treatment_process_id":-2103528007,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14350,"contaminant_id":11020,"treatment_process_id":263654386,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14351,"contaminant_id":11020,"treatment_process_id":-979193564,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14249,"contaminant_id":10860,"treatment_process_id":-1861125809,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14269,"contaminant_id":10981,"treatment_process_id":-346223903,"date_of_literature_search":"2014","tmsp_last_updt":"25-MAY-18"}
+,{"contaminant_process_id":14290,"contaminant_id":11000,"treatment_process_id":-2054608628,"date_of_literature_search":"2014","tmsp_last_updt":"30-MAY-18"}
+,{"contaminant_process_id":14291,"contaminant_id":11000,"treatment_process_id":-300168699,"date_of_literature_search":"2014","tmsp_last_updt":"30-MAY-18"}
+,{"contaminant_process_id":14370,"contaminant_id":11020,"treatment_process_id":2109700949,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14389,"contaminant_id":11020,"treatment_process_id":-1118142891,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14390,"contaminant_id":11020,"treatment_process_id":1934681921,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14391,"contaminant_id":11020,"treatment_process_id":510273414,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14392,"contaminant_id":11020,"treatment_process_id":-1467636837,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14394,"contaminant_id":11020,"treatment_process_id":-2054608628,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14395,"contaminant_id":11020,"treatment_process_id":-300168699,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14396,"contaminant_id":11020,"treatment_process_id":1176996650,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747956,"contaminant_id":1175876466,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":14397,"contaminant_id":11020,"treatment_process_id":-346223903,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14398,"contaminant_id":11020,"treatment_process_id":10000,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":14399,"contaminant_id":10940,"treatment_process_id":-346223903,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14400,"contaminant_id":10940,"treatment_process_id":1176996650,"date_of_literature_search":"December 2021","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14401,"contaminant_id":10940,"treatment_process_id":-1118142891,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14402,"contaminant_id":10940,"treatment_process_id":-1277754943,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14403,"contaminant_id":10520,"treatment_process_id":-346223903,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14404,"contaminant_id":10520,"treatment_process_id":10000,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14405,"contaminant_id":10520,"treatment_process_id":-1118142891,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14406,"contaminant_id":10520,"treatment_process_id":1181590563,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":14408,"contaminant_id":10520,"treatment_process_id":-1467636837,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747732,"contaminant_id":11020,"treatment_process_id":-1234021623,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747733,"contaminant_id":11020,"treatment_process_id":-2062922688,"tmsp_last_updt":"04-JUN-20"}
+,{"contaminant_process_id":2146747734,"contaminant_id":10520,"treatment_process_id":-2062922688,"tmsp_last_updt":"04-JUN-20"}
+,{"contaminant_process_id":2146747735,"contaminant_id":10520,"treatment_process_id":-1861125809,"tmsp_last_updt":"04-JUN-20"}
+,{"contaminant_process_id":2146747878,"contaminant_id":10940,"treatment_process_id":2088586280,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747876,"contaminant_id":10520,"treatment_process_id":2088586280,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747877,"contaminant_id":10520,"treatment_process_id":372675748,"date_of_literature_search":"May 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747896,"contaminant_id":11020,"treatment_process_id":2088586280,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747879,"contaminant_id":11020,"treatment_process_id":372675748,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747916,"contaminant_id":1183142512,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747936,"contaminant_id":1183142512,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747917,"contaminant_id":1183142512,"treatment_process_id":263654386,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747937,"contaminant_id":1183142512,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747938,"contaminant_id":10860,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747939,"contaminant_id":10860,"treatment_process_id":510273414,"date_of_literature_search":"April 2022","tmsp_last_updt":"25-JUL-23"}
+,{"contaminant_process_id":2146747940,"contaminant_id":1183142492,"treatment_process_id":2074826383,"date_of_literature_search":"June 2021","tmsp_last_updt":"01-AUG-23"}
+,{"contaminant_process_id":2146747941,"contaminant_id":1183142492,"treatment_process_id":-2054608628,"date_of_literature_search":"June 2021","tmsp_last_updt":"01-AUG-23"}
+,{"contaminant_process_id":2146747957,"contaminant_id":1175876466,"treatment_process_id":2088586280,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747942,"contaminant_id":-1336577584,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747958,"contaminant_id":1183142532,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747959,"contaminant_id":1183142532,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747943,"contaminant_id":1183142532,"treatment_process_id":-1277754943,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747960,"contaminant_id":1183142532,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747961,"contaminant_id":1183142532,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747962,"contaminant_id":1183142552,"treatment_process_id":1176996650,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747963,"contaminant_id":1183142552,"treatment_process_id":10000,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747944,"contaminant_id":1183142552,"treatment_process_id":1181590563,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747964,"contaminant_id":1183142552,"treatment_process_id":-30174904,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747965,"contaminant_id":1183142552,"treatment_process_id":-1118142891,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747945,"contaminant_id":1183142552,"treatment_process_id":-1277754943,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747966,"contaminant_id":1183142552,"treatment_process_id":1934681921,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747946,"contaminant_id":1183142552,"treatment_process_id":-979193564,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747947,"contaminant_id":1183142552,"treatment_process_id":2074826383,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747948,"contaminant_id":1183142552,"treatment_process_id":-1234021623,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747967,"contaminant_id":1183142552,"treatment_process_id":-2103528007,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747949,"contaminant_id":1183142552,"treatment_process_id":2088586280,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747950,"contaminant_id":1183142552,"treatment_process_id":-1467636837,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747968,"contaminant_id":1183142552,"treatment_process_id":-1644188630,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747951,"contaminant_id":1183142552,"treatment_process_id":2109700949,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747969,"contaminant_id":1183142552,"treatment_process_id":-2054608628,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747970,"contaminant_id":1183142552,"treatment_process_id":-300168699,"date_of_literature_search":"April 2022","tmsp_last_updt":"26-JUL-23"}
+,{"contaminant_process_id":2146747976,"contaminant_id":11020,"treatment_process_id":1181590563,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747977,"contaminant_id":11020,"treatment_process_id":-30174904,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747978,"contaminant_id":11020,"treatment_process_id":-1861125809,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747996,"contaminant_id":11020,"treatment_process_id":-1306063973,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+,{"contaminant_process_id":2146747997,"contaminant_id":11020,"treatment_process_id":-1644188630,"date_of_literature_search":"May 2023","tmsp_last_updt":"20-MAY-24"}
+]}]}

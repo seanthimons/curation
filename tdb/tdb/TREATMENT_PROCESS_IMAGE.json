@@ -1,0 +1,26 @@
+{"results":[{"columns":[{"name":"IMAGE_ID","type":"NUMBER"},{"name":"TREATMENT_PROCESS_ID","type":"NUMBER"},{"name":"IMAGE","type":"BLOB"},{"name":"MIME_TYPE","type":"VARCHAR2"},{"name":"CAPTION","type":"VARCHAR2"},{"name":"DISPLAY_ORDER","type":"NUMBER"},{"name":"REFERENCE_ID","type":"NUMBER"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"image_id":10000,"treatment_process_id":-30174904,"image":"(BLOB)","mime_type":"GIF","caption":"Figure 1: Typical chloramines formation in a conventional treatment process. ","display_order":1,"tmsp_last_updt":"23-JUN-08"}
+,{"image_id":10001,"treatment_process_id":-1118142891,"image":"(BLOB)","mime_type":"GIF","caption":"Figure 1: Chlorine application with conventional treatment. ","display_order":1,"tmsp_last_updt":"23-JUN-08"}
+,{"image_id":-2145643350,"treatment_process_id":-1467636837,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 2: Ozone application prior to filtration.","display_order":2,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-1607685165,"treatment_process_id":-979193564,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical GAC isotherm plot.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-1171173051,"treatment_process_id":-2062922688,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical lime-soda softening process.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-1041283294,"treatment_process_id":-2054608628,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical UV disinfection configuration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-780791315,"treatment_process_id":-1467636837,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Ozone application as a pre-oxidant.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-701861144,"treatment_process_id":-1644188630,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical potassium permanganate application points.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":-464226561,"treatment_process_id":-2103528007,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 2: Typical ED\/EDR configuration.","display_order":2,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":176293076,"treatment_process_id":2109700949,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical PAC feed locations.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":189376641,"treatment_process_id":-1277754943,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Chlorine dioxide application points during treatment.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":193573332,"treatment_process_id":2074826383,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 2: Filtration\/adsorption.","display_order":2,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":562281675,"treatment_process_id":1942020127,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 2. Typical diatomaceous earth pressurized filtration system flow diagram.","display_order":2,"reference_id":-1912950635,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":737601586,"treatment_process_id":1942020127,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1. Typical diatomaceous earth vacuum filtration system flow diagram.","display_order":1,"reference_id":-1912950635,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1187986139,"treatment_process_id":-346223903,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical packed tower aerator configuration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1187988324,"treatment_process_id":1934681921,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1:  Conventional treatment.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1188177078,"treatment_process_id":1667135053,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Direct filtration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1188233142,"treatment_process_id":-2103528007,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical NF\/RO configuration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1188237671,"treatment_process_id":1174340674,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Ozone as a pre-oxidant with biological filtration.","display_order":1,"tmsp_last_updt":"14-JUL-21"}
+,{"image_id":1359878784,"treatment_process_id":-346223903,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 2: Typical diffused aeration configuration.","display_order":2,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1424056889,"treatment_process_id":510273414,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical membrane filtration configuration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":1600911359,"treatment_process_id":2074826383,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Post-filtration adsorption.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+,{"image_id":2011349082,"treatment_process_id":263654386,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1: Typical ion exchange configuration.","display_order":1,"tmsp_last_updt":"04-JUN-08"}
+]}]}

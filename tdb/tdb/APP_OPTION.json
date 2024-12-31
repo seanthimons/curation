@@ -1,0 +1,4 @@
+{"results":[{"columns":[{"name":"OPTION_NAME","type":"VARCHAR2"},{"name":"OPTION_VALUE","type":"VARCHAR2"},{"name":"OPTION_DESC","type":"VARCHAR2"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"option_name":"FC_INTRO_TEXT","option_value":"The following contaminants are anticipated to be added to the Treatability Database:","option_desc":"Introductory text for the Future Contaminants page.","tmsp_last_updt":"27-SEP-18"}
+]}]}

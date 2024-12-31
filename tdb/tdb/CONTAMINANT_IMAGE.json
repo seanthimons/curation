@@ -1,0 +1,17 @@
+{"results":[{"columns":[{"name":"IMAGE_ID","type":"NUMBER"},{"name":"CONTAMINANT_ID","type":"NUMBER"},{"name":"IMAGE","type":"BLOB"},{"name":"MIME_TYPE","type":"VARCHAR2"},{"name":"CAPTION","type":"VARCHAR2"},{"name":"DISPLAY_ORDER","type":"NUMBER"},{"name":"REFERENCE_ID","type":"NUMBER"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"image_id":10001,"contaminant_id":10042,"image":"(BLOB)","mime_type":"GIF","caption":"Vinclozolin Structural Formula","display_order":1,"tmsp_last_updt":"12-MAY-09"}
+,{"image_id":10000,"contaminant_id":10041,"image":"(BLOB)","mime_type":"GIF","caption":"Acetochlor Structural Formula","display_order":1,"tmsp_last_updt":"12-MAY-09"}
+,{"image_id":10060,"contaminant_id":10022,"image":"(BLOB)","mime_type":"JPG","caption":"Ibuprofen Structural Formula","display_order":1,"tmsp_last_updt":"05-AUG-09"}
+,{"image_id":10101,"contaminant_id":10660,"image":"(BLOB)","mime_type":"GIF","caption":"Ionic Degradate Acetochlor Oxanilic Acid (OXA) Structural Formula","display_order":2,"tmsp_last_updt":"27-AUG-10"}
+,{"image_id":10200,"contaminant_id":10800,"image":"(BLOB)","mime_type":"GIF","caption":"Molecular Structure","display_order":1,"reference_id":14260,"tmsp_last_updt":"05-OCT-10"}
+,{"image_id":10220,"contaminant_id":10840,"image":"(BLOB)","mime_type":"JPG","caption":"Methomyl Structural Formula","display_order":1,"reference_id":14620,"tmsp_last_updt":"09-NOV-10"}
+,{"image_id":10020,"contaminant_id":10120,"image":"(BLOB)","mime_type":"GIF","caption":"Chemical Bonds","display_order":1,"reference_id":10183,"tmsp_last_updt":"18-MAY-09"}
+,{"image_id":10040,"contaminant_id":10140,"image":"(BLOB)","mime_type":"GIF","caption":"Benzene Structural Formula","display_order":1,"tmsp_last_updt":"20-MAY-09"}
+,{"image_id":10100,"contaminant_id":10660,"image":"(BLOB)","mime_type":"JPG","caption":"Ionic Degradate Acetochlor Ethanesulfonic Acid (ESA) Structural Formula","display_order":1,"tmsp_last_updt":"27-AUG-10"}
+,{"image_id":10140,"contaminant_id":10781,"image":"(BLOB)","mime_type":"GIF","caption":"Thiodicarb Structural Formula","display_order":1,"tmsp_last_updt":"30-SEP-10"}
+,{"image_id":10160,"contaminant_id":10780,"image":"(BLOB)","mime_type":"JPG","caption":"Nitrofen Structural Formua","display_order":1,"reference_id":14140,"tmsp_last_updt":"30-SEP-10"}
+,{"image_id":10180,"contaminant_id":10740,"image":"(BLOB)","mime_type":"GIF","caption":"Nitrobenzene Structure","display_order":1,"reference_id":14220,"tmsp_last_updt":"01-OCT-10"}
+,{"image_id":10260,"contaminant_id":10980,"image":"(BLOB)","mime_type":"GIF","caption":"cis-1,2-dichloroethylene Structural Formula","display_order":1,"tmsp_last_updt":"10-SEP-15"}
+,{"image_id":10261,"contaminant_id":11040,"image":"(BLOB)","mime_type":"GIF","caption":"1,2,3-trichloropropane Structural Diagram","display_order":1,"tmsp_last_updt":"10-SEP-15"}
+]}]}

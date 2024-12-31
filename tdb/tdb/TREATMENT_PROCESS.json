@@ -1,0 +1,31 @@
+{"results":[{"columns":[{"name":"TREATMENT_PROCESS_ID","type":"NUMBER"},{"name":"TREATMENT_PROCESS_NAME","type":"VARCHAR2"},{"name":"TREATMENT_PROCESS_TABLE_NAME","type":"VARCHAR2"},{"name":"INCLUDED_TREATMENTS","type":"VARCHAR2"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"treatment_process_id":2109700949,"treatment_process_name":"Powdered Activated Carbon","treatment_process_table_name":"CP_DETAIL_PAC","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":-1277754943,"treatment_process_name":"Chlorine Dioxide","treatment_process_table_name":"CP_DETAIL_CHLORINE_DIOXIDE","tmsp_last_updt":"30-APR-07"}
+,{"treatment_process_id":-1118142891,"treatment_process_name":"Chlorine","treatment_process_table_name":"CP_DETAIL_CHLORINE","tmsp_last_updt":"20-JUN-08"}
+,{"treatment_process_id":-1467636837,"treatment_process_name":"Ozone","treatment_process_table_name":"CP_DETAIL_OZONE","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":-1306063973,"treatment_process_name":"Slow Sand Filtration","treatment_process_table_name":"CP_DETAIL_SLOW_SAND","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":-2103528007,"treatment_process_name":"Membrane Separation","treatment_process_table_name":"CP_DETAIL_MEMBRANE_SEP","included_treatments":"Nanofiltration, Reverse Osmosis, Electrodialysis, and Electrodialysis Reversal","tmsp_last_updt":"26-MAY-09"}
+,{"treatment_process_id":-2062922688,"treatment_process_name":"Precipitative Softening","treatment_process_table_name":"CP_DETAIL_SOFTENING","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":-2054608628,"treatment_process_name":"Ultraviolet Irradiation","treatment_process_table_name":"CP_DETAIL_UV","tmsp_last_updt":"21-AUG-09"}
+,{"treatment_process_id":1934681921,"treatment_process_name":"Conventional Treatment","treatment_process_table_name":"CP_DETAIL_CONV_TREATMENT","tmsp_last_updt":"26-MAY-09"}
+,{"treatment_process_id":1942020127,"treatment_process_name":"Diatomaceous Earth Filtration","treatment_process_table_name":"CP_DETAIL_DE_FILTER","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":2074826383,"treatment_process_name":"Granular Activated Carbon","treatment_process_table_name":"CP_DETAIL_GAC","tmsp_last_updt":"20-JUN-08"}
+,{"treatment_process_id":-1861125809,"treatment_process_name":"Ultraviolet Irradiation and Ozone","treatment_process_table_name":"CP_DETAIL_UV_IRRAD_O3","tmsp_last_updt":"22-OCT-21"}
+,{"treatment_process_id":-1644188630,"treatment_process_name":"Permanganate","treatment_process_table_name":"CP_DETAIL_PERMANGANATE","tmsp_last_updt":"20-JUN-08"}
+,{"treatment_process_id":1174340674,"treatment_process_name":"Biological Filtration","treatment_process_table_name":"CP_DETAIL_BIOLOGICAL_FILTER","tmsp_last_updt":"04-AUG-09"}
+,{"treatment_process_id":1176996650,"treatment_process_name":"Adsorptive Media","treatment_process_table_name":"CP_DETAIL_ADSORP","tmsp_last_updt":"30-APR-21"}
+,{"treatment_process_id":1667135053,"treatment_process_name":"Direct Filtration","treatment_process_table_name":"CP_DETAIL_DIRECT_FILTER","tmsp_last_updt":"20-JUN-08"}
+,{"treatment_process_id":-30174904,"treatment_process_name":"Chloramine","treatment_process_table_name":"CP_DETAIL_CHLORAMINE","tmsp_last_updt":"20-JUN-08"}
+,{"treatment_process_id":263654386,"treatment_process_name":"Ion Exchange","treatment_process_table_name":"CP_DETAIL_IEX","included_treatments":"Greensand Filtration","tmsp_last_updt":"26-MAY-09"}
+,{"treatment_process_id":372675748,"treatment_process_name":"Ozone and Hydrogen Peroxide","treatment_process_table_name":"CP_DETAIL_OZONE_H2O2","tmsp_last_updt":"22-OCT-21"}
+,{"treatment_process_id":510273414,"treatment_process_name":"Membrane Filtration","treatment_process_table_name":"CP_DETAIL_MF_UF","included_treatments":"Microfiltration and Ultrafiltration","tmsp_last_updt":"26-MAY-09"}
+,{"treatment_process_id":548212009,"treatment_process_name":"Pressure Filtration","treatment_process_table_name":"CP_DETAIL_PRESSURE_FILTER","included_treatments":"Bag Filtration and Cartridge Filtration","tmsp_last_updt":"26-MAY-09"}
+,{"treatment_process_id":-979193564,"treatment_process_name":"GAC Isotherm","treatment_process_table_name":"CP_DETAIL_GAC_ISOTHERM","included_treatments":"(includes PAC isotherms)","tmsp_last_updt":"31-JUL-09"}
+,{"treatment_process_id":-346223903,"treatment_process_name":"Aeration and Air Stripping","treatment_process_table_name":"CP_DETAIL_AIR","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":-300168699,"treatment_process_name":"Ultraviolet Irradiation and Hydrogen Peroxide","treatment_process_table_name":"CP_DETAIL_UV_H2O2","tmsp_last_updt":"22-OCT-21"}
+,{"treatment_process_id":-1234021623,"treatment_process_name":"Hydrogen Peroxide","treatment_process_table_name":"CP_DETAIL_H2O2","tmsp_last_updt":"05-JUN-08"}
+,{"treatment_process_id":1181590563,"treatment_process_name":"Chemical Treatment","treatment_process_table_name":"CP_DETAIL_CHEMICAL","tmsp_last_updt":"13-JUN-07"}
+,{"treatment_process_id":2088586280,"treatment_process_name":"Other Treatment","treatment_process_table_name":"CP_DETAIL_GENERAL","tmsp_last_updt":"21-JUL-08"}
+,{"treatment_process_id":10000,"treatment_process_name":"Biological Treatment","treatment_process_table_name":"CP_DETAIL_BIO_TREATMENT","tmsp_last_updt":"28-OCT-09"}
+]}]}

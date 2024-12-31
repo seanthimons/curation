@@ -1,0 +1,286 @@
+,"items":
+[
+{"audit_trail_id":17068,"contaminant_id":10940,"editor_name":"PR","change_desc":"Updated treatment process summary","tmsp_last_updt":"08-MAR-19"}
+,{"audit_trail_id":17069,"contaminant_id":10520,"editor_name":"PR","change_desc":"Updated treatment process summary","tmsp_last_updt":"08-MAR-19"}
+,{"audit_trail_id":17070,"contaminant_id":11020,"editor_name":"PR","change_desc":"Updated overview and treatment summary","tmsp_last_updt":"08-MAR-19"}
+,{"audit_trail_id":10061,"contaminant_id":10160,"editor_name":"Ying Wu","change_desc":"Added trade nanme in Properties.","tmsp_last_updt":"10-JUN-09"}
+,{"audit_trail_id":10627,"contaminant_id":10260,"editor_name":"Amanda Savage","change_desc":"Initial Creation","tmsp_last_updt":"16-JUL-09"}
+,{"audit_trail_id":10882,"contaminant_id":10120,"editor_name":"Chris Hill","change_desc":"Edited Overview and Treatment Summary","tmsp_last_updt":"04-AUG-09"}
+,{"audit_trail_id":10941,"contaminant_id":10001,"editor_name":"deberle","change_desc":"Initally populated uranium database.","tmsp_last_updt":"10-AUG-09"}
+,{"audit_trail_id":10982,"contaminant_id":10181,"editor_name":"Hawley, Elisabeth","change_desc":"Minor revisions to text","tmsp_last_updt":"11-AUG-09"}
+,{"audit_trail_id":11100,"contaminant_id":10180,"editor_name":"Amanda Savage","change_desc":"Updated overview and properties","tmsp_last_updt":"18-AUG-09"}
+,{"audit_trail_id":11182,"contaminant_id":10060,"editor_name":"Chris Hill","change_desc":"Edited Contaminant Overview and Big Summary","tmsp_last_updt":"18-AUG-09"}
+,{"audit_trail_id":11227,"contaminant_id":10360,"editor_name":"Venkat Radhakrishnan","change_desc":"Added Overview","tmsp_last_updt":"20-AUG-09"}
+,{"audit_trail_id":11423,"contaminant_id":10341,"editor_name":"deberle","change_desc":"Entered initial data set.","tmsp_last_updt":"28-AUG-09"}
+,{"audit_trail_id":11501,"contaminant_id":10001,"editor_name":"N. Blute","change_desc":"Grammatical\/spelling changes.","tmsp_last_updt":"04-SEP-09"}
+,{"audit_trail_id":11586,"contaminant_id":10220,"editor_name":"Elisabeth Hawley","change_desc":"Minor text edits to overview and treatment summary.","tmsp_last_updt":"16-SEP-09"}
+,{"audit_trail_id":11800,"contaminant_id":10480,"editor_name":"RDM","change_desc":"Grammatical edits to the contaminant overview made 10\/27\/09","tmsp_last_updt":"27-OCT-09"}
+,{"audit_trail_id":11826,"contaminant_id":10200,"editor_name":"Miltner","change_desc":"edit cont overview for HTML, delete some synonyms","tmsp_last_updt":"27-OCT-09"}
+,{"audit_trail_id":11901,"contaminant_id":10500,"editor_name":"RDM","change_desc":"Contaminant overview modified 10\/29\/09.","tmsp_last_updt":"29-OCT-09"}
+,{"audit_trail_id":11920,"contaminant_id":10440,"editor_name":"Miltner","change_desc":"edit Cont Overview, Treat Processes Summary","tmsp_last_updt":"02-NOV-09"}
+,{"audit_trail_id":12040,"contaminant_id":10160,"editor_name":"Miltner","change_desc":"deleted some synonyms, small edits to cont overview","tmsp_last_updt":"24-NOV-09"}
+,{"audit_trail_id":12060,"contaminant_id":10181,"editor_name":"Ying Wu","change_desc":"Replaced reference \"0\" in \"Properties\" with reference 1509.","tmsp_last_updt":"30-NOV-09"}
+,{"audit_trail_id":12183,"contaminant_id":-1013719332,"editor_name":"SFH","change_desc":"Added month to literature search date in summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12201,"contaminant_id":10041,"editor_name":"Dhananjay Mishra","change_desc":"Added new reference. ","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12202,"contaminant_id":10060,"editor_name":"Dhananjay Mishra","change_desc":"Added new reference.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12203,"contaminant_id":10023,"editor_name":"Dhananjay Mishra","change_desc":"Added new reference.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12206,"contaminant_id":-13570946,"editor_name":"Dhananjay Mishra","change_desc":"Added new reference.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12460,"contaminant_id":10341,"editor_name":"Milt","change_desc":"edit overview HTML code","tmsp_last_updt":"19-FEB-10"}
+,{"audit_trail_id":13223,"contaminant_id":10781,"editor_name":"RDM","change_desc":"Synonyms added 9\/30\/10.","tmsp_last_updt":"30-SEP-10"}
+,{"audit_trail_id":13481,"contaminant_id":10800,"editor_name":"Chris Hill","change_desc":"Alpha review and minor edits","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13582,"contaminant_id":1175876466,"editor_name":"Miltner","change_desc":"delete empty As\/pressure filtration combination\r\ndelete empty As\/UV+O3 combination","tmsp_last_updt":"13-JAN-11"}
+,{"audit_trail_id":13584,"contaminant_id":253534853,"editor_name":"Miltner","change_desc":"delete empty Crypto\/UV+O3 combination","tmsp_last_updt":"13-JAN-11"}
+,{"audit_trail_id":13620,"contaminant_id":10480,"editor_name":"Miltner","change_desc":"add QLinks, edit synonyms","tmsp_last_updt":"18-JAN-11"}
+,{"audit_trail_id":13648,"contaminant_id":10440,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13649,"contaminant_id":10100,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13650,"contaminant_id":10160,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13702,"contaminant_id":10040,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13725,"contaminant_id":10080,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13727,"contaminant_id":10040,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13731,"contaminant_id":10060,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13741,"contaminant_id":10041,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"27-JAN-11"}
+,{"audit_trail_id":13761,"contaminant_id":10680,"editor_name":"Miltner","change_desc":"edit Treatment","tmsp_last_updt":"01-FEB-11"}
+,{"audit_trail_id":13780,"contaminant_id":10760,"editor_name":"Miltner","change_desc":"added QLinks, edit Overview, edit synonyms","tmsp_last_updt":"01-FEB-11"}
+,{"audit_trail_id":13800,"contaminant_id":10820,"editor_name":"Miltner","change_desc":"edit Overview, synonyms, added QLinks","tmsp_last_updt":"02-FEB-11"}
+,{"audit_trail_id":13801,"contaminant_id":10680,"editor_name":"Miltner","change_desc":"add QLink","tmsp_last_updt":"02-FEB-11"}
+,{"audit_trail_id":13802,"contaminant_id":10280,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"02-FEB-11"}
+,{"audit_trail_id":14523,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Updated treatment process summary.","tmsp_last_updt":"19-MAY-11"}
+,{"audit_trail_id":14784,"contaminant_id":10640,"editor_name":"Miltner","change_desc":"added QLinks, edited Treatment, edited Overview.","tmsp_last_updt":"08-JUN-11"}
+,{"audit_trail_id":15480,"contaminant_id":10880,"editor_name":"Miltner","change_desc":"edit Overview, synonyms, treatment. add QLinks, properties.  ","tmsp_last_updt":"11-JUL-11"}
+,{"audit_trail_id":15500,"contaminant_id":10881,"editor_name":"Miltner","change_desc":"added QLinks, added properties, added F&T","tmsp_last_updt":"12-JUL-11"}
+,{"audit_trail_id":15800,"contaminant_id":10860,"editor_name":"Miltner","change_desc":"added props, edited overview, big summary, edited syns, added QLinks","tmsp_last_updt":"02-AUG-11"}
+,{"audit_trail_id":15900,"contaminant_id":10380,"editor_name":"Miltner","change_desc":"edit overview","tmsp_last_updt":"13-OCT-11"}
+,{"audit_trail_id":16070,"contaminant_id":10760,"editor_name":"Miltner","change_desc":"update treatment summary","tmsp_last_updt":"22-NOV-11"}
+,{"audit_trail_id":10074,"contaminant_id":10160,"editor_name":"Ying Wu","change_desc":"Added references for chemical formula and trade name.","tmsp_last_updt":"12-JUN-09"}
+,{"audit_trail_id":10364,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Acetochlor overview summary entered 7\/2\/09.","tmsp_last_updt":"02-JUL-09"}
+,{"audit_trail_id":10861,"contaminant_id":10023,"editor_name":"V Radhakrishnan","change_desc":"Added properties and fate.","tmsp_last_updt":"03-AUG-09"}
+,{"audit_trail_id":11000,"contaminant_id":10140,"editor_name":"RDM","change_desc":"Benzene treatment summary overview entered 8\/12\/09.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11009,"contaminant_id":10140,"editor_name":"RDM","change_desc":"Benzene overview summary modified 8\/12\/09 for font and spacing.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11020,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Acetochlor overview summary modified 8\/12\/09 for font and spacing.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11241,"contaminant_id":10260,"editor_name":"Amanda Savage","change_desc":"input properties","tmsp_last_updt":"21-AUG-09"}
+,{"audit_trail_id":11340,"contaminant_id":10040,"editor_name":"N Blute","change_desc":"Revised treatment processes to include reduction\/coagulation\/filtration. Modified some text for grammatical improvements.","tmsp_last_updt":"26-AUG-09"}
+,{"audit_trail_id":11425,"contaminant_id":10022,"editor_name":"RDM","change_desc":"Treatment process summary entered 8\/28\/09.","tmsp_last_updt":"28-AUG-09"}
+,{"audit_trail_id":11432,"contaminant_id":10440,"editor_name":"Venkat Radhakrishnan","change_desc":"Added Overview and Treatment.","tmsp_last_updt":"28-AUG-09"}
+,{"audit_trail_id":11500,"contaminant_id":10080,"editor_name":"N. Blute","change_desc":"Grammatical changes.","tmsp_last_updt":"04-SEP-09"}
+,{"audit_trail_id":11560,"contaminant_id":10022,"editor_name":"Elisabeth Hawley","change_desc":"Text edits to overview, including potential human health effects","tmsp_last_updt":"15-SEP-09"}
+,{"audit_trail_id":11680,"contaminant_id":10040,"editor_name":"Dhananjay Mishra","change_desc":"Addressed N. Blute's review comments.","tmsp_last_updt":"29-SEP-09"}
+,{"audit_trail_id":11787,"contaminant_id":10100,"editor_name":"Ying Wu","change_desc":"Revised E. coli overview and treatment summaries according to Hawley's review.","tmsp_last_updt":"21-OCT-09"}
+,{"audit_trail_id":11981,"contaminant_id":10022,"editor_name":"Miltner","change_desc":"edit big summary text for % removal ranges","tmsp_last_updt":"12-NOV-09"}
+,{"audit_trail_id":12026,"contaminant_id":10300,"editor_name":"Miltner","change_desc":"deleted 2 synonyms","tmsp_last_updt":"13-NOV-09"}
+,{"audit_trail_id":12100,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Date of literature review added to contaminant overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12220,"contaminant_id":253534853,"editor_name":"Sean Chaparro","change_desc":"Added literature search month and year in contam summary","tmsp_last_updt":"11-DEC-09"}
+,{"audit_trail_id":12261,"contaminant_id":10100,"editor_name":"L. Cuellar","change_desc":"Added new reference (859)","tmsp_last_updt":"15-DEC-09"}
+,{"audit_trail_id":12263,"contaminant_id":1183142251,"editor_name":"L. Cuellar","change_desc":"Added month to literature search date in contam summary.","tmsp_last_updt":"15-DEC-09"}
+,{"audit_trail_id":12500,"contaminant_id":10280,"editor_name":"SFH","change_desc":"Revised contaminant description ","tmsp_last_updt":"02-MAR-10"}
+,{"audit_trail_id":12600,"contaminant_id":10500,"editor_name":"Venkat Radhakrishnan","change_desc":"Modified Overview, Synonyms, Ozone (Little Summary and Data tab) and Other treatment (Little Summary and Data tab) as per EPA comments.","tmsp_last_updt":"16-MAR-10"}
+,{"audit_trail_id":12980,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Added synonyms and images 8\/27\/10.","tmsp_last_updt":"27-AUG-10"}
+,{"audit_trail_id":13082,"contaminant_id":10460,"editor_name":"Miltner","change_desc":"edit synonyms","tmsp_last_updt":"14-SEP-10"}
+,{"audit_trail_id":13140,"contaminant_id":10120,"editor_name":"Miltner","change_desc":"edit properties to ID dacthal v degradates","tmsp_last_updt":"15-SEP-10"}
+,{"audit_trail_id":13162,"contaminant_id":10580,"editor_name":"Chris Hill","change_desc":"Alpha testing on 8\/26\/10","tmsp_last_updt":"16-SEP-10"}
+,{"audit_trail_id":13200,"contaminant_id":10660,"editor_name":"Chris Hill","change_desc":"Alpha review","tmsp_last_updt":"20-SEP-10"}
+,{"audit_trail_id":13484,"contaminant_id":10840,"editor_name":"RDM","change_desc":"Main contaminant overview added 11\/10\/10.","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13485,"contaminant_id":10840,"editor_name":"RDM","change_desc":"Property data entered 10\/26\/10.","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13500,"contaminant_id":10840,"editor_name":"RDM","change_desc":"Treatment overview added 10\/24\/10.","tmsp_last_updt":"24-NOV-10"}
+,{"audit_trail_id":13523,"contaminant_id":1183142251,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"10-JAN-11"}
+,{"audit_trail_id":13543,"contaminant_id":1176143754,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"11-JAN-11"}
+,{"audit_trail_id":13662,"contaminant_id":10023,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"20-JAN-11"}
+,{"audit_trail_id":13700,"contaminant_id":10360,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13701,"contaminant_id":10460,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13880,"contaminant_id":10781,"editor_name":"Miltner","change_desc":"add QLinks, add properties, add F&T, add synonyms, edit Overview, edit Treatment, add refs","tmsp_last_updt":"09-FEB-11"}
+,{"audit_trail_id":13920,"contaminant_id":10740,"editor_name":"Miltner","change_desc":"added QLinks, edited synonyms","tmsp_last_updt":"16-FEB-11"}
+,{"audit_trail_id":15020,"contaminant_id":10880,"editor_name":"Chaparro","change_desc":"Added overview, synonyms, properties, fate","tmsp_last_updt":"15-JUN-11"}
+,{"audit_trail_id":15860,"contaminant_id":10700,"editor_name":"Miltner","change_desc":"edit treatment summary","tmsp_last_updt":"06-OCT-11"}
+,{"audit_trail_id":10322,"contaminant_id":10042,"editor_name":"RDM","change_desc":"Overview summary entered 6\/30\/09.","tmsp_last_updt":"30-JUN-09"}
+,{"audit_trail_id":10323,"contaminant_id":10042,"editor_name":"RDM","change_desc":"Treatment process summary entered 6\/30\/09.","tmsp_last_updt":"30-JUN-09"}
+,{"audit_trail_id":10420,"contaminant_id":10200,"editor_name":"Ying Wu","change_desc":"Updated treatment summary.","tmsp_last_updt":"08-JUL-09"}
+,{"audit_trail_id":10800,"contaminant_id":10040,"editor_name":"Dhananjay Mishra","change_desc":"Added contaminant and treatment data.","tmsp_last_updt":"30-JUL-09"}
+,{"audit_trail_id":10981,"contaminant_id":10021,"editor_name":"Venkat Radhakrishnan","change_desc":"Added Overview and Treatment.","tmsp_last_updt":"11-AUG-09"}
+,{"audit_trail_id":11011,"contaminant_id":10042,"editor_name":"RDM","change_desc":"Vinclozolin treatment summary modified 8\/12\/09 for font and spacing.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11021,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Acetochlor treatment summary modified 8\/12\/09 for font and spacing.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11160,"contaminant_id":10120,"editor_name":"Amanda Savage","change_desc":"updated overview, properties and fate","tmsp_last_updt":"18-AUG-09"}
+,{"audit_trail_id":11522,"contaminant_id":10260,"editor_name":"Chris Hill","change_desc":"Edited big summary and contaminant overview.","tmsp_last_updt":"11-SEP-09"}
+,{"audit_trail_id":11540,"contaminant_id":10240,"editor_name":"Elisabeth Hawley","change_desc":"Minor text edits to Treatment tab","tmsp_last_updt":"14-SEP-09"}
+,{"audit_trail_id":11585,"contaminant_id":10220,"editor_name":"Elisabeth Hawley","change_desc":"Added comment to indicate log Kow values under properties.","tmsp_last_updt":"16-SEP-09"}
+,{"audit_trail_id":11681,"contaminant_id":10220,"editor_name":"Dhananjay Mishra","change_desc":"Addressed review comments.","tmsp_last_updt":"29-SEP-09"}
+,{"audit_trail_id":11760,"contaminant_id":10160,"editor_name":"Ying Wu","change_desc":"Revised properties - Kow.","tmsp_last_updt":"05-OCT-09"}
+,{"audit_trail_id":11840,"contaminant_id":10042,"editor_name":"Miltner","change_desc":"edit cont overview text for HTML","tmsp_last_updt":"28-OCT-09"}
+,{"audit_trail_id":11902,"contaminant_id":10500,"editor_name":"RDM","change_desc":"Treatment overview modified 10\/29\/09.","tmsp_last_updt":"29-OCT-09"}
+,{"audit_trail_id":11971,"contaminant_id":10022,"editor_name":"Miltner","change_desc":"edit HTML code in big summary","tmsp_last_updt":"12-NOV-09"}
+,{"audit_trail_id":11982,"contaminant_id":10022,"editor_name":"Miltner","change_desc":"edit cont overview for not reg'd in DW","tmsp_last_updt":"12-NOV-09"}
+,{"audit_trail_id":12041,"contaminant_id":10480,"editor_name":"Miltner","change_desc":"edited cont overview, edited synonyms, added date of lit search to cont overview","tmsp_last_updt":"24-NOV-09"}
+,{"audit_trail_id":12110,"contaminant_id":10160,"editor_name":"Ying Wu","change_desc":"Revised date of literature research formate to month and year for the overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12112,"contaminant_id":10181,"editor_name":"Ying Wu","change_desc":"Revised date of literature research to month and year format for the overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12113,"contaminant_id":10460,"editor_name":"Ying Wu","change_desc":"Revised date of literature research to month and year format for the overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12114,"contaminant_id":10080,"editor_name":"Ying Wu","change_desc":"Revised date of literature research to month and year format for the overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12180,"contaminant_id":-107821529,"editor_name":"SFH","change_desc":"Added month to literature search date in summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12181,"contaminant_id":-13570946,"editor_name":"SFH","change_desc":"Added month to literature search date in summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12182,"contaminant_id":658891153,"editor_name":"SFH","change_desc":"Added month to literature search date in summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12184,"contaminant_id":10320,"editor_name":"SFH","change_desc":"Added month to literature search date in contam summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12185,"contaminant_id":10280,"editor_name":"SFH","change_desc":"Added month to literature search date in contam summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12186,"contaminant_id":10300,"editor_name":"SFH","change_desc":"Added literature search month and year in contam summary.","tmsp_last_updt":"03-DEC-09"}
+,{"audit_trail_id":12205,"contaminant_id":10480,"editor_name":"Dhananjay Mishra","change_desc":"Added new reference.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12260,"contaminant_id":10100,"editor_name":"L. Cuellar","change_desc":"Edited Contaminant Overview Summary to include CCL3 info.","tmsp_last_updt":"15-DEC-09"}
+,{"audit_trail_id":12660,"contaminant_id":10560,"editor_name":"Amanda Savage","change_desc":"Input Synonyms and Properties","tmsp_last_updt":"16-AUG-10"}
+,{"audit_trail_id":13141,"contaminant_id":10100,"editor_name":"Miltner","change_desc":"edit overview","tmsp_last_updt":"15-SEP-10"}
+,{"audit_trail_id":13142,"contaminant_id":10100,"editor_name":"Miltner","change_desc":"edit Treat Process Summary","tmsp_last_updt":"15-SEP-10"}
+,{"audit_trail_id":13163,"contaminant_id":10540,"editor_name":"Chris Hill","change_desc":"Alpha testing on 8\/26\/10","tmsp_last_updt":"16-SEP-10"}
+,{"audit_trail_id":13220,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Contaminant property data entered 9\/27\/10.","tmsp_last_updt":"30-SEP-10"}
+,{"audit_trail_id":13221,"contaminant_id":10781,"editor_name":"RDM","change_desc":"Contaminant properties added 9\/30\/10.","tmsp_last_updt":"30-SEP-10"}
+,{"audit_trail_id":13240,"contaminant_id":10781,"editor_name":"RDM","change_desc":"Main contaminant overview added 10\/4\/10.","tmsp_last_updt":"04-OCT-10"}
+,{"audit_trail_id":13483,"contaminant_id":10760,"editor_name":"Chris Hill","change_desc":"Alpha review and minor edits","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13520,"contaminant_id":-1013719332,"editor_name":"Miltner","change_desc":"add QLinks, edit Overview","tmsp_last_updt":"10-JAN-11"}
+,{"audit_trail_id":13521,"contaminant_id":1176389556,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"10-JAN-11"}
+,{"audit_trail_id":13525,"contaminant_id":-13570946,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"10-JAN-11"}
+,{"audit_trail_id":13581,"contaminant_id":1175876466,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"13-JAN-11"}
+,{"audit_trail_id":13623,"contaminant_id":10181,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"18-JAN-11"}
+,{"audit_trail_id":13641,"contaminant_id":10180,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13642,"contaminant_id":10240,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13661,"contaminant_id":10022,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"20-JAN-11"}
+,{"audit_trail_id":13705,"contaminant_id":10341,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13720,"contaminant_id":1176389556,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13721,"contaminant_id":10200,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13723,"contaminant_id":10160,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13728,"contaminant_id":10040,"editor_name":"Miltner","change_desc":"edit Overview for Cr-6 carcinogenicity","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13729,"contaminant_id":10060,"editor_name":"Miltner","change_desc":"edit Overview","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13732,"contaminant_id":10500,"editor_name":"Miltner","change_desc":"edit Overview","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13822,"contaminant_id":10580,"editor_name":"Miltner","change_desc":"edited Overview, edited Synonyms, added QLinks","tmsp_last_updt":"03-FEB-11"}
+,{"audit_trail_id":13843,"contaminant_id":10840,"editor_name":"Chris Hill","change_desc":"Completed alpha-testing.","tmsp_last_updt":"07-FEB-11"}
+,{"audit_trail_id":13900,"contaminant_id":10840,"editor_name":"Miltner","change_desc":"added QLinks, edited Overview, edited synonyms, added Properties, edited and added F&T","tmsp_last_updt":"10-FEB-11"}
+,{"audit_trail_id":13960,"contaminant_id":10660,"editor_name":"Miltner","change_desc":"edit Overview, Synonyms, Images (fewer), Treatment","tmsp_last_updt":"18-MAR-11"}
+,{"audit_trail_id":14040,"contaminant_id":10700,"editor_name":"Miltner","change_desc":"added QLinks, edited Overview, Synonyms, added ref 2009","tmsp_last_updt":"28-MAR-11"}
+,{"audit_trail_id":14140,"contaminant_id":10260,"editor_name":"Miltner","change_desc":"edit Overview, add QLinks, edit Refs, edit Synonyms, add Properties, add F&T","tmsp_last_updt":"04-APR-11"}
+,{"audit_trail_id":14480,"contaminant_id":10600,"editor_name":"Miltner","change_desc":"edit Overview, add synonyms","tmsp_last_updt":"18-MAY-11"}
+,{"audit_trail_id":14980,"contaminant_id":10881,"editor_name":"Chaparro","change_desc":"Added contaminant overview, synonyms, properties and fate data.","tmsp_last_updt":"15-JUN-11"}
+,{"audit_trail_id":15680,"contaminant_id":10881,"editor_name":"Miltner","change_desc":"edited Overview and Treatment","tmsp_last_updt":"26-JUL-11"}
+,{"audit_trail_id":16068,"contaminant_id":10580,"editor_name":"Miltner","change_desc":"update treatment studies","tmsp_last_updt":"22-NOV-11"}
+,{"audit_trail_id":10020,"contaminant_id":10160,"editor_name":"Ying Wu","change_desc":"1. Aded more references, updated references for properties and overview.\r\n2. Revised overview","tmsp_last_updt":"09-JUN-09"}
+,{"audit_trail_id":10362,"contaminant_id":10200,"editor_name":"Ying Wu","change_desc":"Added chemical overview.","tmsp_last_updt":"01-JUL-09"}
+,{"audit_trail_id":10945,"contaminant_id":10240,"editor_name":"Ying Wu","change_desc":"Added chemical overview (the big summary).","tmsp_last_updt":"10-AUG-09"}
+,{"audit_trail_id":11261,"contaminant_id":658891153,"editor_name":"SFH","change_desc":"Changed format to Verdana 9pt, 0pt before and 9pt after.","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11262,"contaminant_id":-1013719332,"editor_name":"SFH","change_desc":"Changed format to Verdana 9pt, 0pt before and 9pt after.","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11263,"contaminant_id":-13570946,"editor_name":"SFH","change_desc":"Changed format to Verdana 9pt, 0pt before and 9pt after.","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11264,"contaminant_id":-107821529,"editor_name":"SFH","change_desc":"Changed format to Verdana 9pt, 0pt before and 9pt after.","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11271,"contaminant_id":10260,"editor_name":"Amanda Savage","change_desc":"Updated Overview and Treatment Overview","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11274,"contaminant_id":10040,"editor_name":"N Blute","change_desc":"Revised text for clarity in Overview. Added two synonyms.","tmsp_last_updt":"24-AUG-09"}
+,{"audit_trail_id":11480,"contaminant_id":10300,"editor_name":"Sean Chaparro","change_desc":"Completed overview, synonyms, properties and treatment descriptions.","tmsp_last_updt":"03-SEP-09"}
+,{"audit_trail_id":11921,"contaminant_id":10180,"editor_name":"Miltner","change_desc":"edit HTML in Cont Overview","tmsp_last_updt":"02-NOV-09"}
+,{"audit_trail_id":12204,"contaminant_id":658891153,"editor_name":"Dhananjay Mishra","change_desc":"added new reference.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12262,"contaminant_id":10100,"editor_name":"L. Cuellar","change_desc":"Added month to literature search date in contam summary.","tmsp_last_updt":"15-DEC-09"}
+,{"audit_trail_id":12362,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Revised contaminant overview to remove references to synonyms.","tmsp_last_updt":"25-JAN-10"}
+,{"audit_trail_id":12560,"contaminant_id":10060,"editor_name":"Venkat Radhakrishnan","change_desc":"Changed Overview and Synonyms. Added Properties and Fate.","tmsp_last_updt":"09-MAR-10"}
+,{"audit_trail_id":12840,"contaminant_id":10580,"editor_name":"Ying Wu","change_desc":"Added data.","tmsp_last_updt":"20-AUG-10"}
+,{"audit_trail_id":12963,"contaminant_id":10560,"editor_name":"Amanda Savage","change_desc":"Input Overview and Treatment","tmsp_last_updt":"26-AUG-10"}
+,{"audit_trail_id":13146,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Contaminant treatment overview added 9\/15\/10.","tmsp_last_updt":"15-SEP-10"}
+,{"audit_trail_id":13160,"contaminant_id":10520,"editor_name":"Chris Hill","change_desc":"Alpha testing","tmsp_last_updt":"16-SEP-10"}
+,{"audit_trail_id":13480,"contaminant_id":10781,"editor_name":"Chris Hill","change_desc":"Alpha review and minor edits","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13522,"contaminant_id":658891153,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"10-JAN-11"}
+,{"audit_trail_id":13542,"contaminant_id":-107821529,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"11-JAN-11"}
+,{"audit_trail_id":13583,"contaminant_id":253534853,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"13-JAN-11"}
+,{"audit_trail_id":13644,"contaminant_id":10320,"editor_name":"Miltner","change_desc":"deleted empty UV + H2O2","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13646,"contaminant_id":10200,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13647,"contaminant_id":10220,"editor_name":"Miltner","change_desc":"added QLink","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13733,"contaminant_id":10500,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13804,"contaminant_id":10620,"editor_name":"Miltner","change_desc":"edit Synonyms, edit Overview, added QLinks","tmsp_last_updt":"02-FEB-11"}
+,{"audit_trail_id":13840,"contaminant_id":10800,"editor_name":"Miltner","change_desc":"added QLink, edited synonyms, added properties, F&T","tmsp_last_updt":"07-FEB-11"}
+,{"audit_trail_id":14000,"contaminant_id":10540,"editor_name":"Miltner","change_desc":"edited Overview, Synonyms, Treatment, added QLink","tmsp_last_updt":"24-MAR-11"}
+,{"audit_trail_id":14100,"contaminant_id":10520,"editor_name":"Miltner","change_desc":"added QLinks, edited Overview, edited Synonyms ","tmsp_last_updt":"30-MAR-11"}
+,{"audit_trail_id":14220,"contaminant_id":10260,"editor_name":"Miltner","change_desc":"edit Treatment Summary","tmsp_last_updt":"19-APR-11"}
+,{"audit_trail_id":14427,"contaminant_id":10700,"editor_name":"Chaparro","change_desc":"Edited Overview.","tmsp_last_updt":"13-MAY-11"}
+,{"audit_trail_id":14522,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Updated big summary","tmsp_last_updt":"19-MAY-11"}
+,{"audit_trail_id":15440,"contaminant_id":10340,"editor_name":"Miltner","change_desc":"added syns, edited Overview and treatment, added QLinks  ","tmsp_last_updt":"07-JUL-11"}
+,{"audit_trail_id":16103,"contaminant_id":10200,"editor_name":"Miltner","change_desc":"edit overvoew and treatment summary","tmsp_last_updt":"23-NOV-11"}
+,{"audit_trail_id":16320,"contaminant_id":10900,"editor_name":"Chaparro","change_desc":"Minor editorial updates to Overview summary.","tmsp_last_updt":"15-JUN-12"}
+,{"audit_trail_id":16561,"contaminant_id":10940,"editor_name":"RDM","change_desc":"Main treatment overview added 6\/22\/12.","tmsp_last_updt":"22-JUN-12"}
+,{"audit_trail_id":10060,"contaminant_id":10181,"editor_name":"Ying Wu","change_desc":"Wrote chemical overview. \r\nRevised a few references.","tmsp_last_updt":"10-JUN-09"}
+,{"audit_trail_id":10264,"contaminant_id":10200,"editor_name":"Ying Wu","change_desc":"Added fate data","tmsp_last_updt":"26-JUN-09"}
+,{"audit_trail_id":10320,"contaminant_id":10120,"editor_name":"Amanda Savage","change_desc":"Initial Input","tmsp_last_updt":"30-JUN-09"}
+,{"audit_trail_id":10321,"contaminant_id":10180,"editor_name":"Amanda Savage","change_desc":"Initial Input","tmsp_last_updt":"30-JUN-09"}
+,{"audit_trail_id":10605,"contaminant_id":10140,"editor_name":"RDM","change_desc":"Benzene overview summary entered 7\/14\/09.","tmsp_last_updt":"14-JUL-09"}
+,{"audit_trail_id":11010,"contaminant_id":10042,"editor_name":"RDM","change_desc":"Vinclozolin overview summary modified 8\/12\/09 for font and spacing.","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11035,"contaminant_id":10360,"editor_name":"Venkat Radhakrishnan","change_desc":"Added Properties and Fate","tmsp_last_updt":"12-AUG-09"}
+,{"audit_trail_id":11242,"contaminant_id":10022,"editor_name":"RDM","change_desc":"Contaminant overview entered 8\/21\/09.","tmsp_last_updt":"21-AUG-09"}
+,{"audit_trail_id":11375,"contaminant_id":10080,"editor_name":"Ying Wu","change_desc":"Finished initial data entry on 8\/19\/09. Revised based on Sean Chaparro's comments on 8\/27\/09.","tmsp_last_updt":"27-AUG-09"}
+,{"audit_trail_id":11445,"contaminant_id":10460,"editor_name":"Ying Wu","change_desc":"Revised overview summary. Added references 953, 965 through 971.","tmsp_last_updt":"01-SEP-09"}
+,{"audit_trail_id":11448,"contaminant_id":10280,"editor_name":"Dhananjay Mishra","change_desc":"Updated contaminant description","tmsp_last_updt":"01-SEP-09"}
+,{"audit_trail_id":11449,"contaminant_id":10480,"editor_name":"Venkat Radhakrishnan","change_desc":"Added Overview and Treatment.","tmsp_last_updt":"01-SEP-09"}
+,{"audit_trail_id":11520,"contaminant_id":10340,"editor_name":"Nabin Khanal","change_desc":"Data and summaries entry completed!!","tmsp_last_updt":"11-SEP-09"}
+,{"audit_trail_id":11523,"contaminant_id":10021,"editor_name":"Chris Hill","change_desc":"Consolidated vapor pressures at 25C.  Two values, 4.9 X 10-6 and 5.03 X 10-6 were reported.  Replaced with 5.0 X 10-6","tmsp_last_updt":"11-SEP-09"}
+,{"audit_trail_id":11529,"contaminant_id":10023,"editor_name":"Chris Hill","change_desc":"Minor revisions to all big and little summaries","tmsp_last_updt":"11-SEP-09"}
+,{"audit_trail_id":11584,"contaminant_id":10022,"editor_name":"Elisabeth Hawley","change_desc":"Minor text edits to treatment overview","tmsp_last_updt":"16-SEP-09"}
+,{"audit_trail_id":11660,"contaminant_id":10022,"editor_name":"RDM","change_desc":"Contaminant overview text edited to integrate reviewer's comments.","tmsp_last_updt":"24-SEP-09"}
+,{"audit_trail_id":11841,"contaminant_id":10480,"editor_name":"RDM","change_desc":"Edits to the treatment overview were made 10\/28\/09.","tmsp_last_updt":"28-OCT-09"}
+,{"audit_trail_id":11940,"contaminant_id":10021,"editor_name":"Miltner","change_desc":"changed synonyms, edited contaminant overview","tmsp_last_updt":"11-NOV-09"}
+,{"audit_trail_id":12000,"contaminant_id":10320,"editor_name":"Miltner","change_desc":"added date of lit search to cont overview","tmsp_last_updt":"12-NOV-09"}
+,{"audit_trail_id":12111,"contaminant_id":10200,"editor_name":"Ying Wu","change_desc":"Revised date of literature research to month and year format for the overview.","tmsp_last_updt":"01-DEC-09"}
+,{"audit_trail_id":12200,"contaminant_id":10220,"editor_name":"Dhananjay Mishra","change_desc":"Updated C\/TP literature review dates.","tmsp_last_updt":"07-DEC-09"}
+,{"audit_trail_id":12361,"contaminant_id":10041,"editor_name":"RDM","change_desc":"Revised synonyms.","tmsp_last_updt":"25-JAN-10"}
+,{"audit_trail_id":12548,"contaminant_id":10120,"editor_name":"Amanda Savage","change_desc":"Updated Overview, and Treatment Processes. Removed contaminant\/treatment processes due to no data.","tmsp_last_updt":"08-MAR-10"}
+,{"audit_trail_id":12860,"contaminant_id":10540,"editor_name":"Ying Wu","change_desc":"Added treatment summary.","tmsp_last_updt":"21-AUG-10"}
+,{"audit_trail_id":12861,"contaminant_id":10540,"editor_name":"Ying Wu","change_desc":"Added treatment summary.","tmsp_last_updt":"21-AUG-10"}
+,{"audit_trail_id":13020,"contaminant_id":10660,"editor_name":"RDM","change_desc":"Added contaminant overview 8\/31\/10.","tmsp_last_updt":"31-AUG-10"}
+,{"audit_trail_id":13161,"contaminant_id":10560,"editor_name":"Chris Hill","change_desc":"Alpha testing on 9\/2\/10","tmsp_last_updt":"16-SEP-10"}
+,{"audit_trail_id":13222,"contaminant_id":10781,"editor_name":"RDM","change_desc":"Contaminant image added 9\/30\/10.","tmsp_last_updt":"30-SEP-10"}
+,{"audit_trail_id":13260,"contaminant_id":10781,"editor_name":"RDM","change_desc":"Treatment overview added 10\/5\/10.","tmsp_last_updt":"05-OCT-10"}
+,{"audit_trail_id":13460,"contaminant_id":10840,"editor_name":"RDM","change_desc":"Added synonyms, image, and fate data 11\/9\/10.","tmsp_last_updt":"09-NOV-10"}
+,{"audit_trail_id":13482,"contaminant_id":10820,"editor_name":"Chris Hill","change_desc":"Alpha review and minor edits","tmsp_last_updt":"10-NOV-10"}
+,{"audit_trail_id":13561,"contaminant_id":-1336577584,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"12-JAN-11"}
+,{"audit_trail_id":13621,"contaminant_id":10480,"editor_name":"Miltner","change_desc":"edit Overview and Treatment summary for BAT discussion","tmsp_last_updt":"18-JAN-11"}
+,{"audit_trail_id":13640,"contaminant_id":10042,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13643,"contaminant_id":10320,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13645,"contaminant_id":10300,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13651,"contaminant_id":10001,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"19-JAN-11"}
+,{"audit_trail_id":13703,"contaminant_id":10120,"editor_name":"Miltner","change_desc":"added QLinks","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13704,"contaminant_id":10080,"editor_name":"Miltner","change_desc":"added QLinks, edited Overview\r\n","tmsp_last_updt":"24-JAN-11"}
+,{"audit_trail_id":13722,"contaminant_id":10023,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13724,"contaminant_id":10480,"editor_name":"Miltner","change_desc":"edit QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13726,"contaminant_id":10140,"editor_name":"Miltner","change_desc":"add QLinks","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13730,"contaminant_id":10060,"editor_name":"Miltner","change_desc":"delete alachlor\/other treatment","tmsp_last_updt":"26-JAN-11"}
+,{"audit_trail_id":13760,"contaminant_id":10680,"editor_name":"Miltner","change_desc":"edits synonyms, add QLinks, edit Overview","tmsp_last_updt":"01-FEB-11"}
+,{"audit_trail_id":13803,"contaminant_id":10500,"editor_name":"Miltner","change_desc":"add QLink","tmsp_last_updt":"02-FEB-11"}
+,{"audit_trail_id":13860,"contaminant_id":10800,"editor_name":"Miltner","change_desc":"edit Overview, edit Treatment, add refs","tmsp_last_updt":"08-FEB-11"}
+,{"audit_trail_id":13941,"contaminant_id":10560,"editor_name":"Miltner","change_desc":"edit Overview, add QLinks, edit Synonyms","tmsp_last_updt":"16-MAR-11"}
+,{"audit_trail_id":14160,"contaminant_id":10260,"editor_name":"Miltner","change_desc":"edit Overview, edit Refs, edit Properties","tmsp_last_updt":"08-APR-11"}
+,{"audit_trail_id":15401,"contaminant_id":10380,"editor_name":"Miltner","change_desc":"edited Overview, Treatment, Syns","tmsp_last_updt":"29-JUN-11"}
+,{"audit_trail_id":15901,"contaminant_id":10520,"editor_name":"Miltner","change_desc":"add UCMR3 QLink","tmsp_last_updt":"13-OCT-11"}
+,{"audit_trail_id":16060,"contaminant_id":10023,"editor_name":"Miltner","change_desc":"edit summary for added RO refs","tmsp_last_updt":"22-NOV-11"}
+,{"audit_trail_id":16063,"contaminant_id":10840,"editor_name":"Miltner","change_desc":"update treatment summary","tmsp_last_updt":"22-NOV-11"}
+,{"audit_trail_id":16065,"contaminant_id":10181,"editor_name":"Miltner","change_desc":"edit treatment summary for RO.","tmsp_last_updt":"22-NOV-11"}
+,{"audit_trail_id":16600,"contaminant_id":10900,"editor_name":"Craig Patterson","change_desc":"Minor Edits added 8\/26\/14","tmsp_last_updt":"26-AUG-14"}
+,{"audit_trail_id":16680,"contaminant_id":10600,"editor_name":"Andre","change_desc":"Added Powdered Activated Carbon to the Treatment description tab. ","tmsp_last_updt":"26-JAN-15"}
+,{"audit_trail_id":16742,"contaminant_id":10940,"editor_name":"PR","change_desc":"Edited treatment process summary to incorporate new data","tmsp_last_updt":"19-MAY-16"}
+,{"audit_trail_id":16750,"contaminant_id":10520,"editor_name":"PR","change_desc":"Updated Treatment Summary with new data","tmsp_last_updt":"19-MAY-16"}
+,{"audit_trail_id":16751,"contaminant_id":11060,"editor_name":"PR","change_desc":"Added contaminant","tmsp_last_updt":"20-MAY-16"}
+,{"audit_trail_id":16800,"contaminant_id":11080,"editor_name":"PR","change_desc":"Added contaminant","tmsp_last_updt":"22-FEB-17"}
+,{"audit_trail_id":16826,"contaminant_id":10520,"editor_name":"CP","change_desc":"Added 2016 PFOA Health Advisory text","tmsp_last_updt":"28-MAR-17"}
+,{"audit_trail_id":16827,"contaminant_id":10940,"editor_name":"CP","change_desc":"Added 2016 PFOS Health Advisory text","tmsp_last_updt":"28-MAR-17"}
+,{"audit_trail_id":16801,"contaminant_id":11000,"editor_name":"PR","change_desc":"Created contaminant entry","tmsp_last_updt":"29-JAN-18"}
+,{"audit_trail_id":16861,"contaminant_id":11040,"editor_name":"PR","change_desc":"QA'd chemical properties data","tmsp_last_updt":"25-MAY-18"}
+,{"audit_trail_id":16862,"contaminant_id":10981,"editor_name":"AB","change_desc":"Added chemical properties","tmsp_last_updt":"25-MAY-18"}
+,{"audit_trail_id":16865,"contaminant_id":10981,"editor_name":"PR","change_desc":"QA'd properties. Wrote treatment summary.","tmsp_last_updt":"25-MAY-18"}
+,{"audit_trail_id":16880,"contaminant_id":10981,"editor_name":"PR","change_desc":"Added properties from Ref 2600. Wrote contaminant overview.","tmsp_last_updt":"30-MAY-18"}
+,{"audit_trail_id":16884,"contaminant_id":11000,"editor_name":"PR","change_desc":"QA'd properties data. Wrote treatment summary and contaminant overview.","tmsp_last_updt":"30-MAY-18"}
+,{"audit_trail_id":16888,"contaminant_id":1176389556,"editor_name":"PR","change_desc":"Updated overview and treatment summary.","tmsp_last_updt":"31-MAY-18"}
+,{"audit_trail_id":16780,"contaminant_id":10981,"editor_name":"PR","change_desc":"Created contaminant","tmsp_last_updt":"26-JAN-18"}
+,{"audit_trail_id":16781,"contaminant_id":11040,"editor_name":"PR","change_desc":"Added TCP and 1,2,3-TCP as synonyms","tmsp_last_updt":"26-JAN-18"}
+,{"audit_trail_id":16820,"contaminant_id":11020,"editor_name":"PR","change_desc":"Created contaminant category","tmsp_last_updt":"26-APR-18"}
+,{"audit_trail_id":16860,"contaminant_id":11040,"editor_name":"AB","change_desc":"Added chemical properties data","tmsp_last_updt":"25-MAY-18"}
+,{"audit_trail_id":16900,"contaminant_id":11000,"editor_name":"AB","change_desc":"QA'd iodoform contaminant overview","tmsp_last_updt":"11-JUN-18"}
+,{"audit_trail_id":16901,"contaminant_id":10981,"editor_name":"AB","change_desc":"QA'd EDB contaminant overview, made a few grammatical changes.","tmsp_last_updt":"11-JUN-18"}
+,{"audit_trail_id":16908,"contaminant_id":11000,"editor_name":"PR","change_desc":"Added taste and odor threshold to properties","tmsp_last_updt":"14-JUN-18"}
+,{"audit_trail_id":16940,"contaminant_id":11020,"editor_name":"PR","change_desc":"Added second CAS No for Gen-X","tmsp_last_updt":"17-JUL-18"}
+,{"audit_trail_id":16960,"contaminant_id":11020,"editor_name":"PR","change_desc":"Added PFBA and PFDA","tmsp_last_updt":"11-SEP-18"}
+,{"audit_trail_id":17080,"contaminant_id":11020,"editor_name":"PR","change_desc":"Updated overview and treatment summary","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17081,"contaminant_id":10940,"editor_name":"PR","change_desc":"Updated overview and treatment summary ","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17082,"contaminant_id":10520,"editor_name":"PR","change_desc":"Updated overview and treatment summary ","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17083,"contaminant_id":1175876466,"editor_name":"PR","change_desc":"Corrected conversion of MCL to mg\/L","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17084,"contaminant_id":10560,"editor_name":"PR","change_desc":"Updated contaminant name and CAS No to match CompTox nomenclature","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17085,"contaminant_id":10981,"editor_name":"PR","change_desc":"Updated contaminant name to match CompTox nomenclature","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17086,"contaminant_id":10700,"editor_name":"PR","change_desc":"Corrected CAS No based on CompTox entry","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17087,"contaminant_id":10340,"editor_name":"PR","change_desc":"Corrected chemical name to match CompTox nomenclature","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17088,"contaminant_id":10620,"editor_name":"PR","change_desc":"Corrected CAS No based on CompTox","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17089,"contaminant_id":10961,"editor_name":"PR","change_desc":"Corrected contaminant name to match CompTox nomenclature","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17090,"contaminant_id":1176389556,"editor_name":"PR","change_desc":"Added CAS No based on CompTox","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17091,"contaminant_id":1176143754,"editor_name":"PR","change_desc":"Corrected CAS No based on CompTox","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17092,"contaminant_id":10300,"editor_name":"PR","change_desc":"Added CAS No based on CompTox","tmsp_last_updt":"27-MAY-20"}
+,{"audit_trail_id":17093,"contaminant_id":10320,"editor_name":"PR","change_desc":"Added CAS No based on CompTox","tmsp_last_updt":"27-MAY-20"}
+]}]}

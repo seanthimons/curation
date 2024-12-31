@@ -1,0 +1,4 @@
+{"results":[{"columns":[{"name":"IMAGE_ID","type":"NUMBER"},{"name":"CONTAMINANT_PROCESS_ID","type":"NUMBER"},{"name":"IMAGE","type":"BLOB"},{"name":"MIME_TYPE","type":"VARCHAR2"},{"name":"CAPTION","type":"VARCHAR2"},{"name":"DISPLAY_ORDER","type":"NUMBER"},{"name":"REFERENCE_ID","type":"NUMBER"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"image_id":1189105262,"contaminant_process_id":1095565729,"image":"(BLOB)","mime_type":"JPG","caption":"Figure 1.  Percent dichlorvos removal versus ozone dose.  Values are shown for ozone only and for ozone\/H2O2.  H2O2\/O3 = 0.5.","display_order":0,"reference_id":1888590523,"tmsp_last_updt":"04-JUN-08"}
+]}]}

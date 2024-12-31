@@ -1,0 +1,16 @@
+{"results":[{"columns":[{"name":"TAG_ID","type":"NUMBER"},{"name":"TAG_VALUE","type":"VARCHAR2"},{"name":"TAG_TYPE_CODE","type":"CHAR"},{"name":"TAG_DESC","type":"VARCHAR2"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"tag_id":-2131625817,"tag_value":"GR","tag_type_code":"R","tag_desc":"Government Reports","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":-1482405075,"tag_value":"O","tag_type_code":"R","tag_desc":"Other (Described in Comments)","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":-1290077954,"tag_value":"PR","tag_type_code":"R","tag_desc":"Peer Reviewed Reports","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":-831141296,"tag_value":"A","tag_type_code":"R","tag_desc":"Theses and Disertations","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":-14492693,"tag_value":"PJ","tag_type_code":"R","tag_desc":"Peer Reviewed Journals","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":578318353,"tag_value":"R","tag_type_code":"R","tag_desc":"Non-Peer Reviewed, Non-Government Reports (Includes Books and Book Chapters)","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":773845870,"tag_value":"T","tag_type_code":"R","tag_desc":"Trade Journals","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":1172601666,"tag_value":"PC","tag_type_code":"R","tag_desc":"Peer Reviewed Conference\/Symposium Proceedings","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":1524550209,"tag_value":"W","tag_type_code":"R","tag_desc":"Web Pages","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":1564529189,"tag_value":"C","tag_type_code":"A","tag_desc":"Describes or References the Analytic Method for the Contaminant","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":1829084105,"tag_value":"HB","tag_type_code":"R","tag_desc":"Hand Books","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":2053850702,"tag_value":"C","tag_type_code":"R","tag_desc":"Non-Peer Reviewed, Conference\/Symposium Proceedings","tmsp_last_updt":"25-APR-07"}
+,{"tag_id":10000,"tag_value":"N","tag_type_code":"A","tag_desc":"Analytical Method for the Contaminant Not Described","tmsp_last_updt":"17-APR-09"}
+]}]}

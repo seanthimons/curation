@@ -1,0 +1,12 @@
+{"results":[{"columns":[{"name":"LINK_ID","type":"NUMBER"},{"name":"LINK_NAME","type":"VARCHAR2"},{"name":"LINK_URL","type":"VARCHAR2"},{"name":"DISPLAY_ORDER","type":"NUMBER"},{"name":"CHECK_EXTERNAL","type":"CHAR"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"link_id":10111,"link_name":"EPA Contaminant Candidate List (CCL)","link_url":"https:\/\/www.epa.gov\/ccl","display_order":12,"check_external":"N","tmsp_last_updt":"02-NOV-20"}
+,{"link_id":10103,"link_name":"EPA Drinking Water Standards","link_url":"https:\/\/www.epa.gov\/dwreginfo\/drinking-water-regulations\/","display_order":4,"check_external":"N","tmsp_last_updt":"28-OCT-20"}
+,{"link_id":10104,"link_name":"EPA Water Contaminant Information Tool (WCIT)","link_url":"https:\/\/www.epa.gov\/waterdata\/water-contaminant-information-tool-wcit\/","display_order":5,"check_external":"N","tmsp_last_updt":"28-OCT-20"}
+,{"link_id":10112,"link_name":"EPA Analytical Methods","link_url":"https:\/\/www.epa.gov\/cwa-methods\/","display_order":13,"check_external":"N","tmsp_last_updt":"05-MAR-21"}
+,{"link_id":10113,"link_name":"EPA Integrated Risk Information System (IRIS) Risk Documents","link_url":"http:\/\/www.epa.gov\/iris\/","display_order":14,"check_external":"N","tmsp_last_updt":"26-OCT-20"}
+,{"link_id":10114,"link_name":"EPA Nation Primary Drinking Water Regulations (NPDWR)","link_url":"https:\/\/www.epa.gov\/sites\/production\/files\/2016-06\/documents\/npwdr_complete_table.pdf","display_order":15,"check_external":"N","tmsp_last_updt":"26-OCT-20"}
+,{"link_id":10115,"link_name":"EPA Water Research Technical Support","link_url":"https:\/\/www.epa.gov\/water-research\/technical-support-water-infrastructure","display_order":16,"check_external":"N","tmsp_last_updt":"25-JUL-23"}
+,{"link_id":10117,"link_name":"EPA Safe Drinking Water Act (SDWA)&lt;br&gt;","link_url":"https:\/\/www.epa.gov\/sdwa","display_order":18,"check_external":"N","tmsp_last_updt":"22-MAY-24"}
+,{"link_id":10116,"link_name":"EPA Unregulated Contaminant Monitoring Rule (UCMR)&lt;br&gt;","link_url":"https:\/\/www.epa.gov\/dwucmr\/fifth-unregulated-contaminant-monitoring-rule","display_order":17,"check_external":"N","tmsp_last_updt":"22-MAY-24"}
+]}]}

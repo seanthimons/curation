@@ -1,0 +1,5 @@
+{"results":[{"columns":[{"name":"TAG_TYPE_CODE","type":"CHAR"},{"name":"TAG_TYPE_NAME","type":"VARCHAR2"}],"items":
+[
+{"tag_type_code":"A","tag_type_name":"Analytical Method Tag"}
+,{"tag_type_code":"R","tag_type_name":"Reference Tag"}
+]}]}

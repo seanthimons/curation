@@ -1,0 +1,256 @@
+,"items":
+[
+{"tag_id":16380,"tag_group":1,"tag_code":"B","tag_desc":"Bench","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16381,"tag_group":1,"tag_code":"P","tag_desc":"Pilot","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16382,"tag_group":1,"tag_code":"F","tag_desc":"Full","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16383,"tag_group":1,"tag_code":"O","tag_desc":"Other: Described in the Comments Field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16384,"tag_group":2,"tag_code":"LW","tag_desc":"Lab Water","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16385,"tag_group":2,"tag_code":"SW","tag_desc":"Surface Water","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16386,"tag_group":2,"tag_code":"GW","tag_desc":"Ground Water","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16387,"tag_group":2,"tag_code":"GWI","tag_desc":"Ground Water under the influence of a Surface Water","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16388,"tag_group":2,"tag_code":"MW","tag_desc":"Modified Water: Described in the Comments Field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16389,"tag_group":2,"tag_code":"O","tag_desc":"Other: Described in the Comments Field","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16390,"tag_group":3,"tag_code":"AAM","tag_desc":"Modified alumium media","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16391,"tag_group":3,"tag_code":"FEM","tag_desc":"Iron based media","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16392,"tag_group":3,"tag_code":"TIM","tag_desc":"Titanium based media","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16393,"tag_group":3,"tag_code":"ZRM","tag_desc":"Zirconium based media","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16394,"tag_group":3,"tag_code":"FER","tag_desc":"Iron Modified Resin","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16395,"tag_group":3,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16396,"tag_group":4,"tag_code":"G","tag_desc":"Gravity","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16397,"tag_group":4,"tag_code":"P","tag_desc":"Pressure","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16398,"tag_group":4,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16399,"tag_group":5,"tag_code":"DIFF","tag_desc":"Diffused","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16400,"tag_group":5,"tag_code":"SPR","tag_desc":"Spray","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16401,"tag_group":5,"tag_code":"PT","tag_desc":"Packed Tower","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16402,"tag_group":5,"tag_code":"CASC","tag_desc":"Cascade","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16403,"tag_group":5,"tag_code":"MT","tag_desc":"Multiple Tray","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16404,"tag_group":5,"tag_code":"CONE","tag_desc":"Cone","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16405,"tag_group":5,"tag_code":"PRES","tag_desc":"Pressurized","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16406,"tag_group":5,"tag_code":"MECH","tag_desc":"Mechanical","display_order":7,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16407,"tag_group":5,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":8,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16408,"tag_group":6,"tag_code":"CO","tag_desc":"Co-current","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16409,"tag_group":6,"tag_code":"CC","tag_desc":"Counter-current","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16410,"tag_group":7,"tag_code":"P","tag_desc":"Plastic","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16411,"tag_group":7,"tag_code":"CER","tag_desc":"Ceramic","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16412,"tag_group":7,"tag_code":"ST","tag_desc":"Stone","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16413,"tag_group":7,"tag_code":"CB","tag_desc":"Coke Bed","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16414,"tag_group":7,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16415,"tag_group":8,"tag_code":"CA","tag_desc":"Carbon Adsorption","display_order":0,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16416,"tag_group":8,"tag_code":"PO","tag_desc":"Photo Oxidation","display_order":2,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16417,"tag_group":8,"tag_code":"TO","tag_desc":"Thermal Oxidation","display_order":3,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16418,"tag_group":8,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":5,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16419,"tag_group":9,"tag_code":"A","tag_desc":"Aluminum","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16420,"tag_group":9,"tag_code":"FeS","tag_desc":"Ferric Sulfide","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16421,"tag_group":9,"tag_code":"FeCl","tag_desc":"Ferric Chloride","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16422,"tag_group":9,"tag_code":"P","tag_desc":"Polymer","display_order":3,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16423,"tag_group":9,"tag_code":"PACl","tag_desc":"Polyaluminum Chloride","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16424,"tag_group":9,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16425,"tag_group":10,"tag_code":"G","tag_desc":"Conventional Gravity","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16426,"tag_group":10,"tag_code":"TS","tag_desc":"Conventional with Tube Settling","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16427,"tag_group":10,"tag_code":"PS","tag_desc":"Conventional with Plate Settling","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16428,"tag_group":10,"tag_code":"UP","tag_desc":"Upflow Solids Contactor","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16429,"tag_group":10,"tag_code":"DAF","tag_desc":"Dissolved Air Flotation","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16430,"tag_group":10,"tag_code":"SB","tag_desc":"Sand Ballasted","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16431,"tag_group":10,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16432,"tag_group":11,"tag_code":"A","tag_desc":"Anionic","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16433,"tag_group":11,"tag_code":"C","tag_desc":"Cationic","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16434,"tag_group":11,"tag_code":"N","tag_desc":"Nonionic","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16435,"tag_group":12,"tag_code":"CA","tag_desc":"Cellulose Acetate","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16436,"tag_group":12,"tag_code":"PVDF","tag_desc":"Polyvinyldifluoride","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16437,"tag_group":12,"tag_code":"PP","tag_desc":"Polypropylene","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16438,"tag_group":12,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16439,"tag_group":14,"tag_code":"A","tag_desc":"Anthracite","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16440,"tag_group":14,"tag_code":"S","tag_desc":"Sand","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16441,"tag_group":14,"tag_code":"G","tag_desc":"Garnet","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16442,"tag_group":14,"tag_code":"GAC","tag_desc":"Granular Activated Carbon","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16443,"tag_group":14,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16444,"tag_group":15,"tag_code":"S","tag_desc":"Sand","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16445,"tag_group":15,"tag_code":"G","tag_desc":"Garnet","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16446,"tag_group":15,"tag_code":"GAC","tag_desc":"Granular Activated Carbon","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16447,"tag_group":15,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16448,"tag_group":16,"tag_code":"S","tag_desc":"Sand","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16449,"tag_group":16,"tag_code":"G","tag_desc":"Garnet","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16450,"tag_group":16,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16451,"tag_group":17,"tag_code":"V","tag_desc":"Vacuum","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16452,"tag_group":17,"tag_code":"P","tag_desc":"Pressure","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16453,"tag_group":17,"tag_code":"HP","tag_desc":"Horizontal Plate","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16454,"tag_group":17,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16455,"tag_group":18,"tag_code":"SS","tag_desc":"Single Stage","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16456,"tag_group":18,"tag_code":"TS","tag_desc":"Two Stage","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16457,"tag_group":18,"tag_code":"ST","tag_desc":"Split Treatment","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16458,"tag_group":18,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16459,"tag_group":19,"tag_code":"L","tag_desc":"Lime","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16460,"tag_group":19,"tag_code":"CS","tag_desc":"Caustic Soda (NaOH)","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16461,"tag_group":19,"tag_code":"SA","tag_desc":"Soda Ash (Na2CO3)","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16462,"tag_group":19,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16463,"tag_group":20,"tag_code":"SA","tag_desc":"Soda Ash (Na2CO3)","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16464,"tag_group":20,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16465,"tag_group":21,"tag_code":"S1","tag_desc":"First Stage","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16466,"tag_group":21,"tag_code":"S2","tag_desc":"Second Stage","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16467,"tag_group":22,"tag_code":"SS","tag_desc":"Single Stage","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16468,"tag_group":22,"tag_code":"TS","tag_desc":"Two Stage","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16469,"tag_group":22,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16470,"tag_group":23,"tag_code":"FA","tag_desc":"Filter Adsorber","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16471,"tag_group":23,"tag_code":"PFA","tag_desc":"Post Filter Adsorber","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16472,"tag_group":23,"tag_code":"PRE","tag_desc":"Prefilter Adsorber","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16473,"tag_group":23,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16474,"tag_group":24,"tag_code":"G","tag_desc":"Gravity","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16475,"tag_group":24,"tag_code":"P","tag_desc":"Pressure","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16476,"tag_group":24,"tag_code":"FC","tag_desc":"Filter Cap","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16477,"tag_group":24,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16478,"tag_group":25,"tag_code":"S","tag_desc":"Single Bed","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16479,"tag_group":25,"tag_code":"FS","tag_desc":"Fixed Bed in Series","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16480,"tag_group":25,"tag_code":"FP","tag_desc":"Fixed Bed in Parallel","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16481,"tag_group":25,"tag_code":"MB","tag_desc":"Moving Bed, Upflow","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16482,"tag_group":25,"tag_code":"EB","tag_desc":"Expanded Bed, Upflow","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16483,"tag_group":25,"tag_code":"PB","tag_desc":"Pulsed Bed","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16484,"tag_group":25,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16485,"tag_group":26,"tag_code":"IR","tag_desc":"Electric Infrared Oven","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16486,"tag_group":26,"tag_code":"FB","tag_desc":"Fluidized Bed Furnace","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16487,"tag_group":26,"tag_code":"MH","tag_desc":"Multiple-hearth Furnace","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16488,"tag_group":26,"tag_code":"RK","tag_desc":"Rotary Kiln","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16489,"tag_group":26,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16490,"tag_group":27,"tag_code":"B","tag_desc":"Bituminous","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16491,"tag_group":27,"tag_code":"A","tag_desc":"Anthracite","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16492,"tag_group":27,"tag_code":"L","tag_desc":"Lignite","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16493,"tag_group":27,"tag_code":"W","tag_desc":"Wood","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16494,"tag_group":27,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16495,"tag_group":28,"tag_code":"RM","tag_desc":"Rapid Mix","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16496,"tag_group":28,"tag_code":"F","tag_desc":"Flocculation","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16497,"tag_group":28,"tag_code":"FILT","tag_desc":"Filter","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16498,"tag_group":28,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16499,"tag_group":29,"tag_code":"G","tag_desc":"Gravity","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16500,"tag_group":29,"tag_code":"P","tag_desc":"Pressure","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16501,"tag_group":29,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16502,"tag_group":30,"tag_code":"A","tag_desc":"Anion","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16503,"tag_group":30,"tag_code":"C","tag_desc":"Cation","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16504,"tag_group":30,"tag_code":"AC","tag_desc":"Anion-Cation","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16505,"tag_group":30,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16506,"tag_group":31,"tag_code":"NaCl","tag_desc":"Sodium Chloride","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16507,"tag_group":31,"tag_code":"NaOH","tag_desc":"Sodium Hydroxide","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16508,"tag_group":31,"tag_code":"HCl","tag_desc":"Hydrochloric Acid","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16509,"tag_group":31,"tag_code":"KCl","tag_desc":"Potassium Chloride","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16510,"tag_group":31,"tag_code":"H2SO4","tag_desc":"Sulfuric Acid","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16511,"tag_group":31,"tag_code":"Na2SO4","tag_desc":"Sodium Sulfate","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16512,"tag_group":31,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":7,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16513,"tag_group":32,"tag_code":"I\/O","tag_desc":"Inside\/Out","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16514,"tag_group":32,"tag_code":"O\/I","tag_desc":"Outside\/In","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16515,"tag_group":32,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16516,"tag_group":34,"tag_code":"PH","tag_desc":"Pressure Hold","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16517,"tag_group":34,"tag_code":"PC","tag_desc":"Particle Challenge","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16518,"tag_group":34,"tag_code":"S","tag_desc":"Sonic","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16519,"tag_group":34,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16520,"tag_group":35,"tag_code":"NF","tag_desc":"Nanofiltration","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16521,"tag_group":35,"tag_code":"RO","tag_desc":"Reverse Osmosis","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16522,"tag_group":35,"tag_code":"ED","tag_desc":"Electrodialysis","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16523,"tag_group":35,"tag_code":"EDR","tag_desc":"Electrodialysis Reversal","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16524,"tag_group":35,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16525,"tag_group":36,"tag_code":"MF","tag_desc":"Microfiltration","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16526,"tag_group":36,"tag_code":"UF","tag_desc":"Ultrafiltration","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16527,"tag_group":36,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16528,"tag_group":37,"tag_code":"CA","tag_desc":"Cellulose Acetate","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16529,"tag_group":37,"tag_code":"TFC","tag_desc":"Thin Film Composite, Polyamide Active Layer","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16530,"tag_group":37,"tag_code":"IEX","tag_desc":"Ion Exchanging Resin","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16531,"tag_group":37,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16532,"tag_group":38,"tag_code":"SW","tag_desc":"Spiral Wound","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16533,"tag_group":38,"tag_code":"H","tag_desc":"Hollow Fiber","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16534,"tag_group":38,"tag_code":"PF","tag_desc":"Plate and Frame","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16535,"tag_group":38,"tag_code":"FS","tag_desc":"Flat Sheet","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16536,"tag_group":38,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16537,"tag_group":39,"tag_code":"PREOX","tag_desc":"Pre-oxidation","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16538,"tag_group":39,"tag_code":"RM","tag_desc":"Rapid Mix","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16539,"tag_group":39,"tag_code":"FLOC","tag_desc":"Flocculation","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16540,"tag_group":39,"tag_code":"CLAR","tag_desc":"Clarification","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16541,"tag_group":39,"tag_code":"FILT","tag_desc":"Pre-filtration","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16542,"tag_group":39,"tag_code":"CONT","tag_desc":"Contact Basin","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16543,"tag_group":39,"tag_code":"CW","tag_desc":"Clear Well","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16544,"tag_group":39,"tag_code":"B","tag_desc":"Bench-Scale Batch, Semibatch, CSTR, etc","display_order":7,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16545,"tag_group":39,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":8,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16546,"tag_group":40,"tag_code":"Cl2-NH3","tag_desc":"Chlorine, then Ammonia","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16547,"tag_group":40,"tag_code":"NH3-Cl2","tag_desc":"Ammonia, then Chlorine","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16548,"tag_group":40,"tag_code":"PRE","tag_desc":"Preformed","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16549,"tag_group":41,"tag_code":"MONO","tag_desc":"Monochlorinamine","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16550,"tag_group":41,"tag_code":"DI","tag_desc":"Dichlorinamine","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16551,"tag_group":41,"tag_code":"TRI","tag_desc":"Trichlorinamine","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16552,"tag_group":41,"tag_code":"TOTAL","tag_desc":"Total Chlorine","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16553,"tag_group":42,"tag_code":"RM","tag_desc":"Rapid Mix","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16554,"tag_group":42,"tag_code":"FLOC","tag_desc":"Flocculation","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16555,"tag_group":42,"tag_code":"CLAR","tag_desc":"Clarification","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16556,"tag_group":42,"tag_code":"FILT","tag_desc":"Pre-filtration","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16557,"tag_group":42,"tag_code":"CONT","tag_desc":"Contact Basin","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16558,"tag_group":42,"tag_code":"CW","tag_desc":"Clear Well","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16559,"tag_group":42,"tag_code":"B","tag_desc":"Bench-Scale Batch, Semibatch, CSTR, etc","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16560,"tag_group":42,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":7,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16561,"tag_group":43,"tag_code":"Cl2","tag_desc":"Chlorine Only","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16562,"tag_group":43,"tag_code":"Cl2-NH3","tag_desc":"Chlorine, then Ammonia","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16563,"tag_group":43,"tag_code":"NH3-Cl2","tag_desc":"Ammonia, then Chlorine","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16564,"tag_group":43,"tag_code":"PRE","tag_desc":"Preformed","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16565,"tag_group":44,"tag_code":"Cl2","tag_desc":"NaClO2 and Chlorine Gas","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16566,"tag_group":44,"tag_code":"NaOCl","tag_desc":"NaClO2 and NaOCl","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16567,"tag_group":44,"tag_code":"H2SO4","tag_desc":"NaClO2 and H2SO4","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16568,"tag_group":44,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16569,"tag_group":45,"tag_code":"Na","tag_desc":"NaMnO4","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16570,"tag_group":45,"tag_code":"K","tag_desc":"KMnO4","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16571,"tag_group":46,"tag_code":"PREOX","tag_desc":"Pre-oxidation","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16572,"tag_group":46,"tag_code":"CLAR","tag_desc":"Clarification","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16573,"tag_group":46,"tag_code":"FILT","tag_desc":"Filtered","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16574,"tag_group":46,"tag_code":"B","tag_desc":"Bench-Scale Batch, Semibatch, CSTR, etc","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16575,"tag_group":46,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16576,"tag_group":47,"tag_code":"IN","tag_desc":"In-line","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16577,"tag_group":47,"tag_code":"CO","tag_desc":"Co-current","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16578,"tag_group":47,"tag_code":"CC","tag_desc":"Counter-current","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16579,"tag_group":47,"tag_code":"FLO","tag_desc":"Flow Through","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16580,"tag_group":47,"tag_code":"O","tag_desc":"Other: Described in the Comments Field","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16581,"tag_group":48,"tag_code":"CLAR","tag_desc":"Clarified","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16582,"tag_group":48,"tag_code":"FILT","tag_desc":"Filtered","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16583,"tag_group":48,"tag_code":"B","tag_desc":"Bench-Scale Batch, Semibatch, CSTR, etc","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16584,"tag_group":48,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16585,"tag_group":49,"tag_code":"MP","tag_desc":"Medium Pressure","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16586,"tag_group":49,"tag_code":"LP","tag_desc":"Low Pressure","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16587,"tag_group":49,"tag_code":"LPOH","tag_desc":"Low Pressure High Output","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16588,"tag_group":50,"tag_code":"UVA","tag_desc":"320 - 400 nm","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16589,"tag_group":50,"tag_code":"UVB","tag_desc":"290 - 320 nm","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16590,"tag_group":50,"tag_code":"UVC","tag_desc":"100 - 290 nm","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16591,"tag_group":51,"tag_code":"mg\/L","tag_desc":"Milligrams per Liter","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16592,"tag_group":51,"tag_code":"ug\/L","tag_desc":"Micrograms per Liter","display_order":1,"tmsp_last_updt":"09-FEB-21"}
+,{"tag_id":16593,"tag_group":51,"tag_code":"ng\/L","tag_desc":"Nanograms per Liter","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16594,"tag_group":51,"tag_code":"pCi\/L","tag_desc":"Picocuries per Liter","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16595,"tag_group":52,"tag_code":"SUB","tag_desc":"Submerged","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16596,"tag_group":52,"tag_code":"P","tag_desc":"Pressurized","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16597,"tag_group":52,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16598,"tag_group":53,"tag_code":"S","tag_desc":"Sand","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16599,"tag_group":53,"tag_code":"G","tag_desc":"Garnet","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16600,"tag_group":53,"tag_code":"GAC","tag_desc":"Granular Activated Carbon","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16601,"tag_group":53,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16602,"tag_group":0,"tag_code":"Y","tag_desc":"Yes","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16603,"tag_group":0,"tag_code":"N","tag_desc":"No","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16604,"tag_group":3,"tag_code":"AA","tag_desc":"Activated Alumina","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16605,"tag_group":54,"tag_code":"Log","tag_desc":"Log Removal","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16606,"tag_group":54,"tag_code":"Percent","tag_desc":"Percent Removal","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16607,"tag_group":47,"tag_code":"B","tag_desc":"Batch","display_order":4,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16608,"tag_group":47,"tag_code":"SB","tag_desc":"Semibatch","display_order":5,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16609,"tag_group":55,"tag_code":"G","tag_desc":"Greensand","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16610,"tag_group":55,"tag_code":"IEX","tag_desc":"Ion Exchange","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16611,"tag_group":56,"tag_code":"A","tag_desc":"Anthracite","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16612,"tag_group":56,"tag_code":"S","tag_desc":"Sand","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16613,"tag_group":56,"tag_code":"O","tag_desc":"Other: Described in the Comments Field","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16614,"tag_group":57,"tag_code":"P","tag_desc":"Pressure Filter","display_order":0,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16615,"tag_group":57,"tag_code":"B","tag_desc":"Bag Filter","display_order":1,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16616,"tag_group":57,"tag_code":"C","tag_desc":"Cartridge Filter","display_order":2,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16617,"tag_group":57,"tag_code":"BC","tag_desc":"Bag and Cartridge Filter in series","display_order":3,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16618,"tag_group":31,"tag_code":"KMnO4","tag_desc":"Permanganate","display_order":6,"tmsp_last_updt":"17-APR-09"}
+,{"tag_id":16620,"tag_group":8,"tag_code":"N","tag_desc":"None","display_order":4,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16624,"tag_group":58,"tag_code":"E","tag_desc":"Ethanol","display_order":1,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16622,"tag_group":8,"tag_code":"CO","tag_desc":"Catalytic Oxidation","display_order":1,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16623,"tag_group":58,"tag_code":"AA","tag_desc":"Acetic Acid","display_order":0,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16625,"tag_group":58,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16626,"tag_group":59,"tag_code":"On","tag_desc":"Onsite","display_order":0,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16627,"tag_group":59,"tag_code":"Off","tag_desc":"Offsite","display_order":1,"tmsp_last_updt":"16-MAR-15"}
+,{"tag_id":16640,"tag_group":60,"tag_code":"Cl2","tag_desc":"Chlorine Gas","display_order":0,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16641,"tag_group":60,"tag_code":"Ca(OCl)2","tag_desc":"Calcium Hypochlorite","display_order":1,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16642,"tag_group":60,"tag_code":"NaOCl","tag_desc":"Sodium Hypochlorite","display_order":2,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16643,"tag_group":60,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":3,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16644,"tag_group":61,"tag_code":"H","tag_desc":"Horizontal Paddles","display_order":0,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16645,"tag_group":61,"tag_code":"V","tag_desc":"Vertical Turbine","display_order":1,"tmsp_last_updt":"16-FEB-17"}
+,{"tag_id":16646,"tag_group":61,"tag_code":"O","tag_desc":"Other: Described in the Comments field","display_order":2,"tmsp_last_updt":"16-FEB-17"}
+]}]}

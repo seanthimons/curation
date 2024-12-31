@@ -1,0 +1,37 @@
+{"results":[{"columns":[{"name":"DETAIL_ID","type":"VARCHAR2"},{"name":"DETAIL_NAME","type":"VARCHAR2"},{"name":"DISPLAY_ORDER","type":"NUMBER"},{"name":"TMSP_LAST_UPDT","type":"DATE"}],"items":
+[
+{"detail_id":"10011","detail_name":"1,1,2-Trichloroethane","display_order":2,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10012","detail_name":"1,1-Dichloroethane","display_order":3,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10013","detail_name":"1,2-Dibromoethane","display_order":4,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10014","detail_name":"1,2-Dichloroethane","display_order":5,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10015","detail_name":"1,2-Dichloropropane ","display_order":6,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10016","detail_name":"1,3-Butadiene ","display_order":7,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10017","detail_name":"1,3-Dinitrobenzene","display_order":8,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10018","detail_name":"2-tert-Butyl-4-hydroxyanisole","display_order":9,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10019","detail_name":"Acetaldehyde","display_order":10,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10020","detail_name":"Acetamide","display_order":11,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10021","detail_name":"Aniline ","display_order":12,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10023","detail_name":"Benzyl chloride","display_order":14,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10024","detail_name":"Bromochloromethane","display_order":15,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10025","detail_name":"Bromomethane","display_order":16,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10027","detail_name":"Chloral hydrate","display_order":18,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10028","detail_name":"Chloromethane","display_order":19,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10029","detail_name":"cis-1,2-Dichloroethene","display_order":20,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10030","detail_name":"Dalapon ","display_order":21,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10031","detail_name":"DBCP (1,2-dibromo-3-chloropropane) ","display_order":22,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10032","detail_name":"DEHP (Diethylhexylphthalate)","display_order":23,"tmsp_last_updt":"27-APR-21"}
+,{"detail_id":"10033","detail_name":"Dichloroacetonitrile","display_order":24,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10034","detail_name":"Dichloromethane (Methylene Chloride) ","display_order":25,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10035","detail_name":"Dinoseb ","display_order":26,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10036","detail_name":"Ethylene glycol","display_order":27,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10037","detail_name":"Ethylene oxide","display_order":28,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10038","detail_name":"Formaldehyde","display_order":29,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10039","detail_name":"Iodoacetic acid (MIAA)","display_order":30,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10040","detail_name":"Norethindrone ","display_order":31,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10041","detail_name":"Toluene diisocyanate","display_order":32,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10042","detail_name":"Triethylamine","display_order":33,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10043","detail_name":"Triiodomethane","display_order":34,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10044","detail_name":"Urethane ","display_order":35,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10045","detail_name":"Vinyl chloride","display_order":36,"tmsp_last_updt":"27-SEP-18"}
+,{"detail_id":"10047","detail_name":"1,1,1,2-Tetrachloroethane","display_order":38,"tmsp_last_updt":"06-APR-21"}
+]}]}

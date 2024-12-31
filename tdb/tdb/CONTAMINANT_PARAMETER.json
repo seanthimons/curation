@@ -1,0 +1,79 @@
+,"items":
+[
+{"parameter_id":1,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Chemical Formula","display_order":1,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":2,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Class","display_order":2,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":3,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Molecular Weight","display_order":3,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":4,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Solubility","display_order":4,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":5,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Density","display_order":5,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":6,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Vapor Pressure","display_order":6,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":7,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Henry's Law Constant","display_order":7,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":8,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"pKa","display_order":8,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":9,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Kow","display_order":9,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":10,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Koc","display_order":10,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":11,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Melting Point","display_order":11,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":12,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Boiling Point","display_order":12,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":13,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Odor","display_order":13,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":14,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Water Odor Threshold","display_order":14,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":15,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Taste","display_order":15,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":16,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Water Taste Threshold","display_order":16,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":17,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Electronegativity","display_order":17,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":18,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Oxidation States","display_order":18,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":19,"parameter_type":"STANDARD","contaminant_type_code":"C","parameter_name":"Trade Names","display_order":19,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":20,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Degradates","display_order":1,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":21,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Biodegradation Half Life","display_order":2,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":22,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Biodegradation Rate","display_order":3,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":23,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Hydrolysis Half Life","display_order":4,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":24,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Hydrolysis Rate","display_order":5,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":25,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Photolysis Half Life","display_order":6,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":26,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Photolysis Rate","display_order":7,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":27,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Volitization Half Life","display_order":8,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":28,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Volitization Rate","display_order":9,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":29,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Oxidation Half Life","display_order":10,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":30,"parameter_type":"FT","contaminant_type_code":"C","parameter_name":"Oxidation Rate","display_order":11,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":31,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Chemical Formula","display_order":1,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":32,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Class","display_order":2,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":33,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Isotopes","display_order":3,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":34,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Radiation Type, Decay Mode","display_order":4,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":35,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Half Life","display_order":5,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":36,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Specific Activity","display_order":6,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":37,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Oxidation States","display_order":7,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":38,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Electronegativity","display_order":8,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":39,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Molecular Weight","display_order":9,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":40,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Solubility","display_order":10,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":41,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Density","display_order":11,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":42,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Vapor Pressure","display_order":12,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":43,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Henry's Law Constant","display_order":13,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":44,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"pKa","display_order":14,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":45,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Kow","display_order":15,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":46,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Koc","display_order":16,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":47,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Melting Point","display_order":17,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":48,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Boiling Point","display_order":18,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":49,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Odor","display_order":19,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":50,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Water Odor Threshold","display_order":20,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":51,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Taste","display_order":21,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":52,"parameter_type":"STANDARD","contaminant_type_code":"R","parameter_name":"Water Taste Threshold","display_order":22,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":53,"parameter_type":"FT","contaminant_type_code":"R","parameter_name":"Decay Products","display_order":1,"tmsp_last_updt":"22-APR-09"}
+,{"parameter_id":56,"parameter_type":"FT","contaminant_type_code":"R","parameter_name":"Hydrolysis Half Life","display_order":4,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":57,"parameter_type":"FT","contaminant_type_code":"R","parameter_name":"Hydrolysis Rate","display_order":5,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":60,"parameter_type":"FT","contaminant_type_code":"R","parameter_name":"Volitization Half Life","display_order":8,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":61,"parameter_type":"FT","contaminant_type_code":"R","parameter_name":"Volitization Rate","display_order":9,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":64,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Class","display_order":1,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":65,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Taxomony","display_order":2,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":66,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Strains","display_order":3,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":67,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Apperance, Size","display_order":4,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":68,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Apperance, Shape","display_order":5,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":69,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Pathogenic Hosts","display_order":6,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":70,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Thermal Inactivation","display_order":7,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":71,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Density","display_order":8,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":72,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Bouyant Density","display_order":9,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":73,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Zeta Potential","display_order":10,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":74,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Hydrophobicity","display_order":11,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":75,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Acid Stability","display_order":12,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":76,"parameter_type":"STANDARD","contaminant_type_code":"M","parameter_name":"Sensitivity to Lipid Solvents","display_order":13,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":77,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Enviromental Stability","display_order":1,"tmsp_last_updt":"25-APR-07"}
+,{"parameter_id":78,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Nutrient Source","display_order":1,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":79,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Biodegradability","display_order":2,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":80,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Respiration Mode","display_order":3,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":81,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Photosensitivity","display_order":4,"tmsp_last_updt":"17-DEC-07"}
+,{"parameter_id":82,"parameter_type":"FT","contaminant_type_code":"M","parameter_name":"Life Span","display_order":5,"tmsp_last_updt":"17-DEC-07"}
+]}]}
