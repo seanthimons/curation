@@ -10,6 +10,21 @@
   
 }
 
+
+# block list --------------------------------------------------------------
+
+block_list <- c(
+  "See",
+  "SEE",
+  "see", 
+  "Not Detectable", 
+  "<", 
+  "within", 
+  "%", 
+  "Calculated", 
+  "million"
+)
+
 #Download----
 {
   cx <- v8()
@@ -255,7 +270,7 @@ wqs_temp <- inner_join(wqs, dict, by = 'std_poll_id') %>%
 #   filter(str_detect(criterion_value, 'See|SEE|see|/|Not Detectable|<|within|%|Calculated|million'))
 
 temp <- wqs_temp %>% 
-  filter(!str_detect(criterion_value, 'See|SEE|see|/|Not Detectable|<|within|%|Calculated|million')) %>% 
+  filter(!str_detect(criterion_value, block_list)) %>% 
   mutate(
     orig_crit_value = criterion_value,
        criterion_value = str_remove_all(criterion_value, '[[:blank:]]|[[:symbol:]]|\\,|\\u00ad'), #removes spaces, other symbols ><, commas, soft hyphens
@@ -456,6 +471,7 @@ temp4 <- temp3 %>%
   rename(is_range = IS_RANGE) %>% 
   relocate(protection:enduse, .after = range_u)
 
-rio::export(temp4, file = paste0('sswqs_curated_', Sys.Date(), '.xlsx'))
-
-rm(list = ls())
+# TODO Change to RDS format
+# rio::export(temp4, file = paste0('sswqs_curated_', Sys.Date(), '.xlsx'))
+# 
+# rm(list = ls())
