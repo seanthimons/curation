@@ -1,0 +1,13 @@
+name: ecotox_api
+title: ecotox_api
+username: Sean
+account: Sean
+server: rstudio-connect.dmap-stage.aws.epa.gov
+hostUrl: https://rstudio-connect.dmap-stage.aws.epa.gov/__api__
+appId: 683
+bundleId: 4848
+url: https://rstudio-connect.dmap-stage.aws.epa.gov/content/b547d5b5-a46f-4ccb-bcfb-241827d31523/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: AsciiDownloadHelp5.pdf|eco_scrap.R|ecotox.R|ECOTOX_ASCII_dd.pdf|release_notes_08_21_24.txt
