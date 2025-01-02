@@ -7,9 +7,12 @@
   library(here)
   library(httr)
   #library(ComptoxR)
+
+  setwd(here('elg'))  
+  
 }
 
-setwd(here('elg'))
+
 
 # functions ---------------------------------------------------------------
 
@@ -130,10 +133,32 @@ walk(cats, function(id){
 
 rm(cats)
 
+
+# database building -------------------------------------------------------
+
+
 lf <- list.files(here('elg'), pattern = '.xlsx')
 
+#lf <- lf[1:3]
 
-elg_con <- dbConnect(duckdb(), dbdir = "elg.duckdb", read_only = FALSE)
+file_name <- lf %>% str_remove_all(., pattern = '.xlsx')
+
+elg_raw <- map(lf, function(id){
+  
+  cat(id, '\n')
+  
+  df <- rio::import(id, skip = 9) %>% 
+    clean_names() %>% 
+    mutate(across(everything(), as.character))
+  
+  #TODO Change limitation_value to numeric
+  
+  return(df)
+  
+}, .progress = T) %>% 
+  set_names(file_name) %>% 
+  list_rbind(names_to = 'file_name')
 
 
+#elg_con <- dbConnect(duckdb(), dbdir = "elg.duckdb", read_only = FALSE)
 
