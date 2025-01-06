@@ -1,13 +1,17 @@
 {
+library(here)
 library(janitor)
 library(rvest)
 library(httr)
 library(tidyverse)
 library(rio)
 library(ComptoxR)
+  
+setwd(here('rais'))
 }
 
 # Established Regulatory Limits for Surface Water and Groundwater ---------
+## ARARs; Applicable or Relevant and Appropriate Requirements ----
 
 {
   
@@ -38,13 +42,15 @@ library(ComptoxR)
   
   rm(webpage)
   
+  cat('Begining ARAS search...', '\n')
+  
   arars <- pmap(choices, function(state, url, abv, caps){
     
     #  })
     # ({
     #   choices %>% map(., 14) %>% list2env(., .GlobalEnv)
     # 
-    message(state, '\n')
+    cat('\n', state, '\n')
     
     webpage <- read_html(paste0("https://rais.ornl.gov", url))
     
@@ -251,7 +257,7 @@ library(ComptoxR)
 }
 
 
-# Chems benchmarks -------------------------------------------------------------------
+# Ecological Benchmark Tool for Chemicals ---------------------------------
 
 {
   # Read the HTML content of the website
@@ -377,9 +383,7 @@ library(ComptoxR)
   
 }
 
-
-
-# Rads benchmark --------------------------------------------------------------------
+# Ecological Benchmark Tool for Radionuclides -----------------------------
 
 {
   
@@ -560,6 +564,7 @@ rais_compounds <- distinct(rais, preferredName, cas, .keep_all = F) %>%
 
 # CAS ---------------------------------------------------------------------
 
+#TODO check sequence on this
 rais_cas <- ComptoxR::ct_search(type = 'string', search_param = 'equal', query = rais_compounds$orig_cas) %>%
   filter(!is.na(searchName))
 
@@ -604,6 +609,24 @@ rais <- rais %>%
   rename(orig_name = preferredName, 
          orig_cas = cas) %>% 
   left_join(., rais_compounds, join_by(orig_name, orig_cas))
+
+
+
+# Chemical PRG ------------------------------------------------------------
+
+#TODO schedule for curation
+
+# https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=chem
+
+
+# Radionuclide PRG --------------------------------------------------------
+
+# https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=rad
+
+
+
+# Final export ------------------------------------------------------------
+
 
 rio::export(rais, file = paste0('rais_curated_',Sys.Date(), '.RDS'))
 
