@@ -1,5 +1,6 @@
 {
 library(here)
+library(cli)
 library(janitor)
 library(rvest)
 library(httr)
@@ -42,7 +43,10 @@ setwd(here('rais'))
   
   rm(webpage)
   
-  cat('Begining ARAS search...', '\n')
+  {
+  cli::cli_alert_info('Begining ARAS search...')
+  cli::cat_line()
+  }
   
   arars <- pmap(choices, function(state, url, abv, caps){
     
@@ -50,7 +54,8 @@ setwd(here('rais'))
     # ({
     #   choices %>% map(., 14) %>% list2env(., .GlobalEnv)
     # 
-    cat('\n', state, '\n')
+    cli::cli_alert(state)
+    cli::cat_line()
     
     webpage <- read_html(paste0("https://rais.ornl.gov", url))
     
@@ -145,8 +150,8 @@ setwd(here('rais'))
     
     req <- POST(
       url = "https://rais.ornl.gov/tools/arar_search.php",
-      body = payload,
-      progress()
+      body = payload
+      #,progress()
     )
     
     response <-
@@ -174,6 +179,7 @@ setwd(here('rais'))
     ) %>%
       separate_longer_delim(., ft, delim = ",") %>%
       mutate(
+        #TODO follow up on where coercing to NA is happening
         ft = as.numeric(ft),
         ft = as.character(ft)
       ) %>%
@@ -236,6 +242,7 @@ setwd(here('rais'))
     
     dat <- left_join(dat_table, header_footnotes, join_by(source == col)) %>%
       left_join(., table_units, join_by(source == col)) %>%
+      #TODO follow up on where many-to-many relationships are happening; row 83 x-to-y, row 25 y-to-x
       left_join(., ft_text, join_by(ft)) %>%
       left_join(., group_list, join_by(source == value)) %>% 
       filter(!is.na(result)) %>%
@@ -249,10 +256,15 @@ setwd(here('rais'))
     return(dat)
   }) %>% 
     set_names(., choices$state) %>% 
-    list_rbind(., names_to = 'state')
-  
-  write_rds(arars, 'eco_arars_ornl.RDS')
-  
+    list_rbind(., names_to = 'state') %>% 
+    rename(
+      preferredName = analyte,
+      cit = source,
+      unit_name = units,
+      criterion_value = result,
+      meta = ft)
+
+  write_rds(arars, 'rais_eco_arars.RDS')
   rm(list = ls())
 }
 
@@ -281,10 +293,6 @@ setwd(here('rais'))
   ) %>% flatten()
   
   rm(webpage)
-  
-
-### Payload -----------------------------------------------------------------
-
   
   {
     p1 <- list(
@@ -316,7 +324,11 @@ setwd(here('rais'))
     split(., rep(1:ceiling(length(.)/200), each = 200, length.out = length(.))) %>% 
     map(., ~append(., c('Submit' = 'Yes')))
   
-  
+  {
+    cli::cli_alert_info('Ecological Benchmark Tool for Chemicals')
+    cli::cat_line()
+  }
+
   rais_tbl <- map(chems_payload, ~{
     
     payload_map <- append(payload, .x) %>% flatten()
@@ -379,8 +391,19 @@ setwd(here('rais'))
     ungroup() %>% 
     pivot_wider(., values_from = "ft", names_from = "ft_num") %>% 
     unite(., "ft", contains("ft"), sep = " ", remove = T, na.rm = T) %>% 
-    select(-idx)
+    select(-idx) %>% 
+    rename(
+      preferredName = analyte,
+      cit = benchmark,
+      local = organism, 
+      unit_name = units,
+      criterion_value = result,
+      meta = ft)
   
+  write_rds(eco_bench, 'rais_benchmarks_chemicals.RDS')
+
+  rm(list = ls()[str_detect(ls(), pattern = 'eco_bench', negate = T)])
+
 }
 
 # Ecological Benchmark Tool for Radionuclides -----------------------------
@@ -408,9 +431,6 @@ setwd(here('rais'))
   ) %>% flatten()
   
   rm(webpage)
-  
-  ### Payload -----------------------------------------------------------------
-  
   
   {
     p1 <- list(
@@ -442,6 +462,10 @@ setwd(here('rais'))
     split(., rep(1:ceiling(length(.)/200), each = 200, length.out = length(.))) %>% 
     map(., ~append(., c('Submit' = 'Yes')))
   
+  {
+    cli::cli_alert_info('Ecological Benchmark Tool for Radionuclides')
+    cli::cat_line()
+  }
   
   rais_tbl <- map(chems_payload, ~{
     
@@ -506,32 +530,280 @@ setwd(here('rais'))
     pivot_wider(., values_from = "ft", names_from = "ft_num") %>% 
     unite(., "ft", contains("ft"), sep = " ", remove = T, na.rm = T) %>% 
     select(-idx) %>% 
-    rename(analyte = radionuclide)
+    rename(
+      preferredName = radionuclide,
+      cit = benchmark,
+      local = organism, 
+      unit_name = units,
+      criterion_value = result,
+      meta = ft)
+  
+  write_rds(rads_bench, 'rais_benchmarks_rads.RDS')
+  
+  rm(list = ls()[str_detect(ls(), pattern = 'rads_bench|eco_bench', negate = T)])
+}
+
+
+# Toxicity Values and Physical Parameters ---------------------------------
+{
+  ## Chemical Specific Parameters --------------------------------------------
+  {
+  webpage <- read_html("https://rais.ornl.gov/cgi-bin/tools/TOX_search?select=chemtox")
+  
+  chems <- list(
+    dat = html_elements(webpage, xpath = '//*[@id="analysis_all"]/option') %>% 
+      html_attrs() %>% unlist() %>% unname()
+  ) %>% flatten()
+  
+  endpoints <- list(
+    val = html_elements(webpage, xpath = '//*[@id="fields"]/option') %>%
+      html_text(., trim = T)
+  ) %>% flatten()
+  
+  short_code <- map(endpoints, ~{
+    str_extract(.x, "\\(([^)]*)\\)") %>%
+      str_remove_all("[()]") %>%
+      str_trim()
+  }) %>% unlist()
+  
+  c_names <- map(endpoints, ~{
+    str_split_fixed(.x, pattern = "\\(", n = 2) %>%
+      .[, 1] %>%
+      str_trim()
+  }) %>% 
+    unlist()
+  
+  units <- map(endpoints, ~{
+    str_extract(.x, "\\([^()]*\\)(?=[^()]*$)") %>%
+      str_remove_all("[()]") %>%
+      str_trim()
+  }) %>% unlist()
+  
+  options <- list(
+    val = html_elements(webpage, xpath = '//*[@id="fields"]/option') %>% 
+      html_attrs() %>% unlist() %>% unname()
+  ) %>% flatten()
+  
+  unit_table <- tibble(name = c_names, units = units)
+  
+  rm(webpage, endpoints)
+
+  {
+    p1 <- list(
+      "_submitted_form" = 1,
+      "action" = "next",
+      'select' = 'chemtox',
+      'selectall' = 'no',
+      'table' = 'raistox'
+      )
+    
+    ops <- map(options, ~list(
+      'fields' = .x
+    )) %>%
+      flatten()
+    
+    p2 <- list(
+      'alloptions' = 'all',
+      '_submit' = 'Retrieve'
+    )
+  
+  chems_payload <- map(chems, ~list(
+    'analysis'= .x
+  )) %>%
+    flatten() %>%
+    split(., rep(1:ceiling(length(.)/200), each = 200, length.out = length(.)))
+  }
+  
+  {
+    cli::cli_alert_info('Toxicity Values and Physical Parameters for Chemicals')
+    cli::cat_line()
+  }
+  
+  
+  chemtox <- imap(chems_payload, ~{
+    
+    cli_alert_info(.y)
+    
+    payload_map <- c(p1, .x, ops, p2) %>% flatten()
+    
+    req <- POST(
+      url = 'https://rais.ornl.gov/cgi-bin/tools/TOX_search',
+      body = payload_map,
+      progress() # progress bar
+    )
+
+    response <-
+      content(req, as = 'parsed')
+    
+    table <- response %>% 
+      html_table() %>% 
+      pluck(., 2) %>% 
+      mutate(idx = 1:n(), .before = 'Chemical')
+    
+    dat <- table %>% 
+      select(1:3, seq(4, ncol(table), by = 2)) %>% 
+      set_names(., c('idx', 'compound', 'casrn', c_names)) %>% 
+      pivot_longer(., cols = !c(1:3), values_drop_na = T)
+  
+    refs <- table %>% 
+      select(1:3, seq(5, ncol(table), by = 2)) %>% 
+      set_names(., c('idx', 'compound', 'casrn', c_names)) %>% 
+      mutate(
+        across(!c(idx:casrn), as.character),
+        across(!c(idx:casrn), ~na_if(., ""))) %>% 
+      pivot_longer(., cols = !c(1:3), values_to = 'ref',values_drop_na = T)
+    
+    df <- left_join(dat, refs, join_by(idx, compound, casrn, name)) %>% 
+      left_join(unit_table, join_by('name'))
+    
+    return(df)
+  }) %>% list_rbind()
+  
+  write_rds(chemtox, 'rais_chemtox.RDS')
+  
+  rm(list = ls())
+  }
+  
+  ## Radionuclide Specific Parameters ----------------------------------------
+  {
+    webpage <- read_html("https://rais.ornl.gov/cgi-bin/tools/TOX_search?select=radspef")
+    
+    chems <- list(
+      dat = html_elements(webpage, xpath = '//*[@id="analysis_all"]/option') %>% 
+        html_attrs() %>% unlist() %>% unname()
+    ) %>% flatten()
+    
+    endpoints <- list(
+      val = html_elements(webpage, xpath = '//*[@id="fields"]/option') %>%
+        html_text(., trim = T)
+    ) %>% flatten()
+    
+    short_code <- map(endpoints, ~{
+      str_extract(.x, "\\(([^)]*)\\)") %>%
+        str_remove_all("[()]") %>%
+        str_trim()
+    }) %>% unlist()
+    
+    c_names <- map(endpoints, ~{
+      str_split_fixed(.x, pattern = "\\(", n = 2) %>%
+        .[, 1] %>%
+        str_trim()
+    }) %>% 
+      unlist()
+    
+    units <- map(endpoints, ~{
+      str_extract(.x, "\\([^()]*\\)(?=[^()]*$)") %>%
+        str_remove_all("[()]") %>%
+        str_trim()
+    }) %>% unlist()
+    
+    options <- list(
+      val = html_elements(webpage, xpath = '//*[@id="fields"]/option') %>% 
+        html_attrs() %>% unlist() %>% unname()
+    ) %>% flatten()
+    
+    unit_table <- tibble(name = c_names, units = units) %>% 
+      filter(name %in% c('ARAR', 'Inhalation Exposure Factor', 'Maximum Contamination Limit', 'Specific Activity'))
+    
+    rm(webpage, endpoints)
+    
+    {
+      p1 <- list(
+        "_submitted_form" = 1,
+        "action" = "next",
+        'select' = 'radspef',
+        'selectall' = 'no',
+        'table' = 'radparams'
+      )
+      
+      ops <- map(options, ~list(
+        'fields' = .x
+      )) %>%
+        flatten()
+      
+      p2 <- list(
+        'alloptions' = 'all',
+        '_submit' = 'Retrieve'
+      )
+      
+      chems_payload <- map(chems, ~list(
+        'analysis'= .x
+      )) %>%
+        flatten() %>%
+        split(., rep(1:ceiling(length(.)/200), each = 200, length.out = length(.)))
+    }
+    
+    {
+      cli::cli_alert_info('Toxicity Values and Physical Parameters for Radionuclides')
+      cli::cat_line()
+    }
+    
+    radtox <- imap(chems_payload, ~{
+      
+      cli_alert_info(.y)
+      
+      payload_map <- c(p1, .x, ops, p2) %>% flatten()
+      
+      req <- POST(
+        url = 'https://rais.ornl.gov/cgi-bin/tools/TOX_search',
+        body = payload_map,
+        progress() # progress bar
+      )
+      
+      response <-
+        content(req, as = 'parsed')
+      
+      table <- response %>% 
+        html_table() %>% 
+        pluck(., 2) %>% 
+        mutate(idx = 1:n(), .before = 'Radionuclide')
+      
+      dat <- table %>% 
+        set_names(., c('idx', 'compound', c_names)) %>% 
+        select(-28) %>% 
+        mutate(across(!c(idx), as.character)) %>% 
+        pivot_longer(., cols = !c(1:2), values_drop_na = T)
+      
+      df <- inner_join(dat, unit_table, join_by('name'))
+      
+      return(df)
+    }) %>% list_rbind()
+    
+      write_rds(radtox, 'rais_radstox.RDS')
+      
+      rm(list = ls())
+  }
+  
+}
+# TODO stopped here
+# Radionuclide Slope Factors ----------------------------------------------
+
+# https://rais.ornl.gov/cgi-bin/tools/TOX_search?select=radslopes
+
+# Public Remediation Goals  --------------------------------------------------------------------
+{
+  ## Chemical PRG ------------------------------------------------------------
+  
+  #TODO schedule for curation
+  
+  # https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=chem
+  
+  
+  ## Radionuclide PRG --------------------------------------------------------
+  
+  # https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=rad
   
 }
 
 
+
 # Combined Benchmarks -----------------------------------------------------
 
+#COMEBAK - Fix up this area
+arars <- read_rds('eco_arars_ornl.RDS')
 
-rais <- bind_rows(eco_bench, rads_bench)
-
-rais <- write_rds(rais, 'rais_benchmarks_ornl_RAW.RDS')
-
-rm(list = ls())
-
-arars <- read_rds('eco_arars_ornl.RDS') %>% 
-  rename(
-    preferredName = analyte,
-    cit = benchmark,
-    local = organism, 
-    unit_name = units,
-    criterion_value = result,
-    meta = ft)
-
-rais <- read_rds('rais_benchmarks_ornl_RAW.RDS')
-
-rais <- rais %>% 
+rais <- rais %>%
+  bind_rows(rais, arars) %>% 
   rename(
     preferredName = analyte,
     cit = benchmark,
@@ -550,7 +822,8 @@ rais <- rais %>%
       str_detect(source, 'LANL|ORNL') ~ 'Academic',
       str_detect(source, 'SETAC ECW') ~ 'Academic',
       #source == '' ~ 'Industry',
-      str_detect(source, 'Consensus-Based') ~ 'Other'
+      str_detect(source, 'Consensus-Based') ~ 'Other',
+      .default = 'Missing'
     ), 
     priority_id = 1,
     data_category = 'primary', 
@@ -610,23 +883,7 @@ rais <- rais %>%
          orig_cas = cas) %>% 
   left_join(., rais_compounds, join_by(orig_name, orig_cas))
 
-
-
-# Chemical PRG ------------------------------------------------------------
-
-#TODO schedule for curation
-
-# https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=chem
-
-
-# Radionuclide PRG --------------------------------------------------------
-
-# https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=rad
-
-
-
 # Final export ------------------------------------------------------------
-
 
 rio::export(rais, file = paste0('rais_curated_',Sys.Date(), '.RDS'))
 
