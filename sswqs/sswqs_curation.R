@@ -8,6 +8,7 @@
   library(ComptoxR)
   library(stringdist)
   
+  setwd(here('sswqs'))
 }
 
 
@@ -27,6 +28,9 @@ block_list <- c(
 
 #Download----
 {
+  
+  cli::cli_alert_info('Downloading spec')
+  
   cx <- v8()
   
   cx$source("https://cfpub.epa.gov/wqsits/wqcsearch/data/criteria_json_5a.js")
@@ -73,6 +77,9 @@ block_list <- c(
 }
 
 {
+  
+  cli::cli_alert_info('Requesting state data')
+  
   state_dat <- state_vars %>%
     pmap(., function(abv, json) {
       message(abv, "\n")
@@ -88,6 +95,8 @@ block_list <- c(
       ) %>%
         str_split(., ",") %>%
         pluck(., 1)
+      
+  cli::cli_alert_info('')
       
       dat <- st_vars %>%
         map(., ~ {
@@ -137,6 +146,7 @@ block_list <- c(
     set_names(., state_vars$abv) %>%
     compact(.)
   
+  cli::cli_alert_info('Cleaning state data')
   
   sources <- state_dat %>%
     map(., ~ {
@@ -176,6 +186,8 @@ block_list <- c(
      unit = v1
    )
 
+ #NOTE Creates df of params that need to be cleaned + curated, no DTXSID
+ 
  raw_pol <- parent_dat$pollutants %>%
    filter(is.na(dtxsid)
           , is.na(remap)
@@ -183,6 +195,7 @@ block_list <- c(
    distinct(., analyte, cas, .keep_all = T) %>% 
    filter((idx %in% crit_dat$analyte))
  
+ #NOTE analysis df for params to prioritize first by abundance
  stats <- crit_dat %>% 
    filter(analyte %in% raw_pol$idx) %>% 
    count(analyte) %>% 
@@ -190,11 +203,15 @@ block_list <- c(
    ungroup() %>% 
    left_join(., raw_pol, join_by(analyte == idx))
  
+ cli::cli_alert('CASRN curation')
+ 
  raw_pol_cas <- raw_pol %>% 
    filter(!is.na(cas)) %>% 
    distinct(cas)
  
- raw_pol_cas <- ct_search(type = 'string', query = raw_pol_cas$cas, suggestions = F)
+ raw_pol_cas <- ct_search(type = 'string', query = raw_pol_cas$cas, search_param = 'equal', suggestions = F)
+ 
+ #NOTE removes conflicting records
  
  raw_pol_cas <- raw_pol_cas %>% 
    arrange(rank) %>% 
@@ -204,8 +221,10 @@ block_list <- c(
  
  cur_pol <- left_join(raw_pol, raw_pol_cas, join_by(cas == searchValue))
  
+ cli::cli_alert('Importing TADA files')
+ 
  tada <- rio::import(here::here('sswqs', 'TADASynonymTable.csv')) %>% 
-   clean_names() %>% 
+   clean_names()
    select(tada_characteristic_name, harmonization_group) %>% 
    rename(target = tada_characteristic_name) %>% 
    mutate(harmonization_group = case_when(
@@ -214,7 +233,9 @@ block_list <- c(
    )) %>% 
    distinct(., .keep_all = T)
  
- raw_pol_name <- cur_pol %>% 
+
+ 
+ raw_pol_name <-   %>% 
    filter(is.na(dtxsid_cas)) %>% 
    select(idx, analyte) %>% 
    mutate(raw_analyte = analyte,
@@ -222,7 +243,18 @@ block_list <- c(
    left_join(., tada, join_by(analyte == target)) %>% 
    distinct(., idx, .keep_all = T)
  
- raw_pol_name <- ct_search(type = 'string', query = raw_pol_name$analyte, suggestions = F)
+# raw_pol_name <- ct_search(type = 'string', query = raw_pol_name$analyte, suggestions = F)
+ 
+ pol_name <- raw_pol_name %>% 
+   filter(!is.na(harmonization_group))
+ 
+ pol_name <- ct_search(type = 'string', query = pol_name$analyte, search_param = 'equal', suggestions = F)
+ pol_name <- pol_name %>% 
+   arrange(rank) %>% 
+   distinct(searchValue, .keep_all = T) %>% 
+   select(searchValue, dtxsid) %>% 
+   rename(dtxsid_cas = dtxsid)
+ 
  
  
  

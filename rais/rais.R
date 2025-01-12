@@ -540,7 +540,7 @@ setwd(here('rais'))
   
   write_rds(rads_bench, 'rais_benchmarks_rads.RDS')
   
-  rm(list = ls()[str_detect(ls(), pattern = 'rads_bench|eco_bench', negate = T)])
+  rm(list = ls())
 }
 
 
@@ -654,7 +654,8 @@ setwd(here('rais'))
       pivot_longer(., cols = !c(1:3), values_to = 'ref',values_drop_na = T)
     
     df <- left_join(dat, refs, join_by(idx, compound, casrn, name)) %>% 
-      left_join(unit_table, join_by('name'))
+      left_join(unit_table, join_by('name')) %>% 
+      select(-idx)
     
     return(df)
   }) %>% list_rbind()
@@ -764,7 +765,8 @@ setwd(here('rais'))
         mutate(across(!c(idx), as.character)) %>% 
         pivot_longer(., cols = !c(1:2), values_drop_na = T)
       
-      df <- inner_join(dat, unit_table, join_by('name'))
+      df <- inner_join(dat, unit_table, join_by('name')) %>% 
+        select(-idx)
       
       return(df)
     }) %>% list_rbind()
@@ -775,59 +777,100 @@ setwd(here('rais'))
   }
   
 }
-# TODO stopped here
-# Radionuclide Slope Factors ----------------------------------------------
 
-# https://rais.ornl.gov/cgi-bin/tools/TOX_search?select=radslopes
 
-# Public Remediation Goals  --------------------------------------------------------------------
+# Generic background values-----------------------------------------------
 {
-  ## Chemical PRG ------------------------------------------------------------
+webpage <- read_html("https://rais.ornl.gov/tools/bg_search.php")
+
+chems <- list(
+  dat = html_elements(webpage, xpath = '//*[@id="analysis-0-from"]/option') %>% 
+    html_attrs() %>% unlist() %>% unname()
+) %>%
+  flatten() %>% 
+  map(., ~list(
+    'analysis[]' = .x
+  )) %>% 
+  flatten()
   
-  #TODO schedule for curation
+
+p1 <- list(
+  "_qf__dualselect" = "",
+  "action" = "Retrieve"
+)
+
+p2 <- list(
+  "Submit" = "Retrieve"
+)
+
+  payload <- c(p1, chems, p2)
   
-  # https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=chem
+  req <- POST(
+    url = "https://rais.ornl.gov/tools/bg_search.php",
+    body = payload
+    ,progress()
+  )
   
+  response <-
+    content(req, as = "parsed")
   
-  ## Radionuclide PRG --------------------------------------------------------
+  gen_bgval <- response %>% 
+    html_table() %>% 
+    pluck(., 1) %>% 
+    mutate(
+      orig_result = paste0('Range: ', Range, ' / Mean: ', Mean),
+      unit_name = 'ppm'
+    ) %>% 
+    rename(
+      'compound' = 'Analyte',
+      'media' = 'Soil-type',
+      'cit' = 'Reference', 
+      'mean' = 'Mean',
+      'range' = 'Range'
+    )
   
-  # https://rais.ornl.gov/cgi-bin/prg/PRG_search?select=rad
-  
+  write_rds(gen_bgval, 'gen_bgval.RDS')
+  rm(list = ls())
 }
-
-
 
 # Combined Benchmarks -----------------------------------------------------
 
-#COMEBAK - Fix up this area
-arars <- read_rds('eco_arars_ornl.RDS')
+lf <- list.files(path = here('rais'), pattern = '.RDS')
 
-rais <- rais %>%
-  bind_rows(rais, arars) %>% 
-  rename(
-    preferredName = analyte,
-    cit = benchmark,
-    local = organism, 
-    unit_name = units,
-    criterion_value = result,
-    meta = ft) %>% 
-  mutate(
-    local = str_replace_all(local, 'Not specified|Not Specified', NA_character_),
-    protection = 'Ecological',
-    origin_category = case_when(
-      str_detect(source, 'NOAA|OPP') ~ 'Federal',
-      str_detect(source, 'EPA') ~ 'Federal',
-      str_detect(source, 'California|Florida|Illinois|New Jersey|New York DEC|Ohio|Washington') ~ 'State',
-      str_detect(source, 'Australia and New Zealand|British Columbia|Canada|ECC Canada|Dutch Soil Protection Act|Ontario|UK') ~ 'International',
-      str_detect(source, 'LANL|ORNL') ~ 'Academic',
-      str_detect(source, 'SETAC ECW') ~ 'Academic',
-      #source == '' ~ 'Industry',
-      str_detect(source, 'Consensus-Based') ~ 'Other',
-      .default = 'Missing'
-    ), 
-    priority_id = 1,
-    data_category = 'primary', 
-    criterion_id = paste0('rais_', 1:n()))
+file_names <- str_remove_all(lf, pattern = ".RDS")
+
+rais <- map(lf, ~read_rds(.x)) %>% 
+  set_names(., file_names)
+
+# TODO Need to enforce columns from SSWQS file here before doing any sort of cleaning.
+
+# 
+# rais <- rais %>%
+#   bind_rows(rais, arars) %>% 
+#   rename(
+#     preferredName = analyte,
+#     cit = benchmark,
+#     local = organism, 
+#     unit_name = units,
+#     criterion_value = result,
+#     meta = ft) %>% 
+#   mutate(
+#     local = str_replace_all(local, 'Not specified|Not Specified', NA_character_),
+#     protection = 'Ecological',
+#     origin_category = case_when(
+#       str_detect(source, 'NOAA|OPP') ~ 'Federal',
+#       str_detect(source, 'EPA') ~ 'Federal',
+#       str_detect(source, 'California|Florida|Illinois|New Jersey|New York DEC|Ohio|Washington') ~ 'State',
+#       str_detect(source, 'Australia and New Zealand|British Columbia|Canada|ECC Canada|Dutch Soil Protection Act|Ontario|UK') ~ 'International',
+#       str_detect(source, 'LANL|ORNL') ~ 'Academic',
+#       str_detect(source, 'SETAC ECW') ~ 'Academic',
+#       #source == '' ~ 'Industry',
+#       str_detect(source, 'Consensus-Based') ~ 'Other',
+#       .default = 'Missing'
+#     ), 
+#     priority_id = 1,
+#     data_category = 'primary', 
+#     criterion_id = paste0('rais_', 1:n()))
 
 # Total compounds ---------------------------------------------------------
 
