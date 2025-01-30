@@ -20,6 +20,8 @@ ind_html <-
   rvest::html_nodes("table.wikitable") %>% # pull out specific table
   rvest::html_table()
 
+#TODO Perhaps add a Roman Numeral column? 
+
 pt$oxidation_state <- ind_html[[3]] %>%
   .[4:121,1:19] %>%
   setNames(., LETTERS[1:19]) %>%

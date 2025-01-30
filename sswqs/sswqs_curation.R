@@ -5,7 +5,7 @@
   library(janitor)
   library(V8)
   library(magrittr)
-  library(ComptoxR)
+  #library(ComptoxR)
   library(stringdist)
   
   setwd(here('sswqs'))
@@ -234,7 +234,7 @@ block_list <- c(
    distinct(., .keep_all = T)
  
 
- 
+ #TODO stopped here
  raw_pol_name <-   %>% 
    filter(is.na(dtxsid_cas)) %>% 
    select(idx, analyte) %>% 

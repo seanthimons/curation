@@ -6,9 +6,14 @@
   library(httr)
   library(tidyverse)
   library(rio)
-  #library(ComptoxR)
+  library(ritis)
+  library(textreuse)
+  #library(ctxR)
+  library(ComptoxR) #1.2.2.9003
   
   setwd(here('nemi'))
+  
+  load('.RData')
 }
 
 
@@ -163,6 +168,10 @@ errors <- fact_sheets %>%
 
 write_rds(errors, 'nemi_method_errors.RDS')
 
+
+# Cleaning ----------------------------------------------------------------
+
+
 fact_sheets <- fact_sheets %>% compact()
 
 front_page <- fact_sheets %>% 
@@ -192,11 +201,54 @@ cur_analyte <- raw_analyte %>%
   mutate(
     idx = 1:n(),
     n = str_count(orig_name, pattern = "\\("), 
-    raw_cas = str_extract(orig_name, "\\([^()]*\\)$") %>%
+    raw_cas = 
+            str_extract(orig_name, "\\([^()]*\\)$") %>%
             str_remove_all("^\\(|\\)$"),
+    is_cas = webchem::as.cas(raw_cas),
     cas_chk = webchem::is.cas(raw_cas),
-    raw_name = str_remove(orig_name, "\\([^()]*\\)$") %>% 
-               str_remove_all(., "\\([^()]*\\)$")
+    raw_name = 
+            str_remove(orig_name, "\\([^()]*\\)$") %>% 
+            str_to_title()
+      #%>% str_remove_all(., "\\([^()]*\\)$")
+  ) %>% 
+  split(.$cas_chk) %>% 
+  set_names(., c('biol', 'chems'))
 
-  
+
+
+## chems -------------------------------------------------------------------
+
+#NOTE stopped here - need to fix this search
+chems_search <- ct_search(type = 'string', search_param = 'equal', query = cur_analyte$chems$is_cas)
+
+chems <- cur_analyte$chems %>% 
+  left_join(., chems_search, join_by('is_cas' == 'raw_search')) %>% 
+  select(
+    'orig_name',
+    'idx',
+    'n',
+    #'raw_cas',
+    #'is_cas',
+    #'cas_chk',
+    #'raw_name',
+    #'searchValue',
+    'dtxsid',
+    #'dtxcid',
+    'casrn',
+    #'smiles',
+    'preferredName',
+    #'searchName',
+    #'rank',
+    #'hasStructureImage',
+    #'isMarkush',
+    #'searchMsgs',
+    #'suggestions',
+    #'isDuplicate',
   )
+
+biol <- cur_analyte$biol %>% 
+  
+  separate_wider_delim(., cols = raw_cas, delim = '-', names = c('service', 'ident')) %>% 
+  
+  
+
