@@ -8,13 +8,15 @@
   library(polite)
   library(arrow)
   library(duckdb)
-  # library(duckplyr)
+  library(duckplyr)
 
   # library(ComptoxR)
 
   setwd(here("ecotox"))
 }
 
+# library(ECOTOXr)
+# download_ecotox_data(target = here("ecotox"))
 
 # download ----------------------------------------------------------------
 
@@ -98,4 +100,6 @@ DBI::dbDisconnect(con, shutdown = TRUE)
 rm(con)
 source(here("ecotox", "plumber.R"))
 
-lapply(dbListConnections(drv = dbDriver("duckdb")), function(x) {dbDisconnect(conn = x)})
+#lapply(dbListConnections(drv = dbDriver("duckdb")), function(x) {dbDisconnect(conn = x)})
+
+

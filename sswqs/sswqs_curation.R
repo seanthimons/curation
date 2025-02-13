@@ -4,11 +4,13 @@
   library(tidyverse)
   library(janitor)
   library(V8)
-  library(magrittr)
   #library(ComptoxR)
-  library(stringdist)
-  
+  #library(stringdist)
+  library(todor)
+
   setwd(here('sswqs'))
+  
+  todor::todor()
 }
 
 
@@ -96,7 +98,7 @@ block_list <- c(
         str_split(., ",") %>%
         pluck(., 1)
       
-  cli::cli_alert_info('')
+  #cli::cli_alert_info('')
       
       dat <- st_vars %>%
         map(., ~ {

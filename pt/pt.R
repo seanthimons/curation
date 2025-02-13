@@ -1,4 +1,6 @@
 # packages ----------------------------------------------------------------
+{
+library(here)
 library(tidyverse)
 library(lubridate)
 library(janitor)
@@ -8,7 +10,11 @@ library(polite)
 library(rio)
 library(ComptoxR)
 
+  setwd(here('pt'))
+  
 `%ni%` <- Negate(`%in%`)
+
+}
 
 pt <- list()
 
@@ -91,7 +97,7 @@ pt$elements <- left_join(pt$elements, pt_dtxsid_final, by = c('Name' = 'searchVa
 
 rm(pt_dtxsid, pt_dtxsid_final)
 
-# Nuclides ----------------------------------------------------------------
+# Nuclides and isotopes ----------------------------------------------------------------
 
 # nuclides <- bow('https://en.wikipedia.org/wiki/List_of_radioactive_nuclides_by_half-life') %>% 
 #   scrape(content="text/html; charset=UTF-8") %>%
@@ -147,6 +153,8 @@ nuclides <- bow('https://en.wikipedia.org/wiki/Table_of_nuclides') %>%
   unnest(., cols = c(Z, element))
 
 pt$isotopes <- nuclides
+
+q1 <- chem
 
 # Export ------------------------------------------------------------------
 

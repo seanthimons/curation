@@ -19,3 +19,6 @@ numbers <- str_extract_all(text, "\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?")
 
 numeric_result <- as.numeric(gsub(",", "", unlist(numbers)))
 
+
+
+#   -----------------------------------------------------------------------
