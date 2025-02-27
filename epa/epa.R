@@ -4,6 +4,7 @@
 {
   library(rio)
   library(janitor)
+  library(magrittr)
   library(tidyverse)
   library(here)
   library(httr2)
@@ -11,6 +12,7 @@
   library(ComptoxR)
   library(stringdist)
   library(fuzzyjoin)
+  
   
   setwd(here('epa'))
   #load('.Rdata')
@@ -309,7 +311,7 @@ final_dictionary <- bind_rows(wq, dss) %>%
 
 
 # Final pairing -----------------------------------------------------------
-
+{
 ndwqs <- raw %>% 
   select(-casrn) %>%
   
@@ -328,6 +330,7 @@ ndwqs <- raw %>%
     orig_value = value,
     value = str_remove_all(value, pattern = '\\u2014|ug/L|,|--|---|none|vacated|NP1'), 
     value = str_remove_all(value, pattern = 'TT.*|n/a.*'),
+    value = str_replace_all(value, pattern = '\\u2013', '-'),
     value = str_squish(value),
     value = str_replace_all(value, pattern = 'zero', replacement = "0"),
     value = na_if(value, "")
@@ -362,15 +365,85 @@ n_2 <- ndwqs %>%
       preferredName == 'Perfluorooctanesulfonic acid' ~ '0.25',
       preferredName == 'Perfluorooctanoic acid' ~ '100',
       preferredName == 'Uranium' ~ '30',
+      value == 'Total' ~ NA,
       .default = value
     ),
-    value = as.numeric(value)
+    value = str_squish(value),
+    value = str_remove_all(value, pattern = '[[:SPACE:]]')
+  
+  ) %>% filter(!is.na(value))
+
+{
+  n_3 <- n_2 %>% 
+    #HACK experimental function
+    #group_split(., str_detect(value, '-'))
+    split(., ~str_detect(.$value, pattern = '-'))  
+  
+n_3$`FALSE` %<>% 
+  mutate(value = as.numeric(value))
+
+n_3$`TRUE` %<>%  
+ mutate(
+   idx_r = 1:n()
+ ) %>% 
+  separate_longer_delim(., value, delim = '-') %>% 
+  mutate(
+    value = as.numeric(value),
+    is_range = TRUE,
+    n_r = NA
   ) %>% 
+  filter(!is.na(value)) %>% 
+  group_by(idx) %>% 
+  mutate(
+    n_r = case_when(
+      min(value) == value ~ 'Lower range',
+      max(value) == value ~ 'Upper range')
+  ) %>% 
+  unite(., col = 'notes', n_r, notes, sep = '; ', remove = T, na.rm = T) %>% 
+  select(-idx_r)
+
+n_3 <- list_rbind(n_3)
+}
+
+n_2 %<>%
+  mutate(value = as.numeric(value)) %>% 
   filter(!is.na(value))
 
+ndwqs_final <- bind_rows(n_3, n_2, n_1) %>% 
+  ungroup() %>% 
+  mutate(
+    idx = 1:n(),
+    is_range = if_else(is.na(is_range), FALSE, is_range),
+    endpoint = case_when(
+      name == "mclg" ~ 'MCLG',
+      name == "mcl" ~ 'MCL',
+      name == "fw_ac" ~ 'Aquatic life', 
+      name == "fw_chr" ~ 'Aquatic life',
+      name == "sw_ac" ~ 'Aquatic life',
+      name == "sw_chr" ~ 'Aquatic life',
+      name == "hh_wo" ~ 'Human health - Water & Organism',
+      name == "hh_o" ~ 'Human health - Organism',
+      .default = 'Organoleptic'
+    ), 
+    duration = case_when(
+      str_detect(name, '_ac') ~ 'Acute', 
+      str_detect(name, '_chr') ~ 'Chronic',
+      .default = NA
+    ), 
+    meta = NA, 
+    cit = case_when(
+      frame == 'dw' ~ 'National Primary Drinking Water Regulations',
+      frame != 'dw' ~ 'National Recommended Water Quality Criteria')
+#HERE
+    
+    
+    ) %>% 
+  arrange(idx) %>% 
+  select(
+    -source,
+#    -idx,
+    
+    )  #%>% filter(is.na(name))
 
-#NOTE debugging
-ndwqs %>%
-  filter(idx %ni% c(n_1$idx, n_2$idx)) %>% 
-  filter(source != 'Disinfectants', source != 'Selected Per- and poly-fluoroalkyl substances (PFAS)')
-
+}
+rm(n_1, n_2, n_3)

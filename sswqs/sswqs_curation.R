@@ -436,6 +436,7 @@ temp2 <- temp1 %>%
       criteriatype_acutechronic == 'M' ~ 'Monthly',
       criteriatype_acutechronic == 'Y' ~ 'Yearly'
       ,.default = criteriatype_acutechronic),
+    #NOTE Update to endpoint + combine wuth protection? 
     enduse = case_when(
       criteriatype_waterorg == 'O' ~ 'Organism',
       criteriatype_waterorg == 'W' ~ 'Water & Organism',
