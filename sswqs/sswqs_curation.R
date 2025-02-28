@@ -419,10 +419,10 @@ temp2 <- temp1 %>%
       criteriatypeaquahumhlth == 'O' ~ 'Organoleptic'
       ,.default = criteriatypeaquahumhlth),
     sourcewater = case_when(
-      criteriatypefreshsaltwater == 'S' ~ 'Salt water',
+      criteriatypefreshsaltwater == 'S' ~ 'Salt Water',
       criteriatypefreshsaltwater == 'B' ~ 'Brackish',
-      criteriatypefreshsaltwater == 'F' ~ 'Freshwater',
-      criteriatypefreshsaltwater == 'SW' ~ 'Stormwater',
+      criteriatypefreshsaltwater == 'F' ~ 'Fresh Water',
+      criteriatypefreshsaltwater == 'SW' ~ 'Storm Water',
       criteriatypefreshsaltwater == 'I' ~ 'Industry Process Water',
       criteriatypefreshsaltwater == 'MN' ~ 'Treated Municipal Wastewater',
       criteriatypefreshsaltwater == 'CW'~ 'Onsite Collected Waters'
@@ -488,6 +488,7 @@ entity_list <- temp3 %>%
         'CTR - California Toxics Rule') ~ 'State',
       str_detect(entity_name, 'California Region') ~ 'State',
       entity_name %in% c(
+        #NOTE Adjust this to mirror other data sets
         'EPA 304(a) Recommended Criteria', 
         'NTR - National Toxics Rule') ~ 'Federal',
       .default = 'Other'),

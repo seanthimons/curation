@@ -425,25 +425,30 @@ ndwqs_final <- bind_rows(n_3, n_2, n_1) %>%
       name == "hh_o" ~ 'Human health - Organism',
       .default = 'Organoleptic'
     ), 
+    sourcewater = 'Freshwater',
+    data_category = 'Primary',
+    
     duration = case_when(
       str_detect(name, '_ac') ~ 'Acute', 
       str_detect(name, '_chr') ~ 'Chronic',
       .default = NA
     ), 
+    
     meta = NA, 
+    origin_category = 'Federal',
     cit = case_when(
       frame == 'dw' ~ 'National Primary Drinking Water Regulations',
-      frame != 'dw' ~ 'National Recommended Water Quality Criteria')
-#HERE
-    
-    
+      frame != 'dw' ~ 'Clean Water Act 304 (a): National Recommended Water Quality Criteria')
     ) %>% 
   arrange(idx) %>% 
   select(
     -source,
-#    -idx,
-    
-    )  #%>% filter(is.na(name))
+    -frame, 
+    -name,
+    -analyte
+    )
 
 }
-rm(n_1, n_2, n_3)
+#rm(n_1, n_2, n_3)
+
+write_rds(ndwqs_final, )
