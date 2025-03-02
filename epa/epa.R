@@ -2,11 +2,11 @@
 # Packages ----------------------------------------------------------------
 
 {
+  library(here)
   library(rio)
   library(janitor)
   library(magrittr)
   library(tidyverse)
-  library(here)
   library(httr2)
   library(rvest)
   library(ComptoxR)
@@ -15,7 +15,7 @@
   
   
   setwd(here('epa'))
-  #load('.Rdata')
+  load('epa.Rdata')
 }
 
 # functions ---------------------------------------------------------------
@@ -446,7 +446,21 @@ ndwqs_final <- bind_rows(n_3, n_2, n_1) %>%
     -frame, 
     -name,
     -analyte
+    ) %>% 
+  mutate(
+    value = case_when(
+      unit == "ug/l" ~ value / 1000,
+      .default = value
+    ),
+    unit = case_when(
+      unit == "ug/l" ~ "mg/L",
+      .default = unit
+    ),
+    across(
+      .cols = everything(),
+      .fns = ~ if_else(is.na(.), "ND", as.character(.))
     )
+  )
 
 }
 #rm(n_1, n_2, n_3)
