@@ -23,6 +23,7 @@
 srs_search <- function(query, method){
   request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch") |>
     req_url_query(
+      #begins, contains, exact
       term = query,
       qualifier = method
     ) |>

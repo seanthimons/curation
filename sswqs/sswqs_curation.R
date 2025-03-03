@@ -4,7 +4,8 @@
   library(tidyverse)
   library(janitor)
   library(V8)
-  #library(ComptoxR)
+  library(httr2)
+  library(ComptoxR)
   #library(stringdist)
   library(todor)
 
@@ -27,6 +28,48 @@ block_list <- c(
   "Calculated", 
   "million"
 )
+
+
+# functions ---------------------------------------------------------------
+
+srs_search <- function(query, method){
+  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch") |>
+    req_url_query(
+      #begins, contains, exact
+      term = query,
+      qualifier = method
+    ) |>
+    req_headers(
+      accept = "*/*") |>
+    #req_dry_run()
+    req_perform() %>% 
+    resp_body_json() %>% 
+    map(., as_tibble) %>% 
+    list_rbind()
+}
+
+srs_details <- function(query){
+  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/substance/itn/") |>
+    req_url_path_append(query) %>% 
+    # req_url_query(
+    #   excludeSynonyms = "true"
+    # ) |>
+    req_headers(
+      accept = "application/json") |>
+    #req_dry_run()
+    req_perform() %>% 
+    resp_body_json() %>% 
+    pluck(., 1) %>% 
+    modify_at(
+      "synonyms",
+      ~ length(.x)
+    ) %>% 
+    flatten() %>% 
+    compact() %>% 
+    map(., ~ if(is.null(.x)){NA}else{.x}) %>%
+    as_tibble()
+}
+
 
 #Download----
 {
@@ -84,7 +127,7 @@ block_list <- c(
   
   state_dat <- state_vars %>%
     pmap(., function(abv, json) {
-      message(abv, "\n")
+      cli::cli_inform(abv, "\n")
       ctx <- v8()
       ctx$source(json)
       
@@ -97,8 +140,6 @@ block_list <- c(
       ) %>%
         str_split(., ",") %>%
         pluck(., 1)
-      
-  #cli::cli_alert_info('')
       
       dat <- st_vars %>%
         map(., ~ {
@@ -127,7 +168,6 @@ block_list <- c(
         )
         
         dat$criteriaData_sub %<>%
-          # pluck(., 1) %>%
           map_if(., is.list, ~ {
             map(., ~ {
               t(.x) %>%
@@ -169,7 +209,7 @@ block_list <- c(
   
   rm(state_dat)
   
- parent_dat$pollutants %<>%
+  parent_dat$pollutants %<>%
       enframe(., name = 'idx', value = 'v') %>% 
         unnest_wider(., 'v', names_sep = '') %>% 
         rename(
@@ -179,6 +219,10 @@ block_list <- c(
           'dtxsid' = 'v4'
         ) %>%
    mutate(across(everything(), ~na_if(., "")))
+  
+  parent_dat$pollutantRemap %>% 
+    enframe(., name = 'idx', value = 'v') %>% 
+    unnest_longer(., col = 'v')
  
  parent_dat$units %<>%
    enframe(., name = 'idx', value = 'v') %>% 
@@ -187,7 +231,7 @@ block_list <- c(
    rename(
      unit = v1
    )
-
+ 
  #NOTE Creates df of params that need to be cleaned + curated, no DTXSID
  
  raw_pol <- parent_dat$pollutants %>%
@@ -195,35 +239,82 @@ block_list <- c(
           , is.na(remap)
           ) %>% 
    distinct(., analyte, cas, .keep_all = T) %>% 
-   filter((idx %in% crit_dat$analyte))
+   filter((idx %in% crit_dat$analyte)) %>% 
+   select(
+     -remap, 
+     -dtxsid
+   )
  
  #NOTE analysis df for params to prioritize first by abundance
- stats <- crit_dat %>% 
-   filter(analyte %in% raw_pol$idx) %>% 
-   count(analyte) %>% 
-   arrange(desc(n)) %>% 
-   ungroup() %>% 
-   left_join(., raw_pol, join_by(analyte == idx))
- 
- cli::cli_alert('CASRN curation')
+ stats <- crit_dat %>%
+   filter(analyte %in% raw_pol$idx) %>%
+   count(analyte) %>%
+   arrange(desc(n)) %>%
+   ungroup() %>%
+   rename(idx_a = analyte) %>% 
+   left_join(., raw_pol, join_by(idx_a == idx))
  
  raw_pol_cas <- raw_pol %>% 
    filter(!is.na(cas)) %>% 
    distinct(cas)
  
- raw_pol_cas <- ct_search(type = 'string', query = raw_pol_cas$cas, search_param = 'equal', suggestions = F)
+ raw_pol_cas_src <- ct_search(query = raw_pol_cas$cas, request_method = 'GET', search_method = 'equal') %>% 
+   select(raw_search, dtxsid)
  
- #NOTE removes conflicting records
+ pol_cur_cas <- inner_join(raw_pol, raw_pol_cas_src, join_by(cas == raw_search))
  
- raw_pol_cas <- raw_pol_cas %>% 
-   arrange(rank) %>% 
-   distinct(searchValue, .keep_all = T) %>% 
-   select(searchValue, dtxsid) %>% 
-   rename(dtxsid_cas = dtxsid)
+ rm(raw_pol_cas_src)
  
- cur_pol <- left_join(raw_pol, raw_pol_cas, join_by(cas == searchValue))
+ raw_pol_srs <- raw_pol %>% 
+   filter(idx %ni% pol_cur_cas$idx) %>% 
+   select(-cas)
  
- cli::cli_alert('Importing TADA files')
+ srs_e <- map(raw_pol_srs$analyte, ~srs_search(query = .x, method = 'exact'), .progress = T) %>% 
+   set_names(., raw_pol_srs$analyte) %>% 
+   list_rbind(names_to = 'raw_search')
+ 
+ srs_e_details <- map(srs_e$itn, ~srs_details(query = .x), .progress = T) %>% 
+   set_names(., srs_e$raw_search) %>% 
+   list_rbind(names_to = 'raw_search') %>% 
+   group_by(raw_search) %>% 
+   arrange(desc(synonyms)) %>% 
+   ungroup() %>% 
+   distinct(raw_search, .keep_all = T)
+ 
+ missing <- raw_pol %>% 
+   filter(analyte %ni% srs_e_details$raw_search) %>% 
+   select(analyte) %>% 
+   unlist() %>% 
+   unname() %>% 
+   print()
+ 
+ srs_c <- map(missing, ~srs_search(query = .x, method = 'contains'), .progress = T) %>% 
+   set_names(., missing) %>% 
+   list_rbind(names_to = 'raw_search')
+ 
+ srs_c_details <- map(srs_c$itn, ~srs_details(query = .x), .progress = T) %>% 
+   set_names(., srs_c$raw_search) %>% 
+   list_rbind(names_to = 'raw_search') %>% 
+   group_by(raw_search) %>% 
+   arrange(desc(synonyms)) %>% 
+   ungroup() %>% 
+   distinct(raw_search, .keep_all = T) 
+ 
+ missing <- stats %>% 
+   filter(analyte %ni% c(srs_c_details$raw_search, srs_e_details$raw_search)) %>% 
+   #select(analyte) %>% 
+   #unlist() %>% 
+   #unname() %>% 
+   print()
+ 
+ dict <- rio::import(here('sswqs', 'sswqs_unique_curated.xlsx')) %>% 
+   filter(std_poll_id %in% missing$idx_a)
+ 
+ rio::export(dict, file = 'dict_raw.xlsx')
+ 
+
+# BREAK -------------------------------------------------------------------
+
  
  tada <- rio::import(here::here('sswqs', 'TADASynonymTable.csv')) %>% 
    clean_names()
