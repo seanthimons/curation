@@ -1,6 +1,5 @@
 .Rproj.user
 .Rhistory
-.RData
 .Ruserdata
 temp
 .httr-oauth
@@ -11,7 +10,6 @@ temp
 desktop.ini
 *.zip
 *.csv
-*.RDS
 combined_wqs.xlsx
 iwtt/Read-Me.txt
 fracfocus/readme/readme csv.txt
