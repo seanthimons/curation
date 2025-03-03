@@ -377,7 +377,7 @@ n_2 <- ndwqs %>%
   n_3 <- n_2 %>% 
     #HACK experimental function
     #group_split(., str_detect(value, '-'))
-    split(., ~str_detect(.$value, pattern = '-'))  
+    split(., ~str_detect(.$value, pattern = '-'))
   
 n_3$`FALSE` %<>% 
   mutate(value = as.numeric(value))
@@ -400,16 +400,20 @@ n_3$`TRUE` %<>%
       max(value) == value ~ 'Upper range')
   ) %>% 
   unite(., col = 'notes', n_r, notes, sep = '; ', remove = T, na.rm = T) %>% 
-  select(-idx_r)
+  select(-idx_r) %>% 
+  ungroup()
 
 n_3 <- list_rbind(n_3)
 }
 
-n_2 %<>%
-  mutate(value = as.numeric(value)) %>% 
-  filter(!is.na(value))
+# n_2 %<>%
+#   mutate(value = as.numeric(value)) %>% 
+#   filter(!is.na(value))
 
-ndwqs_final <- bind_rows(n_3, n_2, n_1) %>% 
+ndwqs_final <- bind_rows(
+  n_3,
+  #n_2,
+  n_1) %>% 
   ungroup() %>% 
   mutate(
     idx = 1:n(),
@@ -425,7 +429,12 @@ ndwqs_final <- bind_rows(n_3, n_2, n_1) %>%
       name == "hh_o" ~ 'Human health - Organism',
       .default = 'Organoleptic'
     ), 
-    sourcewater = 'Freshwater',
+    sourcewater = case_when(
+      str_detect(name, 'fw_') ~ 'Fresh water', 
+      str_detect(name, 'sw_') ~ 'Salt water',
+      .default = NA
+    ),
+    
     data_category = 'Primary',
     
     duration = case_when(
@@ -435,34 +444,41 @@ ndwqs_final <- bind_rows(n_3, n_2, n_1) %>%
     ), 
     
     meta = NA, 
-    origin_category = 'Federal',
+    
     cit = case_when(
       frame == 'dw' ~ 'National Primary Drinking Water Regulations',
-      frame != 'dw' ~ 'Clean Water Act 304 (a): National Recommended Water Quality Criteria')
+      frame != 'dw' ~ 'Clean Water Act 304 (a): National Recommended Water Quality Criteria'),
+    origin_category = 'Federal',
+    priority_id = case_when(
+      frame == 'dw' ~ 1
+      frame != 'dw' ~ 2
+    ),
     ) %>% 
   arrange(idx) %>% 
-  select(
-    -source,
-    -frame, 
-    -name,
-    -analyte
-    ) %>% 
   mutate(
     value = case_when(
+      preferredName == 'pH' ~ value,
       unit == "ug/l" ~ value / 1000,
       .default = value
     ),
     unit = case_when(
+      preferredName == 'pH' ~ 'standard units',
       unit == "ug/l" ~ "mg/L",
       .default = unit
     ),
     across(
       .cols = everything(),
       .fns = ~ if_else(is.na(.), "ND", as.character(.))
-    )
+    ),
+    value = as.numeric(value)
+  ) %>%
+  select(
+    -source,
+    -frame,
+    -name,
+    -analyte
   )
 
 }
-#rm(n_1, n_2, n_3)
 
-write_rds(ndwqs_final, )
+write_rds(ndwqs_final, here('final', 'nwqs.RDS'))
