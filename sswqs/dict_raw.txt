@@ -1,0 +1,88 @@
+idx	raw_search	final
+258	pH (acidity/alkalinity)	E17028275
+117	n-nitrosophenylamine	DTXSID6021030
+184	n-nitrosodi-n-methylamine	DTXSID7021029
+767	oxidation-reduction potential	E1644251
+1010	total inorganic nitrogen	E701177
+1263	plankton count	E764324
+1403	dissolved reactive phosphorus (drp)	DTXSID1024382
+412	chloroethoxy methane (bis-2)	DTXSID4023917
+1414	fecal coliform and e. coli	E761700
+669	chloromethyl ether (bis)	DTXSID8020173
+1500	principal organic pollutant	remove
+686	aldrin and dieldrin	DTXSID8020040
+1533	total aqueous hydrocarbons	E966481
+733	selenium (v)	DTXSID9021261
+734	aminobenzene (analine)	DTXSID8020090
+1537	cyanobacterial microcystin toxins	DTXSID001024118
+811	"alpha,alpha,4-trichlorotoluene"	DTXSID1065683
+813	trans-1-phenyl-1-propene	DTXSID101026543
+930	chloroethyl vinyl ether-2	DTXSID0051570
+1553	acute toxicity	E524681334
+1559	bioactive nitrogen	E52450988
+1221	DDT-total	DTXSID4020375
+57	linear alkyl benzene sulfonates (las)	remove
+190	aminocresols	remove
+1363	chlorotoluene o-	DTXSID8023977
+1367	dioxane p	DTXSID4020533
+1369	ethylene thioureau (etu)	DTXSID5020601
+1370	"octahydro-1 ,3.5, 7-tetranitro- 1.3,5, 7-tetrazocine"	DTXSID3024237
+1376	"hexahydro -1,3.5-trinitro-1.3,5-triazine"	DTXSID9024142
+1377	"trichlorobenzene ( 1,3,5-)"	DTXSID8026195
+322	parathion and methyl parathion	remove
+1393	pcb 2565	DTXSID901054401
+1394	pcb 4465	DTXSID70912045
+384	pentachloroethanes	remove
+462	"isothiazolones, total (isothiazolinones)"	remove
+1407	cyanozine	DTXSID1023990
+673	chloralkyl ethers	remove
+722	total dissolved gases	E1642180
+1182	trialkyltin compounds	remove
+1357	alpha-anovulant	DTXSID9037539
+1426	cis-2-butenal	DTXSID10873005
+1427	trans-2-butenal	DTXSID6020351
+1428	cis-2-butenenitrile	DTXSID801030723
+1429	trans-2-butenenitrile	DTXSID0063604
+1388	settleable materials	E1642842
+1449	"1,2-difluoro-1,1,2,2-tetrachloroethane"	DTXSID5026091
+1459	"3,3'dimethylbenzidine"	DTXSID5024059
+1460	"4,4'dimethylbibenzyl"	DTXSID70202079
+1461	"4,4'dimethyldiphenylmethane"	DTXSID90197852
+1462	"alpha, alpha-dimethyl phenethylamine"	DTXSID9023461
+1479	2-methyl-4-chloro-phenoxyacetic acid	DTXSID4024195
+1480	"4,4'methylene-bis-(2-chloroaniline)"	DTXSID5020865
+1481	"4,4'methylene-bis-(n-methyl)aniline"	DTXSID7061986
+1482	"4,4'methylene-bis-(n,n'dimethyl)aniline"	DTXSID5020869
+1398	sodium chlorides and sulfates	remove
+1502	tetrachloroterephthalic acid	DTXSID3039400
+1511	"2,4,5-trichlorophenoxy-acetic acid"	DTXSID5021388
+1512	"2,3,4-trichlorotoluene"	DTXSID60223778
+1513	"2,3,5-trichlorotoluene"	DTXSID70548404
+1515	"2,4,5-trichlorotoluene"	DTXSID8064434
+1516	"2,4,6-trichlorotoluene"	DTXSID00946535
+1518	"2,3,4-trinitrotoluene"	DTXSID60208944
+1520	"2,4,5-trinitrotoluene"	DTXSID40209853
+1522	"3,4,5-trinitrotoluene"	DTXSID00209051
+1408	total bacteroides	E524681485
+1413	sodium + potassium	remove
+1416	aldicarb and methomyl	remove
+1432	chlorinated dibenzo-p-dioxins and chlorinated dibenzofurans	remove
+1526	light penetration	E1995527
+1532	"carbonate, residual"	remove
+1539	pb206	DTXSID60161146
+1540	pb207	DTXSID00161589
+1541	pb208	DTXSID601047867
+1542	pb210	DTXSID4065739
+1543	pb212	DTXSID101016085
+1544	po210	DTXSID101009345
+1546	th232	DTXSID6049800
+1547	th234	DTXSID90891767
+1535	sediment particles	E17136284
+1538	pa234	DTXSID90934148
+1552	pb206 + pb207 + pb208	remove
+1560	chlorinated ethylenes	remove
+1561	diphenylhydrazines	remove
+1562	phorate and disulfoton	remove
+1566	gross primary production	E1644541
+1567	ecosystem respiration	EE1646397
+1569	chloride plus sulfate	remove

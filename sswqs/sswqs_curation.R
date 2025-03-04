@@ -6,7 +6,8 @@
   library(V8)
   library(httr2)
   library(ComptoxR)
-  #library(stringdist)
+  library(stringdist)
+  library(fuzzyjoin)
   library(todor)
 
   setwd(here('sswqs'))
@@ -188,8 +189,6 @@ srs_details <- function(query){
     set_names(., state_vars$abv) %>%
     compact(.)
   
-  cli::cli_alert_info('Cleaning state data')
-  
   sources <- state_dat %>%
     map(., ~ {
       pluck(.x, "sourcedoc_sub") %>%
@@ -232,18 +231,47 @@ srs_details <- function(query){
      unit = v1
    )
  
- #NOTE Creates df of params that need to be cleaned + curated, no DTXSID
+
+# Pollutant cleaning -------------------------------------------------------
+
  
+ #NOTE Creates df of params that need to be cleaned + curated, no DTXSID
+
+## Initial set -------------------------------------------------------------
+
  raw_pol <- parent_dat$pollutants %>%
-   filter(is.na(dtxsid)
-          , is.na(remap)
-          ) %>% 
+   filter(is.na(dtxsid), is.na(remap)) %>% 
    distinct(., analyte, cas, .keep_all = T) %>% 
    filter((idx %in% crit_dat$analyte)) %>% 
    select(
      -remap, 
      -dtxsid
    )
+ 
+
+## Remapped vars -----------------------------------------------------------
+
+ 
+ remapped <- parent_dat$pollutants %>%
+   filter(!is.na(remap)) %>% 
+   select(idx, remap)
+ 
+
+## Already curated ---------------------------------------------------------
+
+ 
+ raw_pol_dtxsids <- parent_dat$pollutants %>%
+   filter(!is.na(dtxsid)) %>% 
+   distinct(., idx, dtxsid, .keep_all = T) %>% 
+   filter((idx %in% crit_dat$analyte)) %>% 
+   select(-analyte, -cas, -remap)
+ 
+ raw_pol_dtxsids_dat <- ct_details(query = raw_pol_dtxsids$dtxsid) %>% select(-casrn)
+ 
+ #NOTE Warning about join relationships - duplicates within dataset on original data
+ raw_pol_dtxsids <- left_join(raw_pol_dtxsids, raw_pol_dtxsids_dat, join_by(dtxsid))
+ 
+ rm(raw_pol_dtxsids_dat)
  
  #NOTE analysis df for params to prioritize first by abundance
  stats <- crit_dat %>%
@@ -281,6 +309,15 @@ srs_details <- function(query){
    ungroup() %>% 
    distinct(raw_search, .keep_all = T)
  
+ exact <- raw_pol_srs %>% 
+   inner_join(., srs_e_details, join_by(analyte == raw_search)) %>% 
+   select(
+     idx, 
+     analyte,
+     internalTrackingNumber,
+     dtxsid
+   )
+ 
  missing <- raw_pol %>% 
    filter(analyte %ni% srs_e_details$raw_search) %>% 
    select(analyte) %>% 
@@ -300,53 +337,49 @@ srs_details <- function(query){
    ungroup() %>% 
    distinct(raw_search, .keep_all = T) 
  
+ srs_c_details <- srs_c_details %>% 
+   mutate(dtxsid = case_when(
+     raw_search == 'unat'~ 'DTXSID1042522', 
+     .default = dtxsid
+   ))
+ 
  missing <- stats %>% 
    filter(analyte %ni% c(srs_c_details$raw_search, srs_e_details$raw_search)) %>% 
    #select(analyte) %>% 
    #unlist() %>% 
    #unname() %>% 
    print()
- 
- dict <- rio::import(here('sswqs', 'sswqs_unique_curated.xlsx')) %>% 
-   filter(std_poll_id %in% missing$idx_a)
- 
- rio::export(dict, file = 'dict_raw.xlsx')
- 
 
+ #NOTE Uncomment to regenerate  
+ # dict <- rio::import(here('sswqs', 'sswqs_unique_curated.xlsx')) %>% 
+ #   filter(std_poll_id %in% missing$idx_a)
+ # 
+ # rio::export(dict, file = 'dict_raw.xlsx')
+
+ dict <- rio::import(here('sswqs', 'dict_raw.txt')) %>% 
+   select(-raw_search) %>% 
+   mutate(across(everything(), as.character))
+ 
+ missing_cur <- left_join(missing, dict, join_by(idx_a == idx)) %>% 
+   select(-n, -cas, -analyte) %>% 
+   filter(final != 'remove') %>% 
+   rename(dtxsid = final, 
+          idx = idx_a)
+ 
+ rm(missing, dict)
+ 
+ pol_final <- bind_rows(
+   raw_pol_dtxsids,
+   
+   
+   missing_cur
+ )
+ 
+ 
 # BREAK -------------------------------------------------------------------
 
  
- tada <- rio::import(here::here('sswqs', 'TADASynonymTable.csv')) %>% 
-   clean_names()
-   select(tada_characteristic_name, harmonization_group) %>% 
-   rename(target = tada_characteristic_name) %>% 
-   mutate(harmonization_group = case_when(
-     is.na(harmonization_group) ~ target, 
-     .default = harmonization_group
-   )) %>% 
-   distinct(., .keep_all = T)
- 
 
- #TODO stopped here
- raw_pol_name <-   %>% 
-   filter(is.na(dtxsid_cas)) %>% 
-   select(idx, analyte) %>% 
-   mutate(raw_analyte = analyte,
-          analyte = str_to_upper(analyte)) %>% 
-   left_join(., tada, join_by(analyte == target)) %>% 
-   distinct(., idx, .keep_all = T)
- 
-# raw_pol_name <- ct_search(type = 'string', query = raw_pol_name$analyte, suggestions = F)
- 
- pol_name <- raw_pol_name %>% 
-   filter(!is.na(harmonization_group))
- 
- pol_name <- ct_search(type = 'string', query = pol_name$analyte, search_param = 'equal', suggestions = F)
- pol_name <- pol_name %>% 
-   arrange(rank) %>% 
-   distinct(searchValue, .keep_all = T) %>% 
-   select(searchValue, dtxsid) %>% 
-   rename(dtxsid_cas = dtxsid)
  
  
  
