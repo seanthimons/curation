@@ -16,21 +16,6 @@
 }
 
 
-# block list --------------------------------------------------------------
-
-block_list <- c(
-  "See",
-  "SEE",
-  "see", 
-  "Not Detectable", 
-  "<", 
-  "within", 
-  "%", 
-  "Calculated", 
-  "million"
-)
-
-
 # functions ---------------------------------------------------------------
 
 srs_search <- function(query, method){
@@ -71,6 +56,50 @@ srs_details <- function(query){
     as_tibble()
 }
 
+# Load data ---------------------------------------------------------------
+
+pt <- rio::import(here('pt', 'pt.RDS'))
+
+rads <- left_join(pt$isotopes, pt$elements, join_by(element == Symbol)) %>% 
+  select(Z, element, Name) %>% 
+  filter(!is.na(Name)) %>% 
+  mutate(
+    short_search1 = paste0(element, Z),
+    short_search2 = paste0(Z, element),
+    full_search = paste0(Name,'-', Z)
+    )
+
+job::job({
+  #TODO beef this up to also search by short and other variations? 
+  
+  rads_dat <- ct_search(query = rads$full_search, search_method = 'equal', request_method = 'GET')
+  
+  # rads <- rads %>% 
+  #   filter(full_search %ni% rads_dat$raw_search)
+  # 
+  # rads_dat2 <- ct_search(query = rads$short_short2, search_method = 'equal', request_method = 'GET')
+  
+  
+  })
+
+rads_dat_cur <- rads_dat %>% 
+  select(raw_search, dtxsid) %>% 
+  inner_join(rads, ., join_by(full_search == raw_search)) %>% 
+  select(
+    full_search, 
+    short_search1, 
+    short_search2, 
+    dtxsid
+  ) %>% 
+  mutate(
+    s_3 = str_replace_all(full_search, pattern = '-', replacement = ' '),
+    s_4 = str_to_lower(short_search1),
+    s_5 = str_to_lower(short_search2),
+    s_6 = str_to_lower(full_search),
+    s_7 = str_to_lower(s_3)
+    ) %>% 
+  pivot_longer(., cols = !dtxsid, values_to = 'raw_search') %>% 
+  select(-name)
 
 #Download----
 {
@@ -281,6 +310,9 @@ srs_details <- function(query){
    ungroup() %>%
    rename(idx_a = analyte) %>% 
    left_join(., raw_pol, join_by(idx_a == idx))
+
+## CASRN -------------------------------------------------------------------
+
  
  raw_pol_cas <- raw_pol %>% 
    filter(!is.na(cas)) %>% 
@@ -296,6 +328,17 @@ srs_details <- function(query){
  raw_pol_srs <- raw_pol %>% 
    filter(idx %ni% pol_cur_cas$idx) %>% 
    select(-cas)
+
+## PT ----------------------------------------------------------------------
+
+ pol_pt <- raw_pol_srs %>% 
+   inner_join(., rads_dat_cur, join_by(analyte == raw_search))
+ 
+ raw_pol_srs <- raw_pol_srs %>% 
+   filter(idx %ni% pol_pt$idx)
+
+## Exact -------------------------------------------------------------------
+
  
  srs_e <- map(raw_pol_srs$analyte, ~srs_search(query = .x, method = 'exact'), .progress = T) %>% 
    set_names(., raw_pol_srs$analyte) %>% 
@@ -318,12 +361,16 @@ srs_details <- function(query){
      dtxsid
    )
  
- missing <- raw_pol %>% 
-   filter(analyte %ni% srs_e_details$raw_search) %>% 
+ missing <- raw_pol_srs %>% 
+   filter(idx %ni% exact$idx) %>% 
    select(analyte) %>% 
    unlist() %>% 
    unname() %>% 
    print()
+ 
+
+## Contains ----------------------------------------------------------------
+
  
  srs_c <- map(missing, ~srs_search(query = .x, method = 'contains'), .progress = T) %>% 
    set_names(., missing) %>% 
@@ -343,8 +390,17 @@ srs_details <- function(query){
      .default = dtxsid
    ))
  
- missing <- stats %>% 
-   filter(analyte %ni% c(srs_c_details$raw_search, srs_e_details$raw_search)) %>% 
+ contains <- raw_pol_srs %>% 
+   inner_join(., srs_c_details, join_by(analyte == raw_search)) %>% 
+   select(
+     idx, 
+     analyte,
+     internalTrackingNumber,
+     dtxsid
+   )
+ 
+ missing <- raw_pol_srs %>% 
+   filter(idx %ni% c(exact$idx, contains$idx)) %>% 
    #select(analyte) %>% 
    #unlist() %>% 
    #unname() %>% 
@@ -356,71 +412,106 @@ srs_details <- function(query){
  # 
  # rio::export(dict, file = 'dict_raw.xlsx')
 
+## Manual ------------------------------------------------------------------
+
+
  dict <- rio::import(here('sswqs', 'dict_raw.txt')) %>% 
    select(-raw_search) %>% 
    mutate(across(everything(), as.character))
  
- missing_cur <- left_join(missing, dict, join_by(idx_a == idx)) %>% 
-   select(-n, -cas, -analyte) %>% 
-   filter(final != 'remove') %>% 
-   rename(dtxsid = final, 
-          idx = idx_a)
+ missing_cur <- left_join(missing, dict, join_by(idx)) %>% 
+  filter(final != 'remove') %>% 
+  rename(dtxsid = final)
+
+ missing %>% filter(idx %ni% missing_cur$idx)
  
  rm(missing, dict)
  
  pol_final <- bind_rows(
-   raw_pol_dtxsids,
+   pol_pt %>% select(idx, dtxsid),
+   exact %>% select(-analyte), 
+   contains %>% select(-analyte),
+   raw_pol_dtxsids %>% select(-preferredName),
+   pol_cur_cas %>% select(idx, dtxsid), 
+   missing_cur %>% select(-analyte)
+ ) %>% 
+   pivot_longer(., cols = c(dtxsid, internalTrackingNumber), values_to = 'v', values_drop_na = TRUE) %>% 
+   select(-name) %>% 
+   mutate(
+     id = case_when(
+       str_detect(v, pattern = 'DTX') ~ 'dtxsid',
+       .default = 'itn'
+     ),
+    v = str_remove_all(v, pattern = 'E')
+   ) %>% 
+   arrange(idx, id) %>% 
+   distinct(idx, .keep_all = T) %>% 
+   split(.$id)
    
+   pol_final$dtxsid <- ct_details(pol_final$dtxsid$v) %>% 
+     left_join(pol_final$dtxsid, ., join_by(v == dtxsid)) %>% 
+     distinct(., .keep_all = T) %>% 
+     select(-id, -casrn)
    
-   missing_cur
- )
- 
- 
-# BREAK -------------------------------------------------------------------
-
- 
-
- 
- 
- 
- 
-}
-
-#Processing----
-
-uc <- distinct(wqs, std_poll_id, std_pollutant_name, cas_no) %>%
-  mutate(std_poll_id = as.numeric(std_poll_id), 
-         cas_no = webchem::as.cas(cas_no) %>% unname())
+   pol_final$itn <- map(pol_final$itn$v, ~srs_details(.x), .progress = T) %>% 
+    #set_names(., pol_final$itn$v) %>% 
+    list_rbind(., names_to = 'raw_search') %>% 
+    select(internalTrackingNumber, systematicName) %>% 
+    left_join(pol_final$itn, ., join_by(v == internalTrackingNumber)) %>% 
+    distinct(idx, v, .keep_all = T) %>% 
+    select(-id) %>% 
+    rename(
+      preferredName = systematicName
+    )
   
+   pol_final <- list_rbind(pol_final)
+   
+   write_rds(pol_final, file = here('sswqs', 'pollutant_final.RDS'))
+   
+   wqs_pollutants <- remapped %>% 
+     left_join(., pol_final, join_by(remap == idx)) %>% 
+     select(-remap) %>% 
+     bind_rows(., pol_final)
+   
+   write_rds(wqs_pollutants, file = here('sswqs', 'wqs_pollutants.RDS'))
+ 
+# Result cleaning -------------------------------------------------------------------
+  
+   result_idx <- crit_dat %>% 
+     count(result) %>% 
+     rename(raw_result = result) %>% 
+     mutate(idx = 1:n()) %>% 
+     as_tibble()
+   
 
-rio::export(uc, file = paste0('sswqs_unique_dump_', Sys.Date(),'.xlsx'))
+## numerical ---------------------------------------------------------------
 
-#Clean the unique records here, overwrite the file
+   
+   result_idx_num <- result_idx %>% 
+     mutate(result = raw_result %>% as.numeric()) %>% 
+     filter(!is.na(result))
 
-rm(uc)
-
-
-#WQS Cleaning-----
-
-dict <- rio::import('sswqs_unique_curated.xlsx') %>%
-  filter(final != 'remove') %>% 
-  mutate(std_poll_id = paste0(as.character(std_poll_id),'.0')) %>% 
-  select(!c('std_pollutant_name', 'cas_no')) %>% 
-  distinct(.keep_all = T)
-
-wqs_temp <- inner_join(wqs, dict, by = 'std_poll_id') %>% 
-  select(!c(
-    entity_id,
-    entity_abbr,
-    pollutant_id:std_pollutant_name,
-    crit_source_id,
-    use_class_name_location_etc_id,
-    last_entry_in_db,
-    effective_date,
-    unit_id,
-    pdfpgno
-    ))
-
+# character ---------------------------------------------------------------
+  
+   
+   block_list <- c(
+     "See",
+     "SEE",
+     "see", 
+     "Not Detectable", 
+     "<", 
+     "within", 
+     "%", 
+     "Calculated", 
+     "million"
+   )
+   
+   
+   result_idx_char <- result_idx %>% 
+     filter(idx %ni% result_idx_num$idx)
+   
+   
+   
 #Range----
 
 # For finding narrative or funky standards
