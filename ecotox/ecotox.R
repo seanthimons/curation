@@ -9,6 +9,7 @@
   library(arrow)
   library(duckdb)
   library(duckplyr)
+  library(plumber)
 
   # library(ComptoxR)
 
@@ -98,6 +99,7 @@ file.remove(here('ecotox', 'ecotox.zip'))
 
 DBI::dbDisconnect(con, shutdown = TRUE)
 rm(con)
+
 source(here("ecotox", "plumber.R"))
 
 #lapply(dbListConnections(drv = dbDriver("duckdb")), function(x) {dbDisconnect(conn = x)})
