@@ -295,9 +295,9 @@ rads_dat_cur <- rads_dat %>%
   
   ## Remapped vars -----------------------------------------------------------
   
-  
+  #NOTE Issue with circular references here, eg 195 -> 333 radium 226 / 228
   remapped <- parent_dat$pollutants %>%
-    filter(!is.na(remap)) %>% 
+    filter(!is.na(remap))
     select(idx, remap)
   
   
@@ -357,15 +357,12 @@ rads_dat_cur <- rads_dat %>%
   
   srs_e <- map(raw_pol_srs$analyte, ~srs_search(query = .x, method = 'exact'), .progress = T) %>% 
     set_names(., raw_pol_srs$analyte) %>% 
-    list_rbind(names_to = 'raw_search')
+    list_rbind(names_to = 'raw_search') %>%
+    distinct(raw_search, .keep_all = T)
   
   srs_e_details <- map(srs_e$itn, ~srs_details(query = .x), .progress = T) %>% 
     set_names(., srs_e$raw_search) %>% 
-    list_rbind(names_to = 'raw_search') %>% 
-    group_by(raw_search) %>% 
-    arrange(desc(synonyms)) %>% 
-    ungroup() %>% 
-    distinct(raw_search, .keep_all = T)
+    list_rbind(names_to = 'raw_search')
   
   exact <- raw_pol_srs %>% 
     inner_join(., srs_e_details, join_by(analyte == raw_search)) %>% 
@@ -389,21 +386,17 @@ rads_dat_cur <- rads_dat %>%
   
   srs_c <- map(missing, ~srs_search(query = .x, method = 'contains'), .progress = T) %>% 
     set_names(., missing) %>% 
-    list_rbind(names_to = 'raw_search')
+    list_rbind(names_to = 'raw_search') %>% 
+    distinct(raw_search, .keep_all = T)
   
   srs_c_details <- map(srs_c$itn, ~srs_details(query = .x), .progress = T) %>% 
     set_names(., srs_c$raw_search) %>% 
     list_rbind(names_to = 'raw_search') %>% 
-    group_by(raw_search) %>% 
-    arrange(desc(synonyms)) %>% 
-    ungroup() %>% 
-    distinct(raw_search, .keep_all = T) 
-  
-  srs_c_details <- srs_c_details %>% 
-    mutate(dtxsid = case_when(
-      raw_search == 'unat'~ 'DTXSID1042522', 
-      .default = dtxsid
-    ))
+    mutate(
+      dtxsid = case_when(
+        raw_search == 'unat'~ 'DTXSID1042522', 
+        .default = dtxsid
+      ))
   
   contains <- raw_pol_srs %>% 
     inner_join(., srs_c_details, join_by(analyte == raw_search)) %>% 
@@ -459,6 +452,7 @@ rads_dat_cur <- rads_dat %>%
       ),
       v = str_remove_all(v, pattern = 'E')
     ) %>% 
+    #NOTE sorts by DTXSID -> ITN
     arrange(idx, id) %>% 
     distinct(idx, .keep_all = T) %>% 
     split(.$id)
@@ -481,7 +475,7 @@ rads_dat_cur <- rads_dat %>%
   
   pol_final <- list_rbind(pol_final)
   
-  write_rds(pol_final, file = here('sswqs', 'pollutant_final.RDS'))
+  #write_rds(pol_final, file = here('sswqs', 'pollutant_final.RDS'))
   
   wqs_pollutants <- remapped %>% 
     left_join(., pol_final, join_by(remap == idx)) %>% 
@@ -501,12 +495,12 @@ rads_dat_cur <- rads_dat %>%
   
   ## numerical ---------------------------------------------------------------
   
-  
   result_idx_num <- result_idx %>% 
     mutate(
       result = raw_result %>%
         as.numeric()) %>% 
-    filter(!is.na(result))
+    filter(!is.na(result)) %>% 
+    select(-n, -idx)
   
   ## character ---------------------------------------------------------------
   
@@ -530,26 +524,26 @@ rads_dat_cur <- rads_dat %>%
         sci_note_count == 0 & str_detect(result, '-', negate = TRUE) ~ FALSE, #numerical
         .default = NA)
     )
-
-### Sci note +ranged  -------------------------------------------------------
-
+  
+  ### Sci note +ranged  -------------------------------------------------------
+  
   
   {  
-    q1 <- result_idx_char %>% 
+    result_idx_char_cur <- result_idx_char %>% 
       nest(., .by = c(sci_note_count, is_range)) %>% 
       arrange(., sci_note_count, is_range) %>% 
       pluck(., 'data') %>% 
       set_names(., LETTERS[1:length(.)])
     
-    q1$A %<>%
-    mutate(
-      result = result %>%
-        str_replace_all(., pattern = '0\\.\\.0', replacement = '0.0') %>% 
-        str_replace_all(., pattern = '\\+', replacement = 'E') %>% str_squish(),
-      result = as.numeric(result)
-    )
+    result_idx_char_cur$A %<>%
+      mutate(
+        result = result %>%
+          str_replace_all(., pattern = '0\\.\\.0', replacement = '0.0') %>% 
+          str_replace_all(., pattern = '\\+', replacement = 'E') %>% str_squish(),
+        result = as.numeric(result)
+      )
     
-    q1$B %<>% 
+    result_idx_char_cur$B %<>% 
       separate_longer_delim(., cols = result, delim = '-') %>% 
       mutate(
         result = as.numeric(result)
@@ -560,7 +554,7 @@ rads_dat_cur <- rads_dat %>%
           min(result) == result ~ 'Lower range',
           max(result) == result ~ 'Upper range'))
     
-    q1$C %<>% 
+    result_idx_char_cur$C %<>% 
       separate_wider_delim(., cols = result, delim = 'E', names = c('r', 'pwr')) %>% 
       mutate(
         pwr = str_replace_all(pwr, pattern = '\\+0\\.1', replacement = '1'),
@@ -569,7 +563,7 @@ rads_dat_cur <- rads_dat %>%
       unite(., result, r, pwr,  sep = '', remove = T) %>% 
       mutate(result = as.numeric(result))
     
-    q1$D %<>%
+    result_idx_char_cur$D %<>%
       mutate(result = result %>% 
                str_extract_all(., pattern = '\\d*.\\d*E-\\d*', simplify = F)) %>% 
       unnest_longer(., col = result, transform = as.numeric) %>% 
@@ -579,9 +573,17 @@ rads_dat_cur <- rads_dat %>%
           min(result) == result ~ 'Lower range',
           max(result) == result ~ 'Upper range'))
     
-    q1 %<>% list_rbind()
+    result_idx_char_cur %<>%
+      list_rbind() %>% 
+      select(-n, -idx)
+      
     
-    }
+  }
+  
+  result_idx_cur <- bind_rows(
+    result_idx_char_cur, 
+    result_idx_num
+  )
   
   
   #TEMP debugging for symbols to coerce out any unicode
@@ -593,6 +595,10 @@ rads_dat_cur <- rads_dat %>%
   # result_idx %>% filter(idx %ni% c(result_idx_char$idx, result_idx_num$idx)) %>% print(n = Inf)
   
   #Units----
+  
+
+  # Use class ---------------------------------------------------------------
+  
   
   temp <- wqs_temp %>%
     #degree
