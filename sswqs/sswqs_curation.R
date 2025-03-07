@@ -508,7 +508,7 @@ rads_dat_cur <- rads_dat %>%
         as.numeric()) %>% 
     filter(!is.na(result))
   
-  # character ---------------------------------------------------------------
+  ## character ---------------------------------------------------------------
   
   result_idx_char <- result_idx %>% 
     filter(idx %ni% result_idx_num$idx) %>% 
@@ -530,10 +530,14 @@ rads_dat_cur <- rads_dat %>%
         sci_note_count == 0 & str_detect(result, '-', negate = TRUE) ~ FALSE, #numerical
         .default = NA)
     )
+
+### Sci note +ranged  -------------------------------------------------------
+
   
   {  
     q1 <- result_idx_char %>% 
       nest(., .by = c(sci_note_count, is_range)) %>% 
+      arrange(., sci_note_count, is_range) %>% 
       pluck(., 'data') %>% 
       set_names(., LETTERS[1:length(.)])
     
@@ -580,78 +584,13 @@ rads_dat_cur <- rads_dat %>%
     }
   
   
-  
-  result_idx_char %>%
-    mutate(symbol = result %>% str_remove_all(., "[A-Za-z0-9]") %>% str_remove_all(., pattern = '\\.') %>% str_squish() %>% na_if(., "")
-    ) %>% filter(!is.na(symbol)) %>% 
-    count(symbol) %>% arrange(desc(n))
-  
-  result_idx %>% filter(idx %ni% c(result_idx_char$idx, result_idx_num$idx)) %>% print(n = Inf)
-  
-  
-  
-  
-  #Range----
-  
-  #NOTE For finding narrative or funky standards
-  
-  temp <- wqs_temp %>% 
-    filter(!str_detect(criterion_value, block_list)) %>% 
-    mutate(
-      orig_crit_value = criterion_value,
-      criterion_value = str_remove_all(criterion_value, '[[:blank:]]|[[:symbol:]]|\\,|\\u00ad'), #removes spaces, other symbols ><, commas, soft hyphens
-      criterion_value = str_replace_all(criterion_value,'\\u2013|\\u2014','-'), #removes em dashes, soft hyphens
-      criterion_value = str_replace_all(criterion_value, pattern = 'e|x10|X10', replacement = 'E'),
-      IS_RANGE = NA,
-      sci_note_count = str_count(criterion_value, 'E'),
-      IS_RANGE = case_when( 
-        #does overwrite the upload....
-        sci_note_count == 1 & str_detect(criterion_value, '-', negate = TRUE) ~ FALSE, #positive sci notation
-        sci_note_count == 1 & str_detect(criterion_value, '-') ~ FALSE, #negative sci notation
-        sci_note_count == 2 & str_detect(criterion_value, '-') ~ TRUE, #range with sci notation
-        sci_note_count == 0 & str_detect(criterion_value, '-') ~ TRUE, #range w/o sci notation
-        sci_note_count == 0 & str_detect(criterion_value, '-', negate = TRUE) ~ FALSE, #numerical
-        #.default = IS_RANGE
-      )
-    )
-  
-  stds_r <- temp %>% 
-    filter(IS_RANGE == TRUE & sci_note_count != 2) %>% 
-    separate(criterion_value, into = c('range_l', 'range_u'), sep = '-') %>%
-    mutate(across(c(range_l, range_u), as.numeric)) %>%
-    select(-sci_note_count) %>% 
-    rowwise() %>% 
-    mutate(criterion_value = mean(c(range_l, range_u))) %>% 
-    relocate(criterion_value, .after = preferredName)
-  
-  stds_nr <- temp %>% 
-    filter(IS_RANGE == FALSE) %>% 
-    mutate(range_l = NA_real_, range_u = NA_real_) %>% 
-    mutate(criterion_value = as.numeric(criterion_value)) %>% 
-    select(-sci_note_count)
-  
-  stds_bad <- stds_nr %>% filter(is.na(criterion_value)) %>% select(criterion_id)
-  
-  temp %>% 
-    filter(criterion_id %in% stds_bad$criterion_id)
-  
-  stds_r_sci <- temp %>% 
-    filter(IS_RANGE == TRUE & sci_note_count != 0) %>% 
-    separate(criterion_value, into = c('range_l','e_l', 'range_u','e_u'), sep = '-') %>%
-    mutate(range_l = paste0(range_l,'-', e_l),
-           range_u = paste0(range_u,'-', e_u)) %>% 
-    select(-c(e_l, e_u)) %>% 
-    mutate(across(c(range_l, range_u), as.numeric)) %>%
-    select(-sci_note_count) %>% 
-    rowwise() %>% 
-    mutate(criterion_value = mean(c(range_l, range_u))) %>% 
-    relocate(criterion_value, .after = preferredName)
-  
-  temp <- bind_rows(stds_r, stds_nr, stds_r_sci)
-  
-  rm(stds_r, stds_nr, stds_r_sci)
-  
-  wqs_temp <- temp
+  #TEMP debugging for symbols to coerce out any unicode
+  # result_idx_char %>%
+  #   mutate(symbol = result %>% str_remove_all(., "[A-Za-z0-9]") %>% str_remove_all(., pattern = '\\.') %>% str_squish() %>% na_if(., "")
+  #   ) %>% filter(!is.na(symbol)) %>% 
+  #   count(symbol) %>% arrange(desc(n))
+  # 
+  # result_idx %>% filter(idx %ni% c(result_idx_char$idx, result_idx_num$idx)) %>% print(n = Inf)
   
   #Units----
   
