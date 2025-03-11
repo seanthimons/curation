@@ -596,10 +596,11 @@ rads_dat_cur <- rads_dat %>%
   
   #Units----
   
+  #NOTE Working on unit harmonization; need to find ways of removing singleton responses...
 
-  # Use class ---------------------------------------------------------------
-  
-  
+  # OLD ---------------------------------------------------------------------
+
+
   temp <- wqs_temp %>%
     #degree
     mutate(unit_name = str_remove_all(unit_name, pattern = '\\u00b0')) %>% #Removes µ
