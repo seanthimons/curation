@@ -596,7 +596,7 @@ rads_dat_cur <- rads_dat %>%
   
   #Units----
   
-  #NOTE Working on unit harmonization; need to find ways of removing singleton responses...
+ 
 
   # OLD ---------------------------------------------------------------------
 
