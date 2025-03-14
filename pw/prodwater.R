@@ -70,28 +70,34 @@ duckdb::dbWriteTable(con, "pa_prod_water", read_parquet(here('pw','pa_prod_water
   clean_names() %>%
   dbWriteTable(con, 'newts_headers', ., overwrite = TRUE)
 
-  n1 <- duckdb::duckdb_read_csv(con, name = 'newts', files = "NEWTS_Integrated_Full_052024.csv")
-
-  newts <- data.table::fread(file = "NEWTS_Integrated_Full_052024.csv") %>% 
-    select(!c(1:3)) %>% 
-    
-    glimpse()
-    
- 
-  select(!(c(1:3))) %>% 
+  tbl(con, 'newts_headers') %>% 
+    filter(str_detect(feature_class_field_alias, pattern = 'ppm|\\/L|ppq|per mil|\\/|ft|TUa|NTU|FTU|%|mV|Celsius|TU|psi|pH|gravity|ohm', negate = T)) %>% 
+    collect() %>% 
+    dbWriteTable(con, 'newts_meta', value = .)
   
-  pivot_longer(., cols = !c(
-    'NEWTS_Water_Type',
-    'newts_unique_id',
-    'newts_source_id',
-    'newts_source_name',
-    'newts_source_url',
-    'newts_source_reference',
-    'Original_Dataset_ID',
-    'Original_Latitude',
-    'Original_Longitude',
-    'LONGITUDE_WGS84',
-    'LATITUDE_WGS84'))
+  tbl(con, 'newts_headers') %>% 
+    filter(str_detect(feature_class_field_alias, pattern = 'ppm|\\/L|ppq|per mil|\\/|ft|TUa|NTU|FTU|%|mV|Celsius|TU|psi|pH|gravity|ohm', negate = F)) %>% 
+    collect() %>% 
+    dbWriteTable(con, 'newts_params', value = .)
+  
+  data.table::fread(file = "NEWTS_Integrated_Full_052024.csv") %>% 
+    select(!c(1:3)) %>% 
+    dbWriteTable(con, 'newts', value = .)
+
+  np <- tbl(con, 'newts_params') %>%
+    select('csv_field_name') %>%
+    collect() %>%
+    unlist() %>%
+    unname()
+  
+  tbl(con, 'newts') %>% 
+  
+    #TEMP Need to assess columnn type and then pivot out? 
+    
+      pivot_longer(., cols = any_of(np), names_to = 'analyte', values_to = 'value', values_drop_na = TRUE)
+  
+    # collect() %>% 
+    # dbWriteTable(con, 'newts_long', value = .)
 
 
 # diagnostics -------------------------------------------------------------
@@ -99,4 +105,8 @@ duckdb::dbWriteTable(con, "pa_prod_water", read_parquet(here('pw','pa_prod_water
 
 
 
+# shutdown ----------------------------------------------------------------
+
+
 dbDisconnect(con)
+rm(con)
