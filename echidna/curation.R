@@ -15,7 +15,7 @@
   
   
   setwd(here('echidna'))
-  #load('.Rdata')
+  load('echidna_raw_dat.Rdata')
 }
 
 
@@ -75,6 +75,11 @@ as.list(tags) %>%
       #otherwise = NULL),
       .progress = T)
 
+
+
+# Cleaning ----------------------------------------------------------------
+
+
 chems_files <- 
   as.list(tags) %>% 
   set_names(chems_list) %>% 
@@ -93,10 +98,10 @@ q2 <- q1 %>%
     cli::cli_text(.y)
     page <- read_html(paste0(.x, '.html'))
     
-    # sections <- page %>% 
-    #   html_elements(., 'h3') %>% 
-    #   html_text() %>% 
-    #   as.list()
+    sections <- page %>%
+      html_elements(., 'h3') %>%
+      html_text() %>%
+      as.list()
     
     sections[1] <- str_remove_all(sections[1], pattern = ' - .*')
     
@@ -138,3 +143,17 @@ q2 <- q1 %>%
     
   })
 
+page <- read_html(paste0('38', '.html'))
+
+sections <- page %>%
+  html_elements(., 'h3') %>%
+  html_text() %>%
+  as.list()
+
+sections[1] <- str_remove_all(sections[1], pattern = ' - .*')
+
+dat <- imap()
+
+dat <- page %>% 
+  html_elements(., xpath = '/html/body/div[1]/div/table') %>% 
+  html_table()
