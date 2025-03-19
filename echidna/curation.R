@@ -180,7 +180,8 @@ job::job({
       values_from = val, 
       values_fill = NA
     ) %>% 
-    select(where(~ !all(is.na(.x))))
+    select(where(~ !all(is.na(.x)))) %>% 
+    select(-`3D chemical structure:`)
   
   chems <- general %>% 
     select(idx, 'Chemical name:', 'CASRN:', 'DTXSID :') %>% 
@@ -202,7 +203,7 @@ job::job({
     left_join(chems, ., join_by(idx))
   
   eco <- chem_dat %>% 
-    map(., ~pluck(., 'eco')) %>% 
+    map(., ~pluck(., 'eco_and_occurance')) %>% 
     list_rbind(names_to = 'idx') %>% 
     mutate(idx = as.integer(idx)) %>% 
     left_join(chems, ., join_by(idx)) %>% 
@@ -218,12 +219,12 @@ job::job({
       `Treatment type` =  na_if(`Treatment type`, "") %>% 
         str_replace_na(.)
     ) %>% 
-    pivot_wider(
-      ., 
-      names_from = 'Treatment type', 
-      values_from = 'Percent removal',
-      values_fill = NA
-    ) %>% 
+    # pivot_wider(
+    #   ., 
+    #   names_from = 'Treatment type', 
+    #   values_from = 'Percent removal',
+    #   values_fill = NA
+    # ) %>% 
     left_join(chems, ., join_by(idx)) %>% 
     select(where(~ !all(is.na(.x))))
   
@@ -232,7 +233,8 @@ job::job({
     list_rbind(names_to = 'idx') %>% 
     mutate(idx = as.integer(idx)) %>% 
     left_join(chems, ., join_by(idx)) %>% 
-    select(where(~ !all(is.na(.x))))
+    select(where(~ !all(is.na(.x)))) %>% 
+    
   
   chem_cur <- list(
     chems = chems,
@@ -245,3 +247,27 @@ job::job({
 }
 
 writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
+
+
+# debugging ---------------------------------------------------------------
+
+page <- read_html(paste0('1307', '.html'))
+
+sections <- page %>%
+  html_elements(., 'h3') %>%
+  html_text() %>%
+  as.list() %>% 
+  modify_at(., 1, ~str_remove_all(.x, pattern = ' - .*')) %>% 
+  map(., ~str_remove_all(.x, pattern = '\\r\\n')) %>% 
+  { if(length(.) == 1){list(1, 2)}else{.}}
+
+dat <- imap(sections, ~{
+  .x <- page %>% 
+    html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
+    html_elements(., 'span') %>%
+    #html_text()
+    html_attrs()
+    #html_attr(., 'title')
+    #html_text()
+})
+ 
