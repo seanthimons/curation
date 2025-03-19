@@ -41,6 +41,7 @@ chems_summary <-
   logged_in %>% 
   session_jump_to('https://www.echidnacec.com/view_PG.php') %>% 
   html_elements(., xpath = '/html/body/div/div[2]/div') %>% 
+  #NOTE doesn't return full names...
   html_table()
 
 chems_list <- chems_summary %>% 
@@ -82,78 +83,84 @@ as.list(tags) %>%
 
 chems_files <- 
   as.list(tags) %>% 
-  set_names(chems_list) %>% 
+  #HACK removed the naming because it was truncated
+  #set_names(chems_list) %>% 
   map(., ~str_remove(.x, pattern = 'view.php\\?cid='))
 
-
-#chems_files
-q1 <- 
-  chems_files %>% 
-  keep_at(1:20)
-  #sample(., size = 20)
-
-q2 <- q1 %>% 
-  .[1] %>% 
-  imap(., ~{
-    cli::cli_text(.y)
+job::job({
+chem_dat <- chems_files %>% 
+  map2(., seq_along(.), ~{
+    
+    
+    cli::cli_text(paste0( .y,"/", length(chems_files),": ", .x))
+    
     page <- read_html(paste0(.x, '.html'))
     
     sections <- page %>%
       html_elements(., 'h3') %>%
       html_text() %>%
-      as.list()
+      as.list() %>% 
+      modify_at(., 1, ~str_remove_all(.x, pattern = ' - .*')) %>% 
+      map(., ~str_remove_all(.x, pattern = '\\r\\n')) %>% 
+      { if(length(.) == 1){list(1, 2)}else{.}}
     
-    sections[1] <- str_remove_all(sections[1], pattern = ' - .*')
+    dat <- imap(sections, possibly(~{
+      .x <- page %>% 
+        html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
+        html_table() %>%
+        pluck(1) #%>%  compact()
+      #set_names(.x)
+    }, 
+    otherwise = NA)
+    ) %>% 
+      compact()
     
-    # sections <- sections %>%
-    #   keep(~ .x %in% c(
-    #     'General Information',
-    #     'PBT Prioritisation',
-    #     'Chronic toxicity hazard assessment',
-    #     'Reason for Inclusion in ECHIDNA',
-    #     'Relevant Australian Registration Authority',
-    #     'Google Trends (BETA)',
-    #     'Current Potable Water Guidelines',
-    #     'Current Ecosystem Protection Guidelines',
-    #     'Ecotoxicity Data \n',
-    #     'Toxicity Data \n',
-    #     'Occurrence Data',
-    #     'Removal Data',
-    #     'Risk Quotients',
-    #     'Bayesian network model for prioritisation of research into CECs'
-    #   )) %>% 
-    #   unlist() %>% 
-    #   str_squish()
+    #  keep(~ all(c("val", "param") %in% names(.x)))
+    {
+      d1 <- dat %>% 
+        keep(~all(names(.x) %in% c("Parameter", 'Value'))) %>% 
+        list_rbind() %>% 
+        rename(
+          dat = Parameter,
+          val = Value
+        ) %>% 
+        mutate(
+          val = na_if(val, "N/A"),
+          val = na_if(val, "")
+        )
+      
+      d2 <- dat %>% 
+        keep(~all(c("Document") %in% names(.x))) %>% 
+        { if (length(.) == 0) {NULL} else list_rbind(.) %>% 
+            pivot_longer(., cols = !Document, names_to = 'dat', values_to = 'val', values_drop_na = F, values_transform = as.character) %>% 
+            rename(source = Document) }
+      
+      d3 <- dat %>% 
+        keep(~all(c("HQ?") %in% names(.x))) %>% 
+        {if (length(.) == 0) {NULL} else list_rbind(.) %>% 
+            pivot_longer(., cols = any_of(c('Water type', 'Endpoint')), names_to = 'Endpoint', values_to = 'dat', values_drop_na = T, values_transform = as.character) %>% 
+            pivot_longer(., cols = any_of(c('Concentration', 'Dose')), values_to = 'val', values_drop_na = T, values_transform = as.character)}
+      
+      d4 <- dat %>% 
+        keep(~all(c("Treatment category") %in% names(.x))) %>% 
+        {if (length(.) == 0) {NULL} else list_rbind(.) %>%
+            select(-Note)}
+      
+      d5 <- dat %>% 
+        keep(~all(c("Confidence") %in% names(.x))) %>% 
+        {if (length(.) == 0) {NULL} else list_rbind(.) }
+      
+      list(
+        d1, d2, d3, d4, d5 
+      ) %>% 
+        compact()
+      
+      }
     
-    
-    dat <- 
-    
-    dat <- page %>% 
-      html_elements(., xpath = '/html/body/div[1]/div/table') %>% 
-      html_table()
-    
-    # dat <- dat %>% 
-    #   discard_at(., 1) %>% 
-    #   set_names(sections)
-    
-    list(
-      'sections' = sections,
-      'tables' = dat
-    )
-    
-  })
+  }, .progress = T)
+})
 
-page <- read_html(paste0('38', '.html'))
 
-sections <- page %>%
-  html_elements(., 'h3') %>%
-  html_text() %>%
-  as.list()
+# Cleaning ----------------------------------------------------------------
 
-sections[1] <- str_remove_all(sections[1], pattern = ' - .*')
 
-dat <- imap()
-
-dat <- page %>% 
-  html_elements(., xpath = '/html/body/div[1]/div/table') %>% 
-  html_table()
