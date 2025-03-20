@@ -233,7 +233,7 @@ job::job({
     list_rbind(names_to = 'idx') %>% 
     mutate(idx = as.integer(idx)) %>% 
     left_join(chems, ., join_by(idx)) %>% 
-    select(where(~ !all(is.na(.x)))) %>% 
+    select(where(~ !all(is.na(.x))))
     
   
   chem_cur <- list(
@@ -246,8 +246,7 @@ job::job({
   )
 }
 
-writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
-
+#writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
 
 # debugging ---------------------------------------------------------------
 
@@ -261,13 +260,75 @@ sections <- page %>%
   map(., ~str_remove_all(.x, pattern = '\\r\\n')) %>% 
   { if(length(.) == 1){list(1, 2)}else{.}}
 
-dat <- imap(sections, ~{
-  .x <- page %>% 
+dat <- imap(sections, possibly(~{
+  
+  tbl <- page %>% 
     html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
-    html_elements(., 'span') %>%
-    #html_text()
-    html_attrs()
-    #html_attr(., 'title')
-    #html_text()
-})
- 
+    html_table(., na.strings = "") %>%
+    pluck(1)
+  
+  meta <-  page %>%  
+    html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
+    map(., possibly(~{
+      rows <- .x %>% html_elements("tr")
+      map2(
+        rows[-1],  # Ignore the first row (header)
+        seq_along(rows[-1]),  # Adjust indices for rows
+        ~ {
+          cells <- .x %>% html_elements("td")
+          map2(
+            cells,
+            seq_along(cells),
+            ~ {
+              spans <- html_elements(.x, "span")
+              tibble(
+                column = .y,
+                title = if (length(spans) > 0) html_attr(spans, "title") else NA
+              )
+            }
+          ) %>%
+            list_rbind() %>%
+            distinct(., column, .keep_all = T) %>%
+            pivot_wider(names_from = column, values_from = title)
+          
+          
+        }) %>% list_rbind() %>% select(where(~ !all(is.na(.x))))
+    }, otherwise = NA)
+    ) %>% pluck(., 1)
+  
+  list(tbl, meta) #%>% list_cbind()
+}, 
+otherwise = NA)) 
+# %>% 
+#   discard_at(., 1) %>% 
+#   compact()
+
+q1 <- 
+  page %>%  
+  html_elements("table") %>% 
+  map(., possibly(~{
+    rows <- .x %>% html_elements("tr")
+    map2(
+      rows[-1],  # Ignore the first row (header)
+      seq_along(rows[-1]),  # Adjust indices for rows
+      ~ {
+        cells <- .x %>% html_elements("td")
+        map2(
+          cells,
+          seq_along(cells),
+          ~ {
+            spans <- html_elements(.x, "span")
+            tibble(
+              column = .y,
+              title = if (length(spans) > 0) html_attr(spans, "title") else NA
+            )
+          }
+        ) %>%
+          list_rbind() %>%
+          distinct(., column, .keep_all = T) %>%
+          pivot_wider(names_from = column, values_from = title)
+          
+          
+      }) %>% list_rbind() %>% select(where(~ !all(is.na(.x))))
+  }, otherwise = NA)
+)
