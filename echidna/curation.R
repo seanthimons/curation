@@ -85,7 +85,7 @@ chems_files <-
   as.list(tags) %>% 
   #HACK removed the naming because it was truncated
   #set_names(chems_list) %>% 
-  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) #%>% sample(., size = 5)
+  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) %>% sample(., size = 5)
 
 job::job({
   setwd(here('echidna', 'raw'))
@@ -106,15 +106,49 @@ job::job({
         { if(length(.) == 1){list(1, 2)}else{.}}
       
       dat <- imap(sections, possibly(~{
-        .x <- page %>% 
+        
+        tbl <- page %>% 
           html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
-          html_table() %>%
-          pluck(1) #%>%  compact()
-        #set_names(.x)
+          html_table(., na.strings = "") %>%
+          pluck(1)
+        
+        meta <-  page %>%  
+          html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
+          map(., possibly(~{
+            rows <- .x %>% html_elements("tr")
+            map2(
+              rows[-1],  # Ignore the first row (header)
+              seq_along(rows[-1]),  # Adjust indices for rows
+              ~ {
+                cells <- .x %>% html_elements("td")
+                map2(
+                  cells,
+                  seq_along(cells),
+                  ~ {
+                    spans <- html_elements(.x, "span")
+                    tibble(
+                      column = .y,
+                      title = if (length(spans) > 0) html_attr(spans, "title") else NA
+                    )
+                  }
+                ) %>%
+                  list_rbind() %>%
+                  distinct(., column, .keep_all = T) %>%
+                  pivot_wider(names_from = column, values_from = title)
+                
+                
+              }) %>% list_rbind() %>% select(where(~ !all(is.na(.x))))
+          }, otherwise = NA)
+          ) %>% pluck(., 1)
+        
+        list(tbl, meta) %>% compact() %>% list_cbind() %>% select(where(~ !all(is.na(.x))))
       }, 
-      otherwise = NA)
-      ) %>% 
-        compact()
+      otherwise = NA)) %>%
+        compact() %>% 
+        map(~ {
+          .x %>%
+            rename_with(~ ifelse(.x %in% as.character(1:10), "Note", .x))
+        })
       
       #  keep(~ all(c("val", "param") %in% names(.x)))
       {
@@ -296,39 +330,13 @@ dat <- imap(sections, possibly(~{
     }, otherwise = NA)
     ) %>% pluck(., 1)
   
-  list(tbl, meta) #%>% list_cbind()
+  list(tbl, meta) %>% compact() %>% list_cbind() %>% select(where(~ !all(is.na(.x))))
 }, 
-otherwise = NA)) 
-# %>% 
-#   discard_at(., 1) %>% 
-#   compact()
+otherwise = NA)) %>%
+  compact() %>% 
+  map(~ {
+    .x %>%
+      rename_with(~ ifelse(.x %in% as.character(1:10), "Note", .x))
+  })
 
-q1 <- 
-  page %>%  
-  html_elements("table") %>% 
-  map(., possibly(~{
-    rows <- .x %>% html_elements("tr")
-    map2(
-      rows[-1],  # Ignore the first row (header)
-      seq_along(rows[-1]),  # Adjust indices for rows
-      ~ {
-        cells <- .x %>% html_elements("td")
-        map2(
-          cells,
-          seq_along(cells),
-          ~ {
-            spans <- html_elements(.x, "span")
-            tibble(
-              column = .y,
-              title = if (length(spans) > 0) html_attr(spans, "title") else NA
-            )
-          }
-        ) %>%
-          list_rbind() %>%
-          distinct(., column, .keep_all = T) %>%
-          pivot_wider(names_from = column, values_from = title)
-          
-          
-      }) %>% list_rbind() %>% select(where(~ !all(is.na(.x))))
-  }, otherwise = NA)
-)
+  
