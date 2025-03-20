@@ -85,7 +85,7 @@ chems_files <-
   as.list(tags) %>% 
   #HACK removed the naming because it was truncated
   #set_names(chems_list) %>% 
-  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) %>% sample(., size = 5)
+  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) %>% sample(., size = 20)
 
 job::job({
   setwd(here('echidna', 'raw'))
@@ -141,19 +141,21 @@ job::job({
           }, otherwise = NA)
           ) %>% pluck(., 1)
         
-        list(tbl, meta) %>% compact() %>% list_cbind() %>% select(where(~ !all(is.na(.x))))
+        list(tbl, meta) %>%
+          compact() %>%
+          list_cbind() #%>% select(where(~ !all(is.na(.x))))
       }, 
       otherwise = NA)) %>%
         compact() %>% 
         map(~ {
           .x %>%
-            rename_with(~ ifelse(.x %in% as.character(1:10), "Note", .x))
+            select(-any_of("Note")) %>%
+            rename_with(~ if_else(.x %in% as.character(1:10), "Note", .x))
         })
       
-      #  keep(~ all(c("val", "param") %in% names(.x)))
       {
         d1 <- dat %>% 
-          keep(~all(names(.x) %in% c("Parameter", 'Value'))) %>% 
+          keep(~all(names(.x) %in% c("Parameter", 'Value', 'Note'))) %>% 
           list_rbind() %>% 
           rename(
             dat = Parameter,
@@ -162,6 +164,9 @@ job::job({
           mutate(
             val = na_if(val, "N/A"),
             val = na_if(val, "")
+          ) %>% 
+          filter(
+            str_detect(dat, pattern = 'Listed|Detected|Reported|Requested|3D|Note', negate = TRUE)
           )
         
         d2 <- dat %>% 
@@ -199,144 +204,95 @@ job::job({
     }, .progress = T) %>% 
     set_names(., chems_files)
   setwd(here('echidna'))
+  
+  # Cleaning ----------------------------------------------------------------
+  {
+    
+    general <- chem_dat %>% 
+      map(., ~pluck(., 'general')) %>% 
+      list_rbind(names_to = 'idx')
+    # pivot_wider(
+    #   ., 
+    #   names_from = dat, 
+    #   values_from = val, 
+    #   values_fill = NA
+    # ) %>% 
+    # select(where(~ !all(is.na(.x)))) %>% 
+    
+    
+    chems <- general %>% 
+      filter(dat %in% c('Chemical name:', 'CASRN:', 'DTXSID :')) %>%
+      select(-Note) %>% 
+      pivot_wider(
+        .,
+        names_from = dat,
+        values_from = val,
+        values_fill = NA
+      ) %>% 
+      mutate(idx = as.integer(idx))
+    
+    guidelines <- chem_dat %>% 
+      map(., ~pluck(., 'guidelines')) %>% 
+      list_rbind(names_to = 'idx') %>% 
+      pivot_wider(
+        ., 
+        names_from = dat, 
+        values_from = val, 
+        values_fill = NA
+      ) %>% 
+      mutate(
+        idx = as.integer(idx),
+        across(where(is.character), ~na_if(.x, ""))
+      ) %>% 
+      inner_join(chems, ., join_by(idx))
+    
+    eco <- chem_dat %>% 
+      map(., ~pluck(., 'eco_and_occurance')) %>% 
+      list_rbind(names_to = 'idx') %>% 
+      mutate(idx = as.integer(idx)) %>% 
+      inner_join(chems, ., join_by(idx)) %>% 
+      select(where(~ !all(is.na(.x))))
+    
+    treatment <- chem_dat %>% 
+      map(., ~pluck(., 'treatment')) %>% 
+      list_rbind(names_to = 'idx') %>% 
+      mutate(
+        idx = as.integer(idx), 
+        `Treatment category` = na_if(`Treatment category`, "") %>% 
+          str_replace_na(.),
+        `Treatment type` =  na_if(`Treatment type`, "") %>% 
+          str_replace_na(.)
+      ) %>% 
+      # pivot_wider(
+      #   ., 
+      #   names_from = 'Treatment type', 
+      #   values_from = 'Percent removal',
+      #   values_fill = NA
+      # ) %>% 
+      inner_join(chems, ., join_by(idx)) %>% 
+      select(where(~ !all(is.na(.x))))
+    
+    bayes_model <- chem_dat %>% 
+      map(., ~pluck(., 'bayes_model_prioritization')) %>% 
+      list_rbind(names_to = 'idx') %>% 
+      mutate(idx = as.integer(idx)) %>% 
+      inner_join(chems, ., join_by(idx)) %>% 
+      select(where(~ !all(is.na(.x))))
+    
+    
+    chem_cur <- list(
+      chems = chems,
+      general = general,
+      guidelines = guidelines, 
+      eco_and_occurance = eco,
+      treatment = treatment, 
+      bayes_model_prioritization = bayes_model
+    )
+    
+    writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
+    
+  }
 })
 
 
-# Cleaning ----------------------------------------------------------------
-{
-  
-  general <- chem_dat %>% 
-    map(., ~pluck(., 'general')) %>% 
-    list_rbind(names_to = 'idx') %>% 
-    pivot_wider(
-      ., 
-      names_from = dat, 
-      values_from = val, 
-      values_fill = NA
-    ) %>% 
-    select(where(~ !all(is.na(.x)))) %>% 
-    select(-`3D chemical structure:`)
-  
-  chems <- general %>% 
-    select(idx, 'Chemical name:', 'CASRN:', 'DTXSID :') %>% 
-    mutate(idx = as.integer(idx))
-  
-  guidelines <- chem_dat %>% 
-    map(., ~pluck(., 'guidelines')) %>% 
-    list_rbind(names_to = 'idx') %>% 
-    pivot_wider(
-      ., 
-      names_from = dat, 
-      values_from = val, 
-      values_fill = NA
-    ) %>% 
-    mutate(
-      idx = as.integer(idx),
-      across(where(is.character), ~na_if(.x, ""))
-      ) %>% 
-    left_join(chems, ., join_by(idx))
-  
-  eco <- chem_dat %>% 
-    map(., ~pluck(., 'eco_and_occurance')) %>% 
-    list_rbind(names_to = 'idx') %>% 
-    mutate(idx = as.integer(idx)) %>% 
-    left_join(chems, ., join_by(idx)) %>% 
-    select(where(~ !all(is.na(.x))))
-  
-  treatment <- chem_dat %>% 
-    map(., ~pluck(., 'treatment')) %>% 
-    list_rbind(names_to = 'idx') %>% 
-    mutate(
-      idx = as.integer(idx), 
-      `Treatment category` = na_if(`Treatment category`, "") %>% 
-        str_replace_na(.),
-      `Treatment type` =  na_if(`Treatment type`, "") %>% 
-        str_replace_na(.)
-    ) %>% 
-    # pivot_wider(
-    #   ., 
-    #   names_from = 'Treatment type', 
-    #   values_from = 'Percent removal',
-    #   values_fill = NA
-    # ) %>% 
-    left_join(chems, ., join_by(idx)) %>% 
-    select(where(~ !all(is.na(.x))))
-  
-  bayes_model <- chem_dat %>% 
-    map(., ~pluck(., 'bayes_model_prioritization')) %>% 
-    list_rbind(names_to = 'idx') %>% 
-    mutate(idx = as.integer(idx)) %>% 
-    left_join(chems, ., join_by(idx)) %>% 
-    select(where(~ !all(is.na(.x))))
-    
-  
-  chem_cur <- list(
-    chems = chems,
-    general = general,
-    guidelines = guidelines, 
-    eco_and_occurance = eco,
-    treatment = treatment, 
-    bayes_model_prioritization = bayes_model
-  )
-}
 
-#writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
-
-# debugging ---------------------------------------------------------------
-
-page <- read_html(paste0('1307', '.html'))
-
-sections <- page %>%
-  html_elements(., 'h3') %>%
-  html_text() %>%
-  as.list() %>% 
-  modify_at(., 1, ~str_remove_all(.x, pattern = ' - .*')) %>% 
-  map(., ~str_remove_all(.x, pattern = '\\r\\n')) %>% 
-  { if(length(.) == 1){list(1, 2)}else{.}}
-
-dat <- imap(sections, possibly(~{
-  
-  tbl <- page %>% 
-    html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
-    html_table(., na.strings = "") %>%
-    pluck(1)
-  
-  meta <-  page %>%  
-    html_elements(., xpath = paste0('/html/body/div[1]/div/table[', .y, ']')) %>% 
-    map(., possibly(~{
-      rows <- .x %>% html_elements("tr")
-      map2(
-        rows[-1],  # Ignore the first row (header)
-        seq_along(rows[-1]),  # Adjust indices for rows
-        ~ {
-          cells <- .x %>% html_elements("td")
-          map2(
-            cells,
-            seq_along(cells),
-            ~ {
-              spans <- html_elements(.x, "span")
-              tibble(
-                column = .y,
-                title = if (length(spans) > 0) html_attr(spans, "title") else NA
-              )
-            }
-          ) %>%
-            list_rbind() %>%
-            distinct(., column, .keep_all = T) %>%
-            pivot_wider(names_from = column, values_from = title)
-          
-          
-        }) %>% list_rbind() %>% select(where(~ !all(is.na(.x))))
-    }, otherwise = NA)
-    ) %>% pluck(., 1)
-  
-  list(tbl, meta) %>% compact() %>% list_cbind() %>% select(where(~ !all(is.na(.x))))
-}, 
-otherwise = NA)) %>%
-  compact() %>% 
-  map(~ {
-    .x %>%
-      rename_with(~ ifelse(.x %in% as.character(1:10), "Note", .x))
-  })
-
-  
