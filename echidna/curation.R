@@ -85,7 +85,7 @@ chems_files <-
   as.list(tags) %>% 
   #HACK removed the naming because it was truncated
   #set_names(chems_list) %>% 
-  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) %>% sample(., size = 20)
+  map(., ~str_remove(.x, pattern = 'view.php\\?cid=')) #%>% sample(., size = 20)
 
 job::job({
   setwd(here('echidna', 'raw'))
