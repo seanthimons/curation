@@ -103,4 +103,5 @@ hash_2 <-
 
   rm(hash_1, hash_2, hash_3, hash, chars)
   }
-}
+
+
