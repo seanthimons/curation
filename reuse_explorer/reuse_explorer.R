@@ -78,8 +78,8 @@ compounds <- raw %>%
     #len = str_length(uni)
     ) %>% 
   select(-n) %>% 
-  arrange(param) %>% 
-  mutate(idx_alp = 1:n()) %>% #%>% mutate(across(where(is.numeric), as.character))
+  #arrange(param) %>% 
+  #mutate(idx_alp = 1:n()) %>% #%>% mutate(across(where(is.numeric), as.character))
   distinct(param, .keep_all = TRUE)
   
 # hashing -----------------------------------------------------------------
@@ -95,8 +95,8 @@ hash_init <-
       "lv", "dl", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw"
       ),
     ~ {
-      stringdist_join(compounds, compounds,
-        by = c("param" = "param"),
+      stringdist_join(compounds, nwqs,
+        by = c("param" = "preferredName"),
         # mode = 'right',
         method = .x,
         # max_dist = 9,,
@@ -112,63 +112,54 @@ hash_init <-
   set_names(., c("osa", "lv", "dl", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw"))
 
 {
+  #
   hash_1 <-
     keep(hash_init, names(hash_init) %in% c("osa", "lv", "dl")) %>%
     list_rbind(names_to = "method") %>% 
-    mutate(perfect = case_when(
-      idx_n.x == idx_n.y ~ TRUE,
-      .default = FALSE
-    )) %>% 
-    filter(perfect == FALSE, dist < 2, idx_n.x < idx_n.y) %>%
-    select(-perfect)
-  
+    filter(dist < 2)
   #  
   hash_2 <-
     keep(hash_init, names(hash_init) %in% c("lcs")) %>%
     list_rbind(names_to = "method") %>% 
-    mutate(perfect = case_when(
-      idx_n.x == idx_n.y ~ TRUE,
-      .default = FALSE
-    )) %>% 
-    filter(perfect == FALSE, idx_n.x < idx_n.y) %>%
-    select(-perfect)
-    
-
+    filter(dist < 2)
+  
   hash_3 <-
-    keep(hash_init, names(hash_init) %in% c("cosine", "jw")) %>%
-    list_rbind(names_to = "method") %>% 
-    mutate(perfect = case_when(
-      idx_n.x == idx_n.y ~ TRUE,
-      .default = FALSE
-    )) %>% 
-    filter(
-      perfect == FALSE,
-      method == 'cosine' & dist <= 0.1 | method == 'jw' & dist <= 0.15
-      ) %>%
-    select(-perfect)
-  
-  hash_4 <-
-    keep(hash_init, names(hash_init) %in% c("jaccard")) %>%
-    list_rbind(names_to = "method") %>% 
-    mutate(perfect = case_when(
-      idx_n.x == idx_n.y ~ TRUE,
-      .default = FALSE
-    )) %>% 
-    filter(
-          perfect == FALSE,
-          dist <= 0.19
-    ) %>% select(-perfect)
-  
-  
-  hash_5 <-
     keep(hash_init, names(hash_init) %in% c("hamming")) %>%
     list_rbind(names_to = "method") %>% 
-    mutate(perfect = case_when(
-      idx_n.x == idx_n.y ~ TRUE,
-      .default = FALSE
-    )) %>% 
     filter(
-      perfect == FALSE, dist == 0, idx_n.x < idx_n.y)
+      dist == 0)
+    
+  #
+  hash_4 <-
+    keep(hash_init, names(hash_init) %in% c("cosine", "jw")) %>%
+    list_rbind(names_to = "method") %>% 
+    filter(
+      method == 'cosine' & dist <= 0.1 | method == 'jw' & dist <= 0.15
+      )
+  
+  #
+  hash_5 <-
+    keep(hash_init, names(hash_init) %in% c("jaccard")) %>%
+    list_rbind(names_to = "method") %>% 
+    filter(
+      dist <= 0.12)
   
   
-}
+  hash <- bind_rows(
+    hash_1, hash_2, hash_3, hash_4, hash_5
+  )
+  
+  hash_cur <- hash %>% 
+    arrange(method, dist) %>% 
+    distinct(param, method, .keep_all = TRUE) %>% 
+    pivot_wider(
+      id_cols = c(param, idx_n),
+      names_from = c(method), 
+      values_from = c(preferredName, dist),
+      values_fn = function(x) paste(x, collapse=",")
+      
+    )
+  
+  }
+
+ save.image('reuse.RData')

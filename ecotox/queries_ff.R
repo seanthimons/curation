@@ -20,19 +20,20 @@ convert_units <- function(data, value_column, unit_column) {
     )
 }
 
-# Queries -----------------------------------------------------------------
+# cleaning ----------------------------------------------------------------
 
-con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
 
-lot <- duckdb::dbListTables(con) %>%
+con <- dbConnectEcotox()
+
+lot <- dbListTables(con) %>% 
   as.list() %>% 
-  set_names(., duckdb::dbListTables(con))
-
-tbl(con, lot$endpoint_codes) %>% print(n = Inf)
+  set_names(., dbListTables(con))
 
 chems <- dbReadTable(con, 'chemicals')
+
+
 #test <- dbReadTable(con, 'tests')
-test_cols <- dbReadTable(con, 'tests') %>% colnames()
+#test_cols <- dbReadTable(con, 'tests') %>% colnames()
 #species <- dbReadTable(con, 'species')
 
 # test_filt <- tbl(con, 'tests') %>% 
@@ -50,16 +51,16 @@ query <- tbl(con, 'chemicals') %>%
   filter(dtxsid %in% query) %>% 
   collect()
 
+missing <- chems$dtxsid %>% str_subset(., pattern = query)
 
 q1 <- tbl(con, "tests") %>%
   filter(test_cas %in% query$cas_number) %>%
-  #filter( )
   inner_join(
     tbl(con, "species") %>% filter(
       #   #phylum_division == 'Arthropoda',
       #   genus == 'Lepomis'
       #ecotox_group == 'Fish'
-       )
+    )
     ,join_by('species_number')
   ) %>%
   inner_join(
@@ -67,8 +68,8 @@ q1 <- tbl(con, "tests") %>%
     join_by('test_id')
   ) %>% 
   filter(
-    endpoint %in% c('EC50', 'LC50','LD50', 'LOEC', 'LOEL', 'NOEC', 'NOEL'),
-    effect %in% c('MOR'),
+    endpoint %in% c('EC50', 'LC50', 'LD50', 'LOEC', 'LOEL', 'NOEC', 'NOEL'),
+    #effect %in% c('MOR'),
     conc1_unit %in% c('ug/L', 'mg/L', 'ppm', 'ppb')
   ) %>% 
   collect() %>% 
@@ -112,26 +113,62 @@ q1 <- tbl(con, "tests") %>%
     result,
     avg_result = mean(new_value),
     new_unit,
-    eco_group
-   # unit = conc1_unit
+    eco_group,
+    effect
+    # unit = conc1_unit
   ) %>% 
   filter(!is.na(result)) %>%
   left_join(., tbl(con, 'chemicals') %>% collect(), join_by('test_cas' == 'cas_number')) %>% 
-  filter(dtxsid != 'DTXSID6034479') %>% 
+  left_join(., tbl(con, 'effect_codes') %>% collect(), join_by('effect' == 'code')) %>% 
+  filter(description %in% c(
+    'Mortality', 
+    'Population', 
+    'Growth',
+    'Development',
+    'Reproduction',
+    'Intoxication'
+  )) %>% 
+  #filter(dtxsid != 'DTXSID6034479') %>% 
   distinct() %>% 
-  group_by(dtxsid) %>% 
+  group_by(dtxsid, eco_group, endpoint_group) %>% 
   mutate(qrt = quantile(result, 0.25)) %>% 
-  arrange(qrt)
+  arrange(qrt) %>% 
+  ungroup()
+
+q1 %>% 
+  distinct(., dtxsid, qrt, .keep_all = TRUE) %>% 
+  mutate(
+    endpoint_group = factor(endpoint_group, levels = c(
+      'LOEC | LOEL',
+      'NOEL | NOEC', 
+      'EC50 | LD50 | LC50'
+  ))) %>% 
+ggplot() +
+  aes(
+    x = qrt,
+    y = forcats::fct_reorder(dtxsid, qrt),
+    colour = eco_group,
+    shape = endpoint_group
+  ) +
+  geom_point(
+    size = 2.0
+  ) +
+  scale_color_hue(direction = 1) +
   
-ggplot(q1) +
- aes(
-   x = result,
-   y = forcats::fct_reorder(dtxsid, qrt),
-   colour = eco_group,
-   shape = endpoint_group
-   ) +
- geom_point() +
- scale_color_hue(direction = 1) +
- scale_x_continuous(trans = "log10") +
- theme_classic() + facet_grid('endpoint_group')
+  xlab('Concentration (mg/L)') +
+  ylab('Compound') +
+  
+  guides(
+    colour = guide_legend(title = 'Ecological Group'), 
+    shape = guide_legend(title = 'Endpoint Group')
+  ) +
+  
+  scale_x_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x)),
+    guide = "axis_logticks") +
+  theme_bw() + 
+  
+  #facet_wrap('endpoint_group', axes = 'all_x')
+  facet_wrap('description', axes = 'all_x')
 

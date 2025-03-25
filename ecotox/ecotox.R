@@ -16,7 +16,7 @@
   setwd(here("ecotox"))
 }
 
-# library(ECOTOXr)
+ 
 # download_ecotox_data(target = here("ecotox"))
 
 # download ----------------------------------------------------------------
