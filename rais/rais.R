@@ -7,7 +7,9 @@ library(httr)
 library(tidyverse)
 library(rio)
 library(ComptoxR)
-  
+
+todor::todor()  
+    
 setwd(here('rais'))
 }
 
@@ -261,9 +263,18 @@ setwd(here('rais'))
       preferredName = analyte,
       cit = source,
       unit_name = units,
-      criterion_value = result,
+      value = result,
       meta = ft)
 
+  
+  #HERE Stopped here to re-eval direction. 
+  arars_cur <- arars %>% 
+    mutate(
+      value = str_remove_all(value, pattern = ',')
+    )
+    
+    
+  
   write_rds(arars, 'rais_eco_arars.RDS')
   rm(list = ls())
 }
@@ -814,21 +825,64 @@ p2 <- list(
   response <-
     content(req, as = "parsed")
   
-  gen_bgval <- response %>% 
+  raw <- response %>% 
     html_table() %>% 
-    pluck(., 1) %>% 
+    pluck(., 1)
+  
+  gen_bgval <- raw %>% 
     mutate(
       orig_result = paste0('Range: ', Range, ' / Mean: ', Mean),
-      unit_name = 'ppm'
+      #unit_name = 'ppm',
+      Range = str_remove_all(Range, pattern = '\\<')
     ) %>% 
     rename(
       'compound' = 'Analyte',
       'media' = 'Soil-type',
       'cit' = 'Reference', 
-      'mean' = 'Mean',
       'range' = 'Range'
-    )
+    ) %>% 
+  split(str_detect(.$range, '\\%'))
   
+  #No percents, ppm
+  gen_bgval$`FALSE` <- 
+    gen_bgval$`FALSE` %>% 
+      mutate(idx = 1:n()) %>% 
+      separate_longer_delim(cols = range, delim = '-') %>% 
+      group_by(idx) %>% 
+      mutate(
+        unit = 'ppm',
+        value = str_remove_all(range, pattern = '\\*') %>% as.numeric(),
+        # mean = case_when(
+        #   is.na(mean) ~ mean(value),
+        #   .default = mean),
+        n_r = case_when(
+          min(value) == value ~ 'Lower range',
+          max(value) == value ~ 'Upper range')
+        ) %>% 
+    ungroup() %>% 
+    select(-range, -Mean)
+  
+ gen_bgval$`TRUE` <- 
+    gen_bgval$`TRUE` %>% 
+    mutate(idx = 1:n()) %>% 
+    separate_longer_delim(cols = range, delim = '-') %>% 
+    group_by(idx) %>% 
+    mutate(
+      unit = 'percent (%)',
+      value = str_remove_all(range, pattern = '\\%') %>% as.numeric(),
+      # mean = case_when(
+      #   is.na(mean) ~ mean(value),
+      #   .default = mean),
+      n_r = case_when(
+        min(value) == value ~ 'Lower range',
+        max(value) == value ~ 'Upper range')
+    ) %>% 
+    ungroup() %>% 
+    select(-range, -Mean)
+    
+ gen_bgval <- gen_bgval %>% 
+   list_rbind()
+ 
   write_rds(gen_bgval, 'gen_bgval.RDS')
   rm(list = ls())
 }
@@ -841,6 +895,9 @@ file_names <- str_remove_all(lf, pattern = ".RDS")
 
 rais <- map(lf, ~read_rds(.x)) %>% 
   set_names(., file_names)
+
+rais$rais_radstox %>% 
+  
 
 # TODO Need to enforce columns from SSWQS file here before doing any sort of cleaning.
 
@@ -873,60 +930,60 @@ rais <- map(lf, ~read_rds(.x)) %>%
 #     criterion_id = paste0('rais_', 1:n()))
 
 # Total compounds ---------------------------------------------------------
-
-rais_compounds <- distinct(rais, preferredName, cas, .keep_all = F) %>% 
-  rename(orig_name = preferredName, 
-         orig_cas = cas)
-
-# CAS ---------------------------------------------------------------------
-
-#TODO check sequence on this
-rais_cas <- ComptoxR::ct_search(type = 'string', search_param = 'equal', query = rais_compounds$orig_cas) %>%
-  filter(!is.na(searchName))
-
-rais_cas_final <- rais_cas %>% 
-  arrange(rank) %>% 
-  select(dtxsid,casrn, preferredName, searchValue) %>% 
-  distinct(searchValue, .keep_all = T)
-
-rais_compounds <- left_join(rais_compounds, rais_cas_final, by = c('orig_cas' = 'searchValue'))
-
-rais_compounds <- rais_compounds %>% 
-  split(is.na(.$preferredName))
-
-rais_compounds$`TRUE` <- rais_compounds$`TRUE` %>% 
-  select(orig_name:orig_cas)
-
-# Name --------------------------------------------------------------------
-
-rais_name <- ComptoxR::ct_search(type = 'string', search_param = 'equal', query = rais_compounds$`TRUE`$orig_name) %>%
-  filter(!is.na(searchName))
-
-rais_name_final <- rais_name %>% 
-  arrange(rank) %>% 
-  select(dtxsid,casrn, preferredName, searchValue) %>% 
-  distinct(searchValue, .keep_all = T)
-
-rais_compounds$`TRUE` <- left_join(rais_compounds$`TRUE`, rais_name_final, by = c('orig_name' = 'searchValue'))
-
-rais_compounds <- list_rbind(rais_compounds)
-
-rais_compounds <- rais_compounds %>% 
-  split(is.na(.$preferredName))
-
-rio::export(rais_compounds$`TRUE`, file = paste0('rais_bad_',Sys.Date(),'.csv'))
-
-rais_compounds <- list_rbind(rais_compounds)
-
-rais_compounds <- rais_compounds %>% 
-  filter(!is.na(preferredName))
-
-rais <- rais %>% 
-  rename(orig_name = preferredName, 
-         orig_cas = cas) %>% 
-  left_join(., rais_compounds, join_by(orig_name, orig_cas))
-
-# Final export ------------------------------------------------------------
-
-rio::export(rais, file = paste0('rais_curated_',Sys.Date(), '.RDS'))
+# 
+# rais_compounds <- distinct(rais, preferredName, cas, .keep_all = F) %>% 
+#   rename(orig_name = preferredName, 
+#          orig_cas = cas)
+# 
+# # CAS ---------------------------------------------------------------------
+# 
+# #TODO check sequence on this
+# rais_cas <- ComptoxR::ct_search(type = 'string', search_param = 'equal', query = rais_compounds$orig_cas) %>%
+#   filter(!is.na(searchName))
+# 
+# rais_cas_final <- rais_cas %>% 
+#   arrange(rank) %>% 
+#   select(dtxsid,casrn, preferredName, searchValue) %>% 
+#   distinct(searchValue, .keep_all = T)
+# 
+# rais_compounds <- left_join(rais_compounds, rais_cas_final, by = c('orig_cas' = 'searchValue'))
+# 
+# rais_compounds <- rais_compounds %>% 
+#   split(is.na(.$preferredName))
+# 
+# rais_compounds$`TRUE` <- rais_compounds$`TRUE` %>% 
+#   select(orig_name:orig_cas)
+# 
+# # Name --------------------------------------------------------------------
+# 
+# rais_name <- ComptoxR::ct_search(type = 'string', search_param = 'equal', query = rais_compounds$`TRUE`$orig_name) %>%
+#   filter(!is.na(searchName))
+# 
+# rais_name_final <- rais_name %>% 
+#   arrange(rank) %>% 
+#   select(dtxsid,casrn, preferredName, searchValue) %>% 
+#   distinct(searchValue, .keep_all = T)
+# 
+# rais_compounds$`TRUE` <- left_join(rais_compounds$`TRUE`, rais_name_final, by = c('orig_name' = 'searchValue'))
+# 
+# rais_compounds <- list_rbind(rais_compounds)
+# 
+# rais_compounds <- rais_compounds %>% 
+#   split(is.na(.$preferredName))
+# 
+# rio::export(rais_compounds$`TRUE`, file = paste0('rais_bad_',Sys.Date(),'.csv'))
+# 
+# rais_compounds <- list_rbind(rais_compounds)
+# 
+# rais_compounds <- rais_compounds %>% 
+#   filter(!is.na(preferredName))
+# 
+# rais <- rais %>% 
+#   rename(orig_name = preferredName, 
+#          orig_cas = cas) %>% 
+#   left_join(., rais_compounds, join_by(orig_name, orig_cas))
+# 
+# # Final export ------------------------------------------------------------
+# 
+# rio::export(rais, file = paste0('rais_curated_',Sys.Date(), '.RDS'))
 
