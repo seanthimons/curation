@@ -101,6 +101,10 @@ rads_dat_cur <- rads_dat %>%
   pivot_longer(., cols = !dtxsid, values_to = 'raw_search') %>% 
   select(-name)
 
+preferred_units <- rio::import(here('dict', 'Units.csv'))
+
+unit_conv <- rio::import(here('dict', 'UOMConversion.csv'))
+
 #Download----
 {
   
@@ -615,15 +619,29 @@ rads_dat_cur <- rads_dat %>%
       unit = str_replace_all(unit, pattern = '\\u00b5', replacement = 'u'),
       remap = case_when(
         str_detect(unit, pattern = 'g/l') ~ 'mg/l',
-        .default = unit),
+        str_detect(unit, pattern = 'ppm|ppb|ppq') ~ 'mg/l',
+        str_detect(unit, pattern = 'fibers/l') ~ 'fibers/l',
+        str_detect(unit, pattern = 'picocuries/l') ~ 'pCi/l',
+        str_detect(unit, pattern = 'organisms/100 ml') ~ 'count/100ml'
+  
+        ,.default = unit),
+      
       conversion_factor = case_when(
+        
         unit == 'ug/l' ~ 1e-3,
         unit == 'ng/l' ~ 1e-6,
         unit == 'pg/l' ~ 1e-9,
         unit == 'g/l' ~ 1e3,
         unit == 'fg/l' ~ 1e-12,
         unit == 'mg/l' ~ 1,
-        .default = NA)
+        unit == 'ppm'~ 1,
+        unit == 'ppq' ~ 1e-9,
+        unit == 'ppb' ~ 1e-3, 
+        
+        unit == 'million fibers/l' ~ 1e-6,
+        unit == 'mf/l' ~ 1e-6,
+        
+        .default = 1)
       )
   
   resolve <- units %>% 
@@ -632,45 +650,4 @@ rads_dat_cur <- rads_dat %>%
     arrange(preferredName, desc(n)) %>% 
     get_dupes(preferredName) #%>% split(.$preferredName)
 
-## Concentration -----------------------------------------------------------
-
-  units$`TRUE` %>% 
-    select(-frac) %>% 
-    filter(str_detect(unit, pattern = 'g/l')) %>% 
-    mutate(
-      remap = case_when(
-        str_detect(unit, pattern = 'mg/l', negate = T) ~ 'mg/l',
-        .default = unit
-        ),
-      conversion_factor = case_when(
-        unit == 'µg/l' ~ 1e-3,
-        unit == 'ng/l' ~ 1e-6,
-        unit == 'pg/l' ~ 1e-9,
-        unit == 'g/l' ~ 1e3,
-        unit == 'fg/l' ~ 1e-12,
-        .default = 1)
-      )
-
-# fibers ------------------------------------------------------------------
-
-  units$`TRUE` %>% 
-    select(-frac) %>% 
-    filter(str_detect(unit, pattern = 'fibers|mf/l', negate = F)) %>% 
-    mutate(
-      remap = case_when(
-        str_detect(unit, pattern = 'fibers/l', negate = T) ~ 'fibers/l',
-        .default = unit
-      ),
-      conversion_factor = case_when(
-        unit == 'million fibers/l' ~ 1e-6,
-        unit == 'mf/l' ~ 1e-6,
-        
-        .default = 1
-    ))
-
-# rads --------------------------------------------------------------------
-
-  units$`TRUE` %>% 
-    select(-frac) %>% 
-    filter(str_detect(unit, pattern = '/l', negate = T))
   
