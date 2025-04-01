@@ -5,17 +5,10 @@
 .DS_Store
 .quarto
 .vscode
-*.xlsx
 desktop.ini
-*.zip
-*.csv
-combined_wqs.xlsx
-iwtt/Read-Me.txt
-fracfocus/readme/readme csv.txt
 /old_files
-frac_raw_*
-ecotox/AsciiDownloadHelp5.pdf
-ecotox/release_notes_08_21_24.txt
-ecotox/ECOTOX_ASCII_dd.pdf
 /echidna/raw
 *.sql
+raw*
+*.pdf
+/epa/toxval_raw
