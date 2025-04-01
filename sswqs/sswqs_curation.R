@@ -12,48 +12,9 @@
   
   setwd(here('sswqs'))
   
+  source(here('functions.R'))
+  
   todor::todor()
-}
-
-
-# functions ---------------------------------------------------------------
-
-srs_search <- function(query, method){
-  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch") |>
-    req_url_query(
-      #begins, contains, exact
-      term = query,
-      qualifier = method
-    ) |>
-    req_headers(
-      accept = "*/*") |>
-    #req_dry_run()
-    req_perform() %>% 
-    resp_body_json() %>% 
-    map(., as_tibble) %>% 
-    list_rbind()
-}
-
-srs_details <- function(query){
-  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/substance/itn/") |>
-    req_url_path_append(query) %>% 
-    # req_url_query(
-    #   excludeSynonyms = "true"
-    # ) |>
-    req_headers(
-      accept = "application/json") |>
-    #req_dry_run()
-    req_perform() %>% 
-    resp_body_json() %>% 
-    pluck(., 1) %>% 
-    modify_at(
-      "synonyms",
-      ~ length(.x)
-    ) %>% 
-    flatten() %>% 
-    compact() %>% 
-    map(., ~ if(is.null(.x)){NA}else{.x}) %>%
-    as_tibble()
 }
 
 # Load data ---------------------------------------------------------------
@@ -101,9 +62,7 @@ rads_dat_cur <- rads_dat %>%
   pivot_longer(., cols = !dtxsid, values_to = 'raw_search') %>% 
   select(-name)
 
-preferred_units <- rio::import(here('dict', 'Units.csv'))
-
-unit_conv <- rio::import(here('dict', 'UOMConversion.csv'))
+unit_dict <- rio::import(here('final', 'unit_dict.RDS'))
 
 #Download----
 {
@@ -155,8 +114,7 @@ unit_conv <- rio::import(here('dict', 'UOMConversion.csv'))
   rm(vars)
 }
 
-{
-  
+
   cli::cli_alert_info('Requesting state data')
   
   state_dat <- state_vars %>%
@@ -620,11 +578,26 @@ unit_conv <- rio::import(here('dict', 'UOMConversion.csv'))
       remap = case_when(
         str_detect(unit, pattern = 'g/l') ~ 'mg/l',
         str_detect(unit, pattern = 'ppm|ppb|ppq') ~ 'mg/l',
-        str_detect(unit, pattern = 'fibers/l') ~ 'fibers/l',
+        
+        str_detect(unit, pattern = 'million fibers/l') ~ 'fibers/l',
+        str_detect(unit, pattern = 'mf/l') ~ 'fibers/l',
+        
         str_detect(unit, pattern = 'picocuries/l') ~ 'pCi/l',
-        str_detect(unit, pattern = 'organisms/100 ml') ~ 'count/100ml'
-  
-        ,.default = unit),
+        str_detect(unit, pattern = 'pci/l') ~ 'pCi/l',
+        
+        str_detect(unit, pattern = 'organisms/100 ml') ~ 'count/100ml',
+        
+        str_detect(unit, pattern = '\\[no units\\]') ~ 'standard units',
+        str_detect(unit, pattern = 'ph units') ~ 'standard units',
+        str_detect(unit, pattern = 'color units') ~ 'PCCU',
+        str_detect(unit, pattern = 'platinum cobalt units') ~ 'PCCU',
+        
+        str_detect(unit, pattern = 'F') ~ 'C',
+        
+        str_detect(unit, pattern = 'F') ~ 'C',
+        
+        
+        .default = NA),
       
       conversion_factor = case_when(
         
@@ -641,13 +614,25 @@ unit_conv <- rio::import(here('dict', 'UOMConversion.csv'))
         unit == 'million fibers/l' ~ 1e-6,
         unit == 'mf/l' ~ 1e-6,
         
-        .default = 1)
-      )
+        unit == 'F' ~ NA
+        
+        ,.default = 1)
+    )
   
   resolve <- units %>% 
-    left_join(cleaned_crit_dat, ., join_by(unit == unit_idx)) %>% 
-    count(preferredName, remap, unit) %>% 
+    left_join(., cleaned_crit_dat, join_by(unit_idx == unit)) %>% 
+    group_by(preferredName, remap, unit) %>% 
+    reframe(n = n()) %>% 
+    ungroup() %>% 
     arrange(preferredName, desc(n)) %>% 
-    get_dupes(preferredName) #%>% split(.$preferredName)
+    get_dupes(preferredName)
+    filter(is.na(remap)) %>% 
+    group_by(unit) %>% 
+    reframe(
+      n = sum(n),
+    ) %>% 
+    arrange(unit, desc(n)) 
+   
+    #%>% split(.$preferredName)
 
   
