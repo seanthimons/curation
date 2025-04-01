@@ -18,47 +18,6 @@
   load('epa.Rdata')
 }
 
-# functions ---------------------------------------------------------------
-
-srs_search <- function(query, method){
-  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch") |>
-    req_url_query(
-      #begins, contains, exact
-      term = query,
-      qualifier = method
-    ) |>
-    req_headers(
-      accept = "*/*") |>
-    #req_dry_run()
-    req_perform() %>% 
-    resp_body_json() %>% 
-    map(., as_tibble) %>% 
-    list_rbind()
-}
-
-srs_details <- function(query){
-  request("https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/substance/itn/") |>
-    req_url_path_append(query) %>% 
-    # req_url_query(
-    #   excludeSynonyms = "true"
-    # ) |>
-    req_headers(
-      accept = "application/json") |>
-    #req_dry_run()
-    req_perform() %>% 
-    resp_body_json() %>% 
-    pluck(., 1) %>% 
-    modify_at(
-      "synonyms",
-      ~ length(.x)
-    ) %>% 
-    flatten() %>% 
-    compact() %>% 
-    map(., ~ if(is.null(.x)){NA}else{.x}) %>%
-    as_tibble()
-}
-
-
 # National Primary Drinking Water Regulations -----------------------------
 
 dw_headers <- read_html('https://www.epa.gov/ground-water-and-drinking-water/national-primary-drinking-water-regulations') %>%
