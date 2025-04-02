@@ -160,3 +160,4 @@ similar_hash <- function(target, target_by, dict, dict_by, osa = 1, lcs = 1, ham
 
   return(hash_cur)
   }
+}
