@@ -280,7 +280,7 @@ job::job({
       select(where(~ !all(is.na(.x))))
     
     
-    chem_cur <- list(
+    echidna <- list(
       chems = chems,
       general = general,
       guidelines = guidelines, 
@@ -289,14 +289,21 @@ job::job({
       bayes_model_prioritization = bayes_model
     )
     
-    writexl::write_xlsx(chem_cur, path = paste0(here('echidna','echidna_dump.xlsx')))
+    #writexl::write_xlsx(echidna, path = paste0(here('echidna','echidna_dump.xlsx')))
     
   }
 })
 
 
+en <- names(echidna)
+
+walk2(echidna, en, ~{
+    write_parquet(.x, sink = paste0(here('final'),'/echidna_', .y, '.parquet'))
+  }, .progress = TRUE)
+
 # debugging ---------------------------------------------------------------
 
 #page <- read_html(here('echidna', 'raw', '1307.html'))
+
 
 
