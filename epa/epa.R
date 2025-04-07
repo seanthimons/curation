@@ -12,6 +12,7 @@
   library(ComptoxR)
   library(stringdist)
   library(fuzzyjoin)
+  library(arrow)
   
   
   setwd(here('epa'))
@@ -441,4 +442,6 @@ ndwqs_final <- bind_rows(
 
 }
 
-write_rds(ndwqs_final, here('final', 'nwqs.RDS'))
+write_parquet(ndwqs_final, sink = here('final', 'nwqs.parquet'))
+
+#write_rds(ndwqs_final, here('final', 'nwqs.RDS'))

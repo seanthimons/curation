@@ -10,7 +10,7 @@
   #library(rvest)
   library(ComptoxR)
   #library(jsonlite)
-  
+  library(arrow)
   
   setwd(here('epa'))
   #load('epa.Rdata')
@@ -40,4 +40,6 @@ raw <-
   }, .progress = TRUE) %>% 
     list_rbind()
 
-write_rds(raw, file = here('final', 'toxval_9_6.RDS'))
+write_parquet(raw, sink = here('final', 'toxval_9_6.parquet'))
+
+#write_rds(raw, file = here('final', 'toxval_9_6.RDS'))
