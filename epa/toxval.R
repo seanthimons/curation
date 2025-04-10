@@ -6,7 +6,7 @@
   library(rio)
   library(janitor)
   library(tidyverse)
-  #library(httr2)
+  library(httr2)
   #library(rvest)
   library(ComptoxR)
   #library(jsonlite)
@@ -31,12 +31,18 @@
 
 # Clowder files -----------------------------------------------------------
 
-toxval_ver <- read_html("https://clowder.edap-cluster.com/datasets/61147fefe4b0856fdc65639b?space=6112f2bee4b01a90a3fa7689#folderId=62e184ebe4b055edffbfc22b&page=0")
+clowder_list <- request('https://clowder.edap-cluster.com/api/datasets/61147fefe4b0856fdc65639b/listAllFiles') %>%
+  req_perform() %>% 
+  resp_body_json()
 
-toxval_ver %>% 
-html_elements(., xpath = '//*[@id="folderListDiv"]')
-  #html_elements(., css = 'h3') %>% 
-  html_text()
+tv_list <- clowder_list %>%
+  map(~ .x[c("id", "filename")]) %>%
+  keep(~ str_detect(.x$filename, "toxval_v96")) %>% 
+  discard( ~str_detect(.x$filename, '.sql|README|qc_status')) %>% 
+  map(., as_tibble) %>% 
+  list_rbind()
+  
+
   
 # raw ---------------------------------------------------------------------
 
