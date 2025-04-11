@@ -84,7 +84,6 @@ tv_grp %>%
 #lof <- list.files(here('epa', 'toxval_raw'), recursive = TRUE)
 
 tv_ver %>%
-  .[1:4] %>% 
   imap(., ~{
     cli::cli_alert(.x)
     
