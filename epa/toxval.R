@@ -38,33 +38,24 @@ clowder_list <- request('https://clowder.edap-cluster.com/api/datasets/61147fefe
 tv_list <- clowder_list %>%
   map(~ .x[c("id", "filename")]) %>%
   keep(~ str_detect(.x$filename, "toxval_v9")) %>% 
-  discard( ~str_detect(.x$filename, '.sql|README|qc_status'))
+  discard( ~str_detect(.x$filename, '.sql|README|qc_status|gz|with')) #%>% 
+  # map(., ~pluck(., 'filename')) %>% 
+  # unlist()
 
 tv_ver <- tv_list %>% 
   map(., ~pluck(., 'filename')) %>% 
   unlist() %>% 
   str_replace_all(., 'toxval_all_res_', "") %>% 
-  str_subset(., pattern = 'toxval_v\\d{2}') %>% 
-  str_extract(., pattern = 'v\\d{2}') %>% 
+  str_subset(., pattern = 'toxval_v\\d{2}_\\d?') %>% 
+  str_extract(., pattern = 'v\\d{2}_\\d?') %>% 
   unique()
-
-tv_ver_b <- tv_list %>% 
-  map(., ~pluck(., 'filename')) %>% 
-  unlist() %>% 
-  str_replace_all(., 'toxval_all_res_', "") %>% 
-  str_subset(., pattern = 'toxval_v\\d{2}_1') %>% 
-  str_extract(., pattern = 'v\\d{2}_1') %>% 
-  unique()
-  
-tv_ver <- c(tv_ver, tv_ver_b)
-
 
 tv_grp <- tv_ver %>% 
   map(., function(ver){
     keep(tv_list, ~str_detect(.x$filename, pattern = ver))
   }) %>% set_names(tv_ver)
 
-rm(tv_ver_b, tv_list, clowder_list)  
+rm(tv_list, clowder_list)  
 
 
 # raw ---------------------------------------------------------------------
@@ -73,8 +64,8 @@ map(
   names(tv_grp),
   ~dir.create(here('epa', 'toxval_raw', .x)))
 
-temp <- tv_grp %>% 
-  keep_at(., 'v92')
+# temp <- tv_grp %>% 
+#   keep_at(., 'v92')
 
 tv_grp %>% 
 #temp %>% 
@@ -89,27 +80,26 @@ tv_grp %>%
       })
     #list.files()
   })
-  
 
-lof <- list.files(here('epa', 'toxval_raw'), recursive = TRUE)
+#lof <- list.files(here('epa', 'toxval_raw'), recursive = TRUE)
 
-# tbl_names <- lof %>%
-#   str_remove_all(., pattern = 'toxval_all_res_toxval_v96_0_|.xlsx') %>% 
-#   janitor::make_clean_names(.)
+tv_ver %>%
+  .[1:4] %>% 
+  imap(., ~{
+    cli::cli_alert(.x)
+    
+    setwd(here('epa', 'toxval_raw', .x))
+    
+    raw <- list.files(getwd()) %>%
+      map(., ~{
+        readxl::read_excel(
+          .x,
+          col_types = c(
+            "text"
+          ),
+          na = c("-", ""))
+      }, .progress = TRUE) %>%
+      list_rbind()
 
-raw <- 
-  lof %>% 
-  #.[1] %>% 
-  map(., ~{
-    .x <- readxl::read_excel(
-      here('epa', 'toxval_raw', .x),
-      col_types = c(
-        "text"
-      ),
-      na = c("-", ""))
-  }, .progress = TRUE) %>% 
-  list_rbind()
-
-write_parquet(raw, sink = here('final', 'toxval_9_6.parquet'))
-
-#write_rds(raw, file = here('final', 'toxval_9_6.RDS'))
+    write_parquet(raw, sink = here('final', paste0('toxval_',.x,'.parquet')))
+  })
