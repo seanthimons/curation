@@ -8,25 +8,13 @@
   library(tidyverse)
   library(httr2)
   #library(rvest)
-  library(ComptoxR)
+  #library(ComptoxR)
   #library(jsonlite)
   library(arrow)
   
   setwd(here('epa'))
   #load('epa.Rdata')
 }
-
-# 9.6
-# https://clowder.edap-cluster.com/datasets/61147fefe4b0856fdc65639b?space=6112f2bee4b01a90a3fa7689#folderId=62e184ebe4b055edffbfc22b&page=0
-
-# 9.5
-# https://clowder.edap-cluster.com/datasets/61147fefe4b0856fdc65639b#folderId=66853bf7e4b0a7c65d177bc3&page=0
-
-# 9.4 
-# https://clowder.edap-cluster.com/datasets/61147fefe4b0856fdc65639b#folderId=645a5c33e4b08a6b39438b19&page=0
-
-# 9.3/2
-# https://clowder.edap-cluster.com/datasets/61147fefe4b0856fdc65639b#folderId=631759b4e4b04f6bb132461a&page=0
 
 
 # Clowder files -----------------------------------------------------------
