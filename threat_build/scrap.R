@@ -1,14 +1,14 @@
 dbListTables(threat_db)
 
-tbl(threat_db, "toxval_9_6") %>%
+tbl(threat_db, "toxval_v96_1") %>%
   #filter(DTXSID == 'DTXSID2021238') %>% 
-  filter()
+  #filter()
   glimpse()
 
 cwa <- ct_list('CWA311HS') %>% pluck(.,1)
 
 {
-tbl(threat_db, "toxval_9_6") %>%
+tbl(threat_db, "toxval_v96_1") %>%
   filter(
     SOURCE != "ECOTOX",
     DTXSID %in% cwa$dtxsids,
@@ -34,7 +34,7 @@ tbl(threat_db, "toxval_9_6") %>%
 
 {
   
-tbl(threat_db, "toxval_9_6") %>%
+tbl(threat_db, "toxval_v96_1") %>%
     select(
       SOURCE
       #,SUB_SOURCE,
@@ -53,7 +53,7 @@ tbl(threat_db, "toxval_9_6") %>%
 
 {
   
-  tbl(threat_db, "toxval_9_6") %>%
+  tbl(threat_db, "toxval_v96_1") %>%
   filter(
    SOURCE %in% c('ToxRefDB')) %>%
     select(!contains('ORIGINAL')) %>% 
