@@ -58,10 +58,10 @@ if(file.exists('threat.duckdb')){
   
 }else{
   
-  final_lof <- list.files(here('final'))
-  
-  final_lof <- final_lof %>% 
-    str_subset(., pattern = '.RDS|bayes|treatment', negate = TRUE)
+  final_lof <- list.files(here('final')) %>% 
+    str_subset(., pattern = '.RDS|bayes|treatment', negate = TRUE) %>% 
+    #TEMP
+    str_subset(., pattern = 'toxval_v96_1.parquet')
   
   final_lof
   
@@ -72,7 +72,6 @@ if(file.exists('threat.duckdb')){
   final_lof %>% 
     walk(., function(x){
       cli::cli_alert_info(x, '\n')
-      basename(x)
       dbWriteTable(threat_db, str_remove(x, pattern = '.parquet'), read_parquet(here('final', x)), overwrite = TRUE)
       
     }, .progress = TRUE)
