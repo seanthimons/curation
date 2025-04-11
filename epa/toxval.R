@@ -37,17 +37,61 @@ clowder_list <- request('https://clowder.edap-cluster.com/api/datasets/61147fefe
 
 tv_list <- clowder_list %>%
   map(~ .x[c("id", "filename")]) %>%
-  keep(~ str_detect(.x$filename, "toxval_v96")) %>% 
-  discard( ~str_detect(.x$filename, '.sql|README|qc_status')) %>% 
-  map(., as_tibble) %>% 
-  list_rbind()
-  
+  keep(~ str_detect(.x$filename, "toxval_v9")) %>% 
+  discard( ~str_detect(.x$filename, '.sql|README|qc_status'))
 
+tv_ver <- tv_list %>% 
+  map(., ~pluck(., 'filename')) %>% 
+  unlist() %>% 
+  str_replace_all(., 'toxval_all_res_', "") %>% 
+  str_subset(., pattern = 'toxval_v\\d{2}') %>% 
+  str_extract(., pattern = 'v\\d{2}') %>% 
+  unique()
+
+tv_ver_b <- tv_list %>% 
+  map(., ~pluck(., 'filename')) %>% 
+  unlist() %>% 
+  str_replace_all(., 'toxval_all_res_', "") %>% 
+  str_subset(., pattern = 'toxval_v\\d{2}_1') %>% 
+  str_extract(., pattern = 'v\\d{2}_1') %>% 
+  unique()
   
+tv_ver <- c(tv_ver, tv_ver_b)
+
+
+tv_grp <- tv_ver %>% 
+  map(., function(ver){
+    keep(tv_list, ~str_detect(.x$filename, pattern = ver))
+  }) %>% set_names(tv_ver)
+
+rm(tv_ver_b, tv_list, clowder_list)  
+
+
 # raw ---------------------------------------------------------------------
 
-dir.create('toxval_raw')
-lof <- list.files(here('epa', 'toxval_raw'))
+map(
+  names(tv_grp),
+  ~dir.create(here('epa', 'toxval_raw', .x)))
+
+temp <- tv_grp %>% 
+  keep_at(., 'v92')
+
+tv_grp %>% 
+#temp %>% 
+  imap(., ~{
+    setwd(here('epa', 'toxval_raw', .y))
+    map(., ~{
+      cli::cli_alert(.x$filename)
+        download.file(
+          url = paste0('https://clowder.edap-cluster.com/api/files/', .x$id,'/blob'),
+          destfile = .x$filename,
+          mode = 'wb')
+      })
+    #list.files()
+  })
+  
+
+lof <- list.files(here('epa', 'toxval_raw'), recursive = TRUE)
 
 # tbl_names <- lof %>%
 #   str_remove_all(., pattern = 'toxval_all_res_toxval_v96_0_|.xlsx') %>% 
@@ -64,7 +108,7 @@ raw <-
       ),
       na = c("-", ""))
   }, .progress = TRUE) %>% 
-    list_rbind()
+  list_rbind()
 
 write_parquet(raw, sink = here('final', 'toxval_9_6.parquet'))
 
