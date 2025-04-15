@@ -6,7 +6,7 @@
   library(httr2)
   library(arrow)
   library(rvest)
- 
+  
   setwd(here('norman')) 
   todor::todor_file()
 }
@@ -17,7 +17,7 @@
 
 # ~94,000 compounds
 norman_qual <- seq(from = 0, by = 10000, length.out = 10)
-      
+
 norman_qual <- 
   map(norman_qual, ~{
     nreq <- request("https://www.norman-network.com/nds/ecotox/qualityTargetIndexAjax.php") |>
@@ -46,9 +46,9 @@ norman_q <- norman_qual %>%
          susid = str_extract(nsid, "\\d+") %>% as.numeric(),
          casrn = str_remove_all(casrn, pattern = 'CAS_RN|CAS RN|:') %>% str_squish(),
          casrn = na_if(casrn, "")
-         )
+  )
 
-write_rds(norman_q, file = 'norman_compounds.RDS')
+write_tsv(norman_q, 'norman_compounds.tsv')
 
 rm(resp, nreq, norman_qual)
 
@@ -56,6 +56,7 @@ rm(resp, nreq, norman_qual)
 
 norman_resp <- norman_eco <- norman_q %>%
   pull(nsid) %>% 
+  #str_subset(., pattern = 'NS00009623|NS00075864') %>% 
   as.list() #%>% sample(20)
 
 norman_resp <- norman_eco %>%
@@ -87,7 +88,14 @@ write_parquet(norman_pnec, sink = here('final', 'norman_pnec.parquet'))
 norman_resp <- norman_eco <- norman_q %>%
   pull(susid) %>% 
   as.list() %>% 
-  set_names(norman_q$nsid) %>% sample(10) %>% append(list('NS00002649' = 2649))
+  set_names(norman_q$nsid) %>%
+  sample(10) %>%
+  append(
+    list(
+      'NS00002649' = 2649,
+      'NS00009623' = 9623,
+      'NS00075864' = 75864 
+    ))
 
 norman_resp <- norman_eco %>%
   map(., ~{
@@ -102,8 +110,41 @@ norman_resp <- norman_resp %>%
   map(., ~{
     
     .x <- resp_body_html(.x) %>%
-      html_table()
+      #doesn't seem to be any data aside from the first two entries...
+      html_table() %>% 
+      pluck(., )
     
   }) %>% 
   set_names(names(norman_eco))
 
+norman_summary <- norman_resp %>% 
+  map(., ~{
+    pluck(., 2) %>% 
+      mutate(
+        across(everything(), as.character), 
+        across(everything(), ~na_if(.x, "")),
+        across(everything(), ~na_if(.x, "n.a.")),
+        across(everything(), ~na_if(.x, "n.r."))
+      )  
+  }) %>% 
+  list_rbind(names_to = 'susid') %>% 
+  janitor::clean_names() %>% 
+  select(-editor, -pnec_id)
+
+norman_feed <- norman_resp %>% 
+  map(., ~{
+    #doesn't seem to be any data aside from the first two entries...
+    pluck(., 1) %>% 
+      #removes weird unnname column
+      select(-c(10:13)) %>%
+      mutate(
+        across(everything(), as.character),
+        across(everything(), ~na_if(.x, "")),
+        across(everything(), ~na_if(.x, "n.a.")),
+        across(everything(), ~na_if(.x, "n.r."))
+        )
+      }) %>% 
+  list_rbind(names_to = 'susid') %>% 
+  janitor::clean_names() %>% 
+  filter(str_detect(pnec_id, pattern = "Showing", negate = TRUE)) %>% 
+  mutate(pne_cvalue = as.numeric(pne_cvalue))
