@@ -52,13 +52,42 @@ write_rds(norman_q, file = 'norman_compounds.RDS')
 
 rm(resp, nreq, norman_qual)
 
+# PNECs -------------------------------------------------------------------
+
+norman_resp <- norman_eco <- norman_q %>%
+  pull(nsid) %>% 
+  as.list() #%>% sample(20)
+
+norman_resp <- norman_eco %>%
+  map(., ~{
+    
+    request('https://www.norman-network.com/nds/api/ecotox/nsid/') %>% 
+      req_url_path_append(.x) %>% 
+      req_url_path_append('/JSON')
+    
+  }) %>% 
+  req_perform_sequential(., on_error = 'continue')
+
+norman_resp <- norman_resp %>% 
+  map(., ~{
+    
+    .x <- resp_body_json(.x) %>% as_tibble()
+    
+  }, .progress = TRUE) %>% 
+  set_names(names(norman_eco)) %>% 
+  list_rbind()
+
+norman_pnec <- norman_resp %>% 
+  mutate(across(contains('PNEC'), ~as.numeric(.x)))
+
+write_parquet(norman_pnec, sink = here('final', 'norman_pnec.parquet'))
+
 # ecotox ------------------------------------------------------------------
 
 norman_resp <- norman_eco <- norman_q %>%
   pull(susid) %>% 
   as.list() %>% 
-  set_names(norman_q$nsid) %>% 
-  sample(10)
+  set_names(norman_q$nsid) %>% sample(10) %>% append(list('NS00002649' = 2649))
 
 norman_resp <- norman_eco %>%
   map(., ~{
@@ -75,32 +104,6 @@ norman_resp <- norman_resp %>%
     .x <- resp_body_html(.x) %>%
       html_table()
     
-    }) %>% 
+  }) %>% 
   set_names(names(norman_eco))
-
-
-# PNECs -------------------------------------------------------------------
-
-norman_resp <- norman_eco <- norman_q %>%
-  pull(nsid) %>% 
-  as.list() %>% sample(20)
-
-norman_resp <- norman_eco %>%
-  map(., ~{
-    
-    request('https://www.norman-network.com/nds/api/ecotox/nsid/') %>% 
-      req_url_path_append(.x) %>% 
-      req_url_path_append('/JSON')
-    
-  }) %>% 
-  req_perform_sequential()
-
-norman_resp <- norman_resp %>% 
-  map(., ~{
-    
-    .x <- resp_body_json(.x) %>% as_tibble()
-    
-  }) %>% 
-  set_names(names(norman_eco)) %>% 
-  list_rbind()
 
