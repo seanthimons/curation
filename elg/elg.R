@@ -139,10 +139,6 @@ rm(cats)
 
 lf <- list.files(here('elg'), pattern = '.xlsx')
 
-#lf <- lf[1:3]
-
-file_name <- lf %>% str_remove_all(., pattern = '.xlsx')
-
 elg_raw <- map(lf, function(id){
   
   cat(id, '\n')
@@ -151,14 +147,18 @@ elg_raw <- map(lf, function(id){
     clean_names() %>% 
     mutate(across(everything(), as.character))
   
-  #TODO Change limitation_value to numeric
-  
   return(df)
   
 }, .progress = T) %>% 
-  set_names(file_name) %>% 
-  list_rbind(names_to = 'file_name')
+  set_names(str_remove_all(lf, pattern = '.xlsx')) %>% 
+  list_rbind(names_to = 'file_name') %>% 
+  mutate(
+    orig_limitation_value = limitation_value,
+    limitation_value = as.numeric(limitation_value))
 
+elg_temp <- elg_raw %>% 
+  filter(!is.na(limitation_value)) %>% 
+  distinct(pollutant, limitation_value) 
 
 #elg_con <- dbConnect(duckdb(), dbdir = "elg.duckdb", read_only = FALSE)
 
