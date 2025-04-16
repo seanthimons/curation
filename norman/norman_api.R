@@ -8,7 +8,7 @@
   library(rvest)
   
   setwd(here('norman')) 
-  todor::todor_file()
+  load('norman.RData')
 }
 
 #https://www.norman-network.com/nds/ecotox/docs/Fact-sheet-EQS-Derivation.pdf
@@ -85,66 +85,67 @@ write_parquet(norman_pnec, sink = here('final', 'norman_pnec.parquet'))
 
 # ecotox ------------------------------------------------------------------
 
-norman_resp <- norman_eco <- norman_q %>%
-  pull(susid) %>% 
-  as.list() %>% 
-  set_names(norman_q$nsid) %>%
-  sample(10) %>%
-  append(
-    list(
-      'NS00002649' = 2649,
-      'NS00009623' = 9623,
-      'NS00075864' = 75864 
-    ))
+#NOTE Not needed; looks like ECOTOX has NORMAN data... 
 
-norman_resp <- norman_eco %>%
-  map(., ~{
-    
-    request('https://www.norman-network.com/nds/ecotox/qualityTargetShow.php?') %>% 
-      req_url_query(susID = .x)
-    
-  }) %>% 
-  req_perform_sequential()
-
-norman_resp <- norman_resp %>% 
-  map(., ~{
-    
-    .x <- resp_body_html(.x) %>%
-      #doesn't seem to be any data aside from the first two entries...
-      html_table() %>% 
-      pluck(., )
-    
-  }) %>% 
-  set_names(names(norman_eco))
-
-norman_summary <- norman_resp %>% 
-  map(., ~{
-    pluck(., 2) %>% 
-      mutate(
-        across(everything(), as.character), 
-        across(everything(), ~na_if(.x, "")),
-        across(everything(), ~na_if(.x, "n.a.")),
-        across(everything(), ~na_if(.x, "n.r."))
-      )  
-  }) %>% 
-  list_rbind(names_to = 'susid') %>% 
-  janitor::clean_names() %>% 
-  select(-editor, -pnec_id)
-
-norman_feed <- norman_resp %>% 
-  map(., ~{
-    #doesn't seem to be any data aside from the first two entries...
-    pluck(., 1) %>% 
-      #removes weird unnname column
-      select(-c(10:13)) %>%
-      mutate(
-        across(everything(), as.character),
-        across(everything(), ~na_if(.x, "")),
-        across(everything(), ~na_if(.x, "n.a.")),
-        across(everything(), ~na_if(.x, "n.r."))
-        )
-      }) %>% 
-  list_rbind(names_to = 'susid') %>% 
-  janitor::clean_names() %>% 
-  filter(str_detect(pnec_id, pattern = "Showing", negate = TRUE)) %>% 
-  mutate(pne_cvalue = as.numeric(pne_cvalue))
+# norman_resp <- norman_eco <- norman_q %>%
+#   pull(susid) %>% 
+#   as.list() %>% 
+#   set_names(norman_q$nsid) %>%
+#   sample(10) %>%
+#   append(
+#     list(
+#       'NS00002649' = 2649,
+#       'NS00009623' = 9623,
+#       'NS00075864' = 75864 
+#     ))
+# 
+# norman_resp <- norman_eco %>%
+#   map(., ~{
+#     
+#     request('https://www.norman-network.com/nds/ecotox/qualityTargetShow.php?') %>% 
+#       req_url_query(susID = .x)
+#     
+#   }) %>% 
+#   req_perform_sequential()
+# 
+# norman_resp <- norman_resp %>% 
+#   map(., ~{
+#     
+#     .x <- resp_body_html(.x) %>%
+#       #doesn't seem to be any data aside from the first two entries...
+#       html_table() %>% 
+#       keep_at(., 1:2)
+#     
+#   }) %>% 
+#   set_names(names(norman_eco))
+# 
+# norman_summary <- norman_resp %>% 
+#   map(., ~{
+#     pluck(., 2) %>% 
+#       mutate(
+#         across(everything(), as.character), 
+#         across(everything(), ~na_if(.x, "")),
+#         across(everything(), ~na_if(.x, "n.a.")),
+#         across(everything(), ~na_if(.x, "n.r."))
+#       )  
+#   }) %>% 
+#   list_rbind(names_to = 'susid') %>% 
+#   janitor::clean_names() %>% 
+#   select(-editor, -pnec_id)
+# 
+# norman_feed <- norman_resp %>% 
+#   map(., ~{
+#     pluck(., 1) %>% 
+#       #removes weird unnname column
+#       select(-c(10:13)) %>%
+#       mutate(
+#         across(everything(), as.character),
+#         across(everything(), ~na_if(.x, "")),
+#         across(everything(), ~na_if(.x, "n.a.")),
+#         across(everything(), ~na_if(.x, "n.r."))
+#         )
+#       }) %>% 
+#   list_rbind(names_to = 'susid') %>% 
+#   janitor::clean_names() %>% 
+#   filter(str_detect(pnec_id, pattern = "Showing", negate = TRUE)) %>% 
+#   mutate(pne_cvalue = as.numeric(pne_cvalue))
