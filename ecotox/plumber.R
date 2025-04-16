@@ -4,6 +4,7 @@ library(duckdb)
 library(DBI)
 library(magrittr)
 }
+options("plumber.port" = 5555)
 
 #* @apiTitle Testing API for EcoTox
 

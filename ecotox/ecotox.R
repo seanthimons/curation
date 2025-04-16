@@ -47,6 +47,9 @@ con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
 lof <- list.files(pattern = ".txt") %>%
   .[str_detect(., pattern = "release", negate = T)]
 
+unlink(list.files(pattern = 'release'))
+unlink(list.files(pattern = 'ASCII|Ascii'))
+
 f_names <- str_remove_all(lof, pattern = ".txt")
 
 map2(lof, f_names, function(x, y) {

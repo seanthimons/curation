@@ -44,28 +44,31 @@ test_cols <- dbReadTable(con, 'tests') %>% colnames()
 # q1 <- inner_join(test_filt, species_filt, join_by('species_number')) %>% 
 #   collect()
 
-query <- ComptoxR::testing_chemicals %>% select(dtxsid) %>% unlist()
+query <- ComptoxR::testing_chemicals %>% pull(dtxsid)
+
+query <- ct_search(query = 'Spirodiclofen', search_method = 'equal', request_method = 'GET') %>% 
+  pull(casrn) %>% 
+  str_remove_all(., "-")
 
 query <- tbl(con, 'chemicals') %>% 
-  filter(dtxsid %in% query) %>% 
+  filter(cas_number %in% query) %>% 
   collect()
-
 
 q1 <- tbl(con, "tests") %>%
   filter(test_cas %in% query$cas_number) %>%
-  #filter( )
   inner_join(
     tbl(con, "species") %>% filter(
+      common_name == 'Bluegill'
       #   #phylum_division == 'Arthropoda',
       #   genus == 'Lepomis'
       #ecotox_group == 'Fish'
        )
     ,join_by('species_number')
-  ) %>%
+  ) %>% 
   inner_join(
     tbl(con, 'results'),
     join_by('test_id')
-  ) %>% 
+  ) %>% collect()
   filter(
     endpoint %in% c('EC50', 'LC50','LD50', 'LOEC', 'LOEL', 'NOEC', 'NOEL'),
     effect %in% c('MOR'),
