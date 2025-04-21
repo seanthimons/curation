@@ -1,4 +1,4 @@
-library(ECOTOXr)
+#library(ECOTOXr)
 
 # functions ---------------------------------------------------------------
 
@@ -20,19 +20,31 @@ convert_units <- function(data, value_column, unit_column) {
     )
 }
 
+convert_duration <- function(data, value_column, unit_column) {
+  data %>%
+    mutate(
+      new_dur = case_when(
+        !!sym(unit_column) == "days" ~ !!sym(value_column) * 24,
+        !!sym(unit_column) == "weeks" ~ !!sym(value_column) * 7 * 24,
+        TRUE ~ !!sym(value_column)
+      ),
+      new_dur_unit = "hours"
+    )
+}
+
 # Queries -----------------------------------------------------------------
 
-con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
 
-lot <- duckdb::dbListTables(con) %>%
+lot <- duckdb::dbListTables(eco_con) %>%
   as.list() %>% 
-  set_names(., duckdb::dbListTables(con))
+  set_names(., duckdb::dbListTables(eco_con))
 
-tbl(con, lot$endpoint_codes) %>% print(n = Inf)
+tbl(eco_con, lot$endpoint_codes) %>% print(n = Inf)
 
-chems <- dbReadTable(con, 'chemicals')
+chems <- dbReadTable(eco_con, 'chemicals')
 #test <- dbReadTable(con, 'tests')
-test_cols <- dbReadTable(con, 'tests') %>% colnames()
+test_cols <- dbReadTable(eco_con, 'tests') %>% colnames()
 #species <- dbReadTable(con, 'species')
 
 # test_filt <- tbl(con, 'tests') %>% 
@@ -44,21 +56,23 @@ test_cols <- dbReadTable(con, 'tests') %>% colnames()
 # q1 <- inner_join(test_filt, species_filt, join_by('species_number')) %>% 
 #   collect()
 
-query <- ComptoxR::testing_chemicals %>% pull(dtxsid)
+query <- ComptoxR::testing_chemicals %>%
+  pull(casrn) %>% 
+  str_remove_all(., "-")
 
 query <- ct_search(query = 'Spirodiclofen', search_method = 'equal', request_method = 'GET') %>% 
   pull(casrn) %>% 
   str_remove_all(., "-")
 
-query <- tbl(con, 'chemicals') %>% 
+query <- tbl(eco_con, 'chemicals') %>% 
   filter(cas_number %in% query) %>% 
   collect()
 
-q1 <- tbl(con, "tests") %>%
-  filter(test_cas %in% query$cas_number) %>%
+q1 <- tbl(eco_con, "tests") %>%
+  filter(test_cas %in% query) %>%
   inner_join(
-    tbl(con, "species") %>% filter(
-      common_name == 'Bluegill'
+    tbl(eco_con, "species") %>% filter(
+      #common_name == 'Bluegill'
       #   #phylum_division == 'Arthropoda',
       #   genus == 'Lepomis'
       #ecotox_group == 'Fish'
@@ -66,12 +80,20 @@ q1 <- tbl(con, "tests") %>%
     ,join_by('species_number')
   ) %>% 
   inner_join(
-    tbl(con, 'results'),
+    tbl(eco_con, 'results'),
     join_by('test_id')
-  ) %>% collect()
+  ) %>%
   filter(
-    endpoint %in% c('EC50', 'LC50','LD50', 'LOEC', 'LOEL', 'NOEC', 'NOEL'),
-    effect %in% c('MOR'),
+    endpoint %in% c(
+      'EC50',
+      'LC50',
+      'LD50'
+      # 'LOEC',
+      # 'LOEL',
+      # 'NOEC',
+      # 'NOEL'
+      ),
+    #effect %in% c('MOR'),
     conc1_unit %in% c('ug/L', 'mg/L', 'ppm', 'ppb')
   ) %>% 
   collect() %>% 
@@ -119,7 +141,7 @@ q1 <- tbl(con, "tests") %>%
    # unit = conc1_unit
   ) %>% 
   filter(!is.na(result)) %>%
-  left_join(., tbl(con, 'chemicals') %>% collect(), join_by('test_cas' == 'cas_number')) %>% 
+  left_join(., tbl(eco_con, 'chemicals') %>% collect(), join_by('test_cas' == 'cas_number')) %>% 
   filter(dtxsid != 'DTXSID6034479') %>% 
   distinct() %>% 
   group_by(dtxsid) %>% 
