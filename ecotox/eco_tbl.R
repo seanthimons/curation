@@ -6,6 +6,193 @@ query_cas <- query %>%
   pull(casrn) %>% 
   str_remove_all(., "-")
 
+# -------------------------------------------------------------------------
+
+
+eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+
+
+#need to filter for exposure types + groups to satisfy the dictionary from PPDB
+
+eco_risk_tbl <- tbl(eco_con, "tests") %>%
+  select(
+    'test_id',
+    'test_cas',
+    'species_number',
+    'exposure_type',
+    'test_type'
+  ) %>% 
+  filter(
+    test_cas %in% query_cas
+    ) %>%
+  inner_join(
+    tbl(eco_con, "species") %>% 
+      select(
+        'species_number',
+        'common_name',
+        'latin_name',
+        'ecotox_group'
+      )
+    ,join_by('species_number')
+  ) %>% 
+  inner_join(
+    tbl(eco_con, 'results') %>% 
+      select(
+        'result_id', 
+        'test_id', 
+        'obs_duration_mean',
+        'obs_duration_unit',
+        'endpoint',
+        'effect',
+        'conc1_mean',
+        'conc1_unit'
+      ),
+    join_by('test_id')
+  ) %>%
+  filter(
+    endpoint %in% c(
+      'EC50',
+      'LC50',
+      'LD50',
+      'LOEC',
+      'LOEL',
+      'NOEC',
+      'NOEL'
+    ),
+    effect %in% c('MOR'),
+    conc1_unit %in% c('ug/L', 'mg/L', 'ppm', 'ppb', 'mg/kg', 'mg/kg/d'),
+    obs_duration_unit %in% c('h', 'd', 'wk')
+  ) %>% 
+  inner_join(
+    tbl(eco_con, 'app_exposure_types') %>% 
+      select(
+        'exposure_group', 
+        'term') %>% 
+      filter(exposure_group %in% c(
+        'AQUA',
+        'ENV',
+        'ORAL',
+        'TOP'
+      )),
+    join_by('exposure_type' == 'term')
+  ) %>% 
+  collect() %>% 
+  select(
+    -test_id, 
+    -species_number,
+    -exposure_type,
+    -result_id
+  ) %>% 
+  filter(
+    !is.na(conc1_mean),
+    #not sure what the plus means...
+    str_detect(conc1_mean, pattern = '\\+', negate = TRUE),
+    !is.na(obs_duration_unit) & !is.na(obs_duration_mean)) %>%
+  mutate(
+    result = as.numeric(str_remove_all(conc1_mean, pattern = "\\*")),
+    endpoint_group = case_when(
+      str_detect(endpoint, 'EC05|LD05|LC05') ~ 'EC05 | LD05 | LC05',
+      str_detect(endpoint, 'LOEC|LOEL') ~ 'LOEC | LOEL',
+      str_detect(endpoint, 'EC25|LC25|LD25') ~ 'EC25 | LD25 | LC25',
+      str_detect(endpoint, 'EC50|LD50|LC50') ~ 'EC50 | LD50 | LC50',
+      str_detect(endpoint, 'NOEL|NOEC') ~ 'NOEL | NOEC'
+    ),
+    eco_group = case_when(
+      str_detect(ecotox_group,'Insects/Spiders') ~ 'Insects/Spiders',
+      str_detect(ecotox_group,'Flowers, Trees, Shrubs, Ferns') ~ 'Flowers, Trees, Shrubs, Ferns',
+      str_detect(ecotox_group,'Fungi') ~ 'Fungi',
+      str_detect(ecotox_group,'Algae') ~ 'Algae',
+      str_detect(ecotox_group,'Fish') ~ 'Fish',
+      str_detect(ecotox_group,'Crustaceans') ~ 'Crustaceans',
+      str_detect(ecotox_group,'Invertebrates') ~ 'Invertebrates',
+      str_detect(ecotox_group,'Worms') ~ 'Worms',
+      str_detect(ecotox_group,'Molluscs') ~ 'Molluscs',
+      str_detect(ecotox_group,'Birds') ~ 'Birds',
+      str_detect(ecotox_group,'Mammals') ~ 'Mammals',
+      str_detect(ecotox_group,'Amphibians') ~ 'Amphibians',
+      str_detect(ecotox_group,'Reptiles') ~ 'Reptiles',
+      str_detect(ecotox_group,'Moss, Hornworts') ~ 'Moss, Hornworts',
+      .default = ecotox_group
+    ),
+    duration_value = as.numeric(obs_duration_mean),
+    duration_unit = case_when(
+      obs_duration_unit == 'h' ~ 'hours',
+      obs_duration_unit == 'd' ~ 'days',
+      obs_duration_unit == 'wk' ~ 'weeks'
+    )
+  ) %>% 
+  convert_duration(., 
+                   value_column = 'duration_value',
+                   unit_column = 'duration_unit'
+                   ) 
+  
+  mutate(test_type = case_when(
+
+# herts -------------------------------------------------------------------
+
+    # eco_group == 'Mammals' & new_dur ==  ~ '',
+    # 
+    # eco_group == 'Worms' & new_dur == 336 & endpoint == 'LC50' ~ 'acute',
+    # eco_group == 'Worms' & new_dur == 336 & endpoint == 'NOEC' ~ 'chronic',
+    # 
+    # eco_group == 'Birds' & new_dur <= 336  ~ 'acute',
+    # eco_group == 'Birds' & new_dur > 336 ~ 'chronic',
+    # 
+    # eco_group == 'Algae' & new_dur == 72 ~ "acute",
+    
+
+# best guess --------------------------------------------------------------
+
+    eco_group == 'Algae' & new_dur <= 96 ~ 'acute',
+    eco_group == 'Algae' & new_dur > 144 ~ 'chronic',
+    
+    eco_group == 'Amphibians' & new_dur <=  96 ~ 'acute',
+    eco_group == 'Amphibians' & new_dur > 96 ~ 'chronic',
+    
+    eco_group == 'Birds' & new_dur <=  192 ~ 'acute',
+    eco_group == 'Birds' & new_dur >  192 ~ 'chronic',
+    
+    eco_group == 'Crustaceans' & new_dur <= 48 ~ 'acute',
+    eco_group == 'Crustaceans' & new_dur >= 144 ~ 'chronic',
+    
+    eco_group == 'Fish' & new_dur <= 96 ~ 'acute',
+    eco_group == 'Fish' & new_dur >= 144 ~ 'chronic',
+    
+    eco_group == 'Flowers, Trees, Shrubs, Ferns' & new_dur <=  ~ 'acute',
+    eco_group == 'Flowers, Trees, Shrubs, Ferns' & new_dur > ~ 'chronic',
+    
+    eco_group == 'Insects/Spiders' & new_dur <=  ~ '',
+    eco_group == 'Insects/Spiders' & new_dur >  ~ '',
+    
+    eco_group == 'Invertebrates' & new_dur <=  ~ '',
+    eco_group == 'Invertebrates' & new_dur >  ~ '',
+    
+    eco_group == 'Mammals' & new_dur <=  ~ '',
+    eco_group == 'Mammals' & new_dur >  ~ '',
+    
+    eco_group == 'Molluscs' & new_dur <=  ~ '',
+    eco_group == 'Molluscs' & new_dur >  ~ '',
+    
+    eco_group == 'Reptiles' & new_dur <=  ~ '',
+    eco_group == 'Reptiles' & new_dur >  ~ '',
+    
+    eco_group == 'Worms' & new_dur <=  ~ '',
+    eco_group == 'Worms' & new_dur >  ~ '',
+    
+  ))
+
+
+  convert_units(., value_column = 'result', unit_column = 'conc1_unit') %>% 
+
+    
+  #https://www.epa.gov/pesticide-science-and-assessing-pesticide-risks/technical-overview-ecological-risk-assessment-0    
+
+# habitat -----------------------------------------------------------------
+
+eco_species <- eco_risk_tbl %>% 
+  distinct(common_name, latin_name)
+
+
 job::job({
   
   library(rgbif)
@@ -14,8 +201,8 @@ job::job({
   
   sp_dat <- sp$latin %>% 
     map(., ~{
-    name_backbone(name = .x) %>% 
-      as_tibble()
+      name_backbone(name = .x) %>% 
+        as_tibble()
     }, .progress = TRUE) %>% 
     set_names(sp$latin) %>% 
     list_rbind(names_to = 'raw_search') %>% 
@@ -53,7 +240,7 @@ job::job({
           common, 
           usageKey,
           canonicalName
-          ),
+        ),
       .,
       join_by(usageKey)) %>% 
     distinct() %>% 
@@ -62,130 +249,5 @@ job::job({
       .default = FALSE
     ))
   
-  
-  
-  # library(httr2)
-  # 
-  # request("https://api.checklistbank.org/dataset/309120/nameusage/search") |>
-  #   req_url_ery(
-  #     content = "SCIENTIFIC_NAME",
-  #     facet = "rank",
-  #     facet = "issue",
-  #     facet = "status",
-  #     facet = "nomStatus",
-  #     facet = "nomCode",
-  #     facet = "nameType",
-  #     facet = "field",
-  #     facet = "authorship",
-  #     facet = "authorshipYear",
-  #     facet = "extinct",
-  #     facet = "environment",
-  #     facet = "origin",
-  #     facet = "sectorMode",
-  #     facet = "secondarySourceGroup",
-  #     facet = "sectorDatasetKey",
-  #     facet = "secondarySource",
-  #     facet = "group",
-  #     limit = "50",
-  #     offset = "0",
-  #     q = "Danio rerio",
-  #     sortBy = "taxonomic",
-  #     type = "EXACT"
-  #   ) |>
-  #   req_headers(
-  #     `sec-ch-ua-platform` = '"Windows"',
-  #     Referer = "https://www.checklistbank.org/",
-  #     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-  #     Accept = "application/json, text/plain, */*",
-  #     `sec-ch-ua` = '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-  #     `sec-ch-ua-mobile` = "?0"
-  #   ) |>
-  #   req_perform()
-  # 
-  
-  
-  
-  
 })
 
-#
-eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
-
-
-#need to filter for exposure types + groups to satisfy the dictionary from PPDB
-
-
-eco_risk_tbl <- tbl(eco_con, "tests") %>%
-  filter(test_cas %in% query_cas) %>%
-  inner_join(
-    tbl(eco_con, "species")
-    ,join_by('species_number')
-  ) %>% 
-  inner_join(
-    tbl(eco_con, 'results'),
-    join_by('test_id')
-  ) %>%
-  filter(
-    endpoint %in% c(
-      'EC50',
-      'LC50',
-      'LD50',
-      'LOEC',
-      'LOEL',
-      'NOEC',
-      'NOEL'
-    ),
-    effect %in% c('MOR'),
-    conc1_unit %in% c('ug/L', 'mg/L', 'ppm', 'ppb'),
-    obs_duration_unit %in% c('h', 'd', 'wk'),
-    
-  ) %>% 
-  collect() %>% 
-  mutate(
-    result = as.numeric(conc1_mean),
-    endpoint_group = case_when(
-      str_detect(endpoint, 'LOEC|LOEL') ~ 'LOEC | LOEL',
-      str_detect(endpoint, 'EC50|LD50|LC50') ~ 'EC50 | LD50 | LC50',
-      str_detect(endpoint, 'NOEL|NOEC') ~ 'NOEL | NOEC'
-    ),
-    eco_group = case_when(
-      str_detect(ecotox_group,'Insects/Spiders') ~ 'Insects/Spiders',
-      str_detect(ecotox_group,'Flowers, Trees, Shrubs, Ferns') ~ 'Flowers, Trees, Shrubs, Ferns',
-      str_detect(ecotox_group,'Fungi') ~ 'Fungi',
-      str_detect(ecotox_group,'Algae') ~ 'Algae',
-      str_detect(ecotox_group,'Fish') ~ 'Fish',
-      str_detect(ecotox_group,'Crustaceans') ~ 'Crustaceans',
-      str_detect(ecotox_group,'Invertebrates') ~ 'Invertebrates',
-      str_detect(ecotox_group,'Worms') ~ 'Worms',
-      str_detect(ecotox_group,'Molluscs') ~ 'Molluscs',
-      str_detect(ecotox_group,'Birds') ~ 'Birds',
-      str_detect(ecotox_group,'Mammals') ~ 'Mammals',
-      str_detect(ecotox_group,'Amphibians') ~ 'Amphibians',
-      str_detect(ecotox_group,'Reptiles') ~ 'Reptiles',
-      str_detect(ecotox_group,'Moss, Hornworts') ~ 'Moss, Hornworts',
-      #str_detect('') ~ '',
-      .default = ecotox_group
-    ),
-    duration_value = as.numeric(obs_duration_mean),
-    duration_unit = case_when(
-      obs_duration_unit == 'h' ~ 'hours',
-      obs_duration_unit == 'd' ~ 'days',
-      obs_duration_unit == 'wk' ~ 'weeks'
-    )
-  ) %>% 
-  convert_units(., value_column = 'result', unit_column = 'conc1_unit') %>% 
-  convert_duration(., value_column = 'duration_value', unit_column = 'duration_unit')
-
-eco_summary <- eco_risk_tbl %>% 
-  group_by(
-    test_cas,
-    endpoint,
-    eco_group,
-    common_name, 
-    latin_name,
-    new_dur, 
-    new_dur_unit
-  ) %>% 
-  distinct(common_name, latin_name)
-
-  
