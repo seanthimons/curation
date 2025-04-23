@@ -1,91 +1,52 @@
-map2(lof, f_names, function(x,y){
-  tp <- read_delim_arrow(file = here('ecotox', x), delim = '|', read_options = list(encoding = "latin1"))
-  write_parquet(tp, paste0(here('ecotox', 'pq', y), '.parquet'))
-  gc()
-} ,.progress = T)
+dbListTables(eco_con) %>% sort()
 
-map(f_names, function(x){
-  cat(x, '\n')
-  
-  dbWriteTable(con, x, read_parquet(paste0(here('ecotox', 'pq', x), '.parquet')), overwrite = TRUE)
-  
-  # tbl(con, sql(sprintf("SELECT * FROM read_parquet('%s')", paste0(here('ecotox', 'pq', x), '.parquet')))) %>%
-  #   compute(name = x, temporary = FALSE)
-}, .progress = T)
+tbl(eco_con, 'exposure_type_codes')
+tbl(eco_con, 'app_exposure_types')
 
-dbListTables(con)
-
-# validation --------------------------------------------------------------
-
-setwd(here('ecotox', 'validation'))
-
-lof <- list.files(pattern = '.txt') %>% .[str_detect(., pattern = 'release', negate = T)]
-
-f_names <- str_remove_all(lof, pattern = '.txt')
-
-dir.create(here('ecotox', 'pq_val'))
-
-map2(lof, f_names, function(x,y){
-  tp <- read_delim_arrow(file = here('ecotox', 'validation', x), delim = '|', read_options = list(encoding = "latin1"))
-  
-  dbWriteTable(con, x, read_parquet(paste0(here('ecotox', 'pq_val', x), '.parquet')), overwrite = TRUE)
-
-} ,.progress = T)
+tbl(eco_con, 'species')
+tbl(eco_con, 'app_lifestages')
+tbl(eco_con, 'lifestage_codes')
 
 
-map(f_names, function(x){
-  cat(x, '\n')
-  
-  dbWriteTable(con, x, read_parquet(paste0(here('ecotox', 'pq_val', x), '.parquet')), overwrite = TRUE)
-  
-  # tbl(con, sql(sprintf("SELECT * FROM read_parquet('%s')", paste0(here('ecotox', 'pq', x), '.parquet')))) %>%
-  #   compute(name = x, temporary = FALSE)
-}, .progress = T)
+dbListTables(eco_con) %>%
+  sort() %>%
+  .[str_detect(., pattern = 'app_')]
 
-chemicals <- read_parquet(here('ecotox', 'pq_val', 'chemicals.parquet')) %>% 
-  mutate(cas_number = as.character(cas_number))
+tbl(eco_con, 'tests') %>% 
+  glimpse()
+pull('test_type') %>% 
+  unique()
 
-dbWriteTable(con, 'chemicals', chemicals, overwrite = T)
+tbl(eco_con, 'results') %>%
+  pull(endpoint) %>% unique() %>% 
+  .[str_detect(., pattern = 'NO')]
+glimpse()
 
-tests <- read_parquet(here('ecotox', 'pq', 'tests.parquet')) %>% 
-  mutate(cas_number = as.character(cas_number))
+tbl(eco_con, 'endpoint_codes') %>% 
+  collect() %>% 
+  print(n = Inf)
 
-dbWriteTable(con, 'tests', tests, overwrite = T)
+eco_risk_tbl %>% 
+  group_by(eco_group, life_stage) %>% 
+  reframe(
+    n = n(),
+    dur_mode = Mode(new_dur),
+    dur_min = min(new_dur),
+    dur_mean = mean(new_dur),
+    dur_max = max(new_dur)
+  ) %>% 
+  arrange(eco_group, life_stage) %>% 
+  knitr::kable(.) %>% 
+  print(n = Inf)
 
-DBI::dbDisconnect(con, shutdown = TRUE)
+eco_risk_tbl %>% 
+  filter(eco_group == 'Mammals') %>% 
+  group_by(
+    common_name,
+    endpoint_group,
+    new_unit) %>% 
+  reframe(
+    n = n(),
+    conc = mean(as.numeric(new_value))
+  )
 
-
-{
-  "id": 0,
-  "source": "string",
-  "year": "string",
-  "studyDurationValue": 0,
-  "studyDurationClass": "string",
-  "toxvalNumericQualifier": "string",
-  "studyDurationUnits": "string",
-  "riskAssessmentClass": "string",
-  "dtxsid": "string",
-  "exposureRoute": "string",
-  "toxvalNumeric": 0,
-  "subsource": "string",
-  "toxvalType": "string",
-  "toxvalSubtype": "string",
-  "toxvalUnits": "string",
-  "studyType": "string",
-  "sourceUrl": "string",
-  "subsourceUrl": "string",
-  "priorityId": 0,
-  "criticalEffect": "string",
-  "generation": "string",
-  "exposureMethod": "string",
-  "detailText": "string",
-  "population": "string",
-  "strain": "string",
-  "media": "string",
-  "sex": "string",
-  "exposureForm": "string",
-  "lifestage": "string",
-  "supercategory": "string",
-  "speciesCommon": "string",
-  "humanEcoNt": "string"
-}

@@ -2,6 +2,10 @@ query <- ct_list('NEUROTOXINS') %>%
   pluck(., 1, 'dtxsids') %>% 
   ct_details(query = .)
 
+query <- ct_list('PESTHHBS') %>% 
+  pluck(., 1, 'dtxsids') %>% 
+  ct_details(query = .)
+
 query_cas <- query %>% 
   pull(casrn) %>% 
   str_remove_all(., "-")
@@ -20,7 +24,8 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
     'test_cas',
     'species_number',
     'exposure_type',
-    'test_type'
+    'test_type',
+    'organism_lifestage'
   ) %>% 
   filter(
     test_cas %in% query_cas
@@ -63,7 +68,7 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
     conc1_unit %in% c('ug/L', 'mg/L', 'ppm', 'ppb', 'mg/kg', 'mg/kg/d'),
     obs_duration_unit %in% c('h', 'd', 'wk')
   ) %>% 
-  inner_join(
+  left_join(
     tbl(eco_con, 'app_exposure_types') %>% 
       select(
         'exposure_group', 
@@ -72,9 +77,16 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
         'AQUA',
         'ENV',
         'ORAL',
-        'TOP'
+        'TOP',
+        'Unspecified',
+        'UNK'
+        
       )),
     join_by('exposure_type' == 'term')
+  ) %>% 
+  left_join(
+    tbl(eco_con, 'lifestage_codes') %>% rename(org_lifestage = description),
+    join_by(organism_lifestage == code)
   ) %>% 
   collect() %>% 
   select(
@@ -119,29 +131,166 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
       obs_duration_unit == 'h' ~ 'hours',
       obs_duration_unit == 'd' ~ 'days',
       obs_duration_unit == 'wk' ~ 'weeks'
-    )
+    ),
+    life_stage = case_when(
+      str_detect(tolower(org_lifestage), tolower('Unspecified')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Adult')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Alevin')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Bud or Budding')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Blastula')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Bud blast stage')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Boot')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Cocoon')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Corm')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Copepodid')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Copepodite')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Cleavage stage')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Cyst')) ~ 'Dormant/Senescent',
+      str_detect(tolower(org_lifestage), tolower('Egg')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Elver')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Embryo')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Exponential growth phase (log)')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Eyed egg or stage, eyed embryo')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('F0 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F1 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F11 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F2 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F3 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F6 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('F7 generation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Mature (full-bloom stage) organism')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Female gametophyte')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Fingerling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Flower opening')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Froglet')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Fry')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Gastrula')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Gestation')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Glochidia')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Gamete')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Lag growth phase')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Grain or seed formation stage')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Germinated seed')) ~ 'Dormant/Senescent',
+      str_detect(tolower(org_lifestage), tolower('Heading')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Incipient bud')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Internode elongation')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Imago')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Immature')) ~ 'Subadult/Immature',
+      str_detect(tolower(org_lifestage), tolower('Instar')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Intermolt')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Jointing')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Juvenile')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Lactational')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Egg laying')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Larva-pupa')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Prolarva')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Larva')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Mature')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Mature dormant')) ~ 'Dormant/Senescent',
+      str_detect(tolower(org_lifestage), tolower('Megalopa')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Male gametophyte')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Morula')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Mid-neurula')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Molt')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Multiple')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Mysis')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Newborn')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Naiad')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Neonate')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('New, newly or recent hatch')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Neurala')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Not intact')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Not reported')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Nauplii')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Nymph')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Oocyte, ova')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Parr')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Mature, post-bloom stage (fruit trees)')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Pre-hatch')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Pre-molt')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Post-emergence')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Post-spawning')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Mature, pit-hardening stage (fruit trees)')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Post-hatch')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Post-molt')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Pre-, sub-, semi-, near adult, or peripubertal')) ~ 'Subadult/Immature',
+      str_detect(tolower(org_lifestage), tolower('Post-smolt')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Pullet')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Post-nauplius')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Pollen, pollen grain')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Postpartum')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Prepupal')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Pre-larva')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Prebloom')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Pre-smolt')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Protolarvae')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Pupa')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Post-larva')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Pre-spawning')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Post-embryo')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Protozoea')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Rooted cuttings')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Rhizome')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Mature reproductive')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Rootstock')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Subadult')) ~ 'Subadult/Immature',
+      str_detect(tolower(org_lifestage), tolower('Shoot')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Yolk sac larvae, sac larvae')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Senescence')) ~ 'Dormant/Senescent',
+      str_detect(tolower(org_lifestage), tolower('Seed')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Scape elongation')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Sac fry, yolk sac fry')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Mature, side-green stage (fruit trees)')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Sexually immature')) ~ 'Subadult/Immature',
+      str_detect(tolower(org_lifestage), tolower('Seedling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Sexually mature')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Smolt')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Sapling')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Sporeling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Sperm')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Spore')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Spat')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Swim-up')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Spawning')) ~ 'Reproductive',
+      str_detect(tolower(org_lifestage), tolower('Stationary growth phase')) ~ 'Dormant/Senescent',
+      str_detect(tolower(org_lifestage), tolower('Tadpole')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Tissue culture callus')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Tiller stage')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Tuber')) ~ 'Adult',
+      str_detect(tolower(org_lifestage), tolower('Trophozoite')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Underyearling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Veliger')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Mature vegetative')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Virgin')) ~ 'Other/Unknown',
+      str_detect(tolower(org_lifestage), tolower('Weanling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Young adult')) ~ 'Subadult/Immature',
+      str_detect(tolower(org_lifestage), tolower('Yearling')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Young')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Young of year')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Zoea')) ~ 'Larva/Juvenile',
+      str_detect(tolower(org_lifestage), tolower('Zygospore')) ~ 'Egg/Embryo',
+      str_detect(tolower(org_lifestage), tolower('Zygote')) ~ 'Egg/Embryo',
+      TRUE ~ 'Other/Unknown'  # Default
+    ),
+    life_stage = factor(
+      life_stage, levels = c(
+        'Egg/Embryo',
+        'Larva/Juvenile',
+        'Subadult/Immature',
+        'Adult',
+        'Reproductive',
+        'Dormant/Senescent',
+        'Other/Unknown'))
   ) %>% 
   convert_duration(., 
                    value_column = 'duration_value',
                    unit_column = 'duration_unit'
-                   ) 
+                   ) %>% 
+  convert_units(., value_column = 'result', unit_column = 'conc1_unit')
   
+# duration ----------------------------------------------------------------
+
   mutate(test_type = case_when(
-
-# herts -------------------------------------------------------------------
-
-    # eco_group == 'Mammals' & new_dur ==  ~ '',
-    # 
-    # eco_group == 'Worms' & new_dur == 336 & endpoint == 'LC50' ~ 'acute',
-    # eco_group == 'Worms' & new_dur == 336 & endpoint == 'NOEC' ~ 'chronic',
-    # 
-    # eco_group == 'Birds' & new_dur <= 336  ~ 'acute',
-    # eco_group == 'Birds' & new_dur > 336 ~ 'chronic',
-    # 
-    # eco_group == 'Algae' & new_dur == 72 ~ "acute",
-    
-
-# best guess --------------------------------------------------------------
 
     eco_group == 'Algae' & new_dur <= 96 ~ 'acute',
     eco_group == 'Algae' & new_dur > 144 ~ 'chronic',
@@ -181,10 +330,6 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
     
   ))
 
-
-  convert_units(., value_column = 'result', unit_column = 'conc1_unit') %>% 
-
-    
   #https://www.epa.gov/pesticide-science-and-assessing-pesticide-risks/technical-overview-ecological-risk-assessment-0    
 
 # habitat -----------------------------------------------------------------

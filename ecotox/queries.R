@@ -8,6 +8,7 @@ convert_units <- function(data, value_column, unit_column) {
         !!sym(unit_column) == "ug/L" ~ !!sym(value_column) / 1000,
         !!sym(unit_column) == "ppb" ~ !!sym(value_column) / 1000,
         !!sym(unit_column) == "ppm" ~ !!sym(value_column),
+        # !!sym(unit_column) == "mg/kg" ~ !!sym(value_column),
         TRUE ~ !!sym(value_column)
       ),
       new_unit = case_when(
