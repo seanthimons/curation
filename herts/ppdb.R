@@ -2,7 +2,7 @@ library(rvest)
 library(tidyverse)
 library(xml2)
 
-# URL of the webpage
+# URL of the webpage.  Switch to local file for testing.
 url <- 'https://sitem.herts.ac.uk/aeru/ppdb/en/Reports/4.htm'
 
 # Function to extract table titles
@@ -35,54 +35,68 @@ extract_report_data <- function(table_node) {
   return(df)
 }
 
-# Function to recursively process the webpage
-process_page <- function(url) {
-  page <- read_html(url)
+# Recursive function to process the webpage
+process_section <- function(node) {
+  section_data <- list()
   
-  # Extract main and sub section titles
-  main_section_titles <- html_nodes(page, "table.indexpage .report_section_title") %>%
-    html_text(trim = TRUE)
-  subsection_titles <- html_nodes(page, "table.report_sub_section .report_sub_section_title") %>%
-    html_text(trim = TRUE)
-  
-  # Extract report data tables
-  report_data_tables <- html_nodes(page, "table.report_data")
-  
-  # Initialize lists
-  section_titles <- list()
-  main_index <- 1
-  sub_index <- 1
-  
-  # Iterate through report data tables and assign titles
-  for (i in seq_along(report_data_tables)) {
-    main_title <- ifelse(main_index <= length(main_section_titles), main_section_titles[main_index], NA_character_)
-    sub_title <- ifelse(sub_index <= length(subsection_titles), subsection_titles[sub_index], NA_character_)
+  # Check if the node is a main section
+  if (inherits(node, "xml_node")) {
+    class_attr <- html_attr(node, "class")
     
-    section_titles[[i]] <- c(main_title, sub_title)
-    
-    # Increment the indexes only when the title is available
-    if (main_index <= length(main_section_titles)) {
-      main_index <- main_index + 1
-    }
-    if (sub_index <= length(subsection_titles)) {
-      sub_index <- sub_index + 1
+    if (!is.na(class_attr) && "indexpage" %in% strsplit(class_attr, " ")[[1]]) {
+      title <- extract_table_title(node, ".report_section_title")
+      
+      # Find subsections within this main section
+      subsection_nodes <- html_nodes(node, "table.report_sub_section")
+      subsections <- lapply(subsection_nodes, process_section)
+      
+      # Find report data tables within this main section
+      report_data_tables <- html_nodes(node, "table.report_data")
+      report_data <- lapply(report_data_tables, function(table) {
+        data <- extract_report_data(table)
+        return(data)
+      })
+      
+      # Add subsections and report data to the section data
+      if (length(subsections) > 0 || length(report_data) > 0) {
+        section_data[[title]] <- list()
+        if (length(subsections) > 0) {
+          section_data[[title]]$subsections <- subsections
+        }
+        if (length(report_data) > 0) {
+          section_data[[title]]$report_data <- report_data
+        }
+      }
+      
+    } else if (!is.na(class_attr) && "report_sub_section" %in% strsplit(class_attr, " ")[[1]]) {
+      # Check if the node is a subsection
+      title <- extract_table_title(node, ".report_sub_section_title")
+      
+      # Find report data tables within this subsection
+      report_data_tables <- html_nodes(node, "table.report_data")
+      report_data <- lapply(report_data_tables, function(table) {
+        data <- extract_report_data(table)
+        return(data)
+      })
+      
+      # Add report data to the section data
+      if (length(report_data) > 0) {
+        section_data[[title]] <- list(report_data = report_data)
+      }
     }
   }
   
-  report_data <- lapply(report_data_tables, function(table) {
-    data <- extract_report_data(table)
-    return(list(type = "report_data", content = data))
-  })
-  
-  return(list(
-    section_titles = section_titles,
-    report_data = report_data
-  ))
+  return(section_data)
 }
 
-# Process the page
-extracted_data <- process_page(url)
+# Read the webpage
+page <- read_html(url)
 
-# Print the extracted data
-print(extracted_data$section_titles)
-print(extracted_data$report_data)
+# Find main sections
+index_tables <- html_nodes(page, "table.indexpage")
+
+# Process each main section
+nested_data <- lapply(index_tables, process_section)
+
+# Print the nested data
+print(nested_data)
