@@ -1,3 +1,22 @@
+
+# packages ----------------------------------------------------------------
+
+{
+  library(here)
+  library(rio)
+  library(janitor)
+  library(tidyverse)
+  library(arrow)
+  library(duckdb)
+  library(duckplyr)
+
+  library(ComptoxR)
+  
+  setwd(here("ecotox"))
+}
+
+eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+
 query <- ct_list('NEUROTOXINS') %>% 
   pluck(., 1, 'dtxsids') %>% 
   ct_details(query = .)
@@ -11,10 +30,6 @@ query_cas <- query %>%
   str_remove_all(., "-")
 
 # -------------------------------------------------------------------------
-
-
-eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
-
 
 #need to filter for exposure types + groups to satisfy the dictionary from PPDB
 
