@@ -10,26 +10,35 @@
   setwd(here('iwtt'))
 }
 
-url <- 'https://watersgeo.epa.gov/iwtt/assets/IWTT-DATA-DOWNLOAD.zip'
-  
-download.file(url = url, destfile = 'iwtt.zip')
 
-unzip('iwtt.zip')
+# Download ----------------------------------------------------------------
 
-url <- 'https://watersgeo.epa.gov/iwtt/download-database'
 
-resp <- read_html_live(url)
-  html_elements(., xpath = '//*[@id="root"]/div/div/section/section/ul') 
+read_html_live(url = 'https://watersgeo.epa.gov/iwtt/download-database') %>% 
+  html_elements(., xpath = '//*[@id="root"]/div/div/section/section/ul') %>% 
   html_elements(., 'a') %>% 
-  html_attr('href')
-  .[str_detect(., pattern = '.xlsx')]
+  html_attr('href') %>% 
+  str_remove_all(., "./assets/") %>% 
+  map(., ~{
+    download.file(
+      url = paste0('https://watersgeo.epa.gov/iwtt/assets/', .x),
+      destfile = .x,
+      mode = 'wb'
+    )
+  })
 
-iwtt_dict <- list.files(here('iwtt'), pattern = '.xlsx')
 
-iwtt_dict <- rio::import(file = here('iwtt', iwtt_dict))
+# Load --------------------------------------------------------------------
 
-iwtt_ls <- list.files(here('iwtt', 'IWTT-DATA-DOWNLOAD'))
-iwtt_raw <- map(iwtt_ls, ~import(here('iwtt', 'IWTT-DATA-DOWNLOAD', .x))) %>%
-  setNames(., iwtt_ls) %>% 
+dir.create(here('iwtt', 'raw'))
+
+iwtt_dict <- rio::import_list(file = list.files(here('iwtt'), pattern = '.xlsx')) %>% 
   map(., clean_names)
+
+setwd(here('iwtt', 'raw'))
+
+unzip(zipfile = here('iwtt', list.files(here('iwtt'), pattern = '.zip'))) 
+
+unlink(here('iwtt', list.files(here('iwtt'), pattern = '.zip')))
+
 
