@@ -1,3 +1,22 @@
+
+# packages ----------------------------------------------------------------
+
+{
+  library(here)
+  library(rio)
+  library(janitor)
+  library(tidyverse)
+  library(arrow)
+  library(duckdb)
+  library(duckplyr)
+
+  library(ComptoxR)
+  
+  setwd(here("ecotox"))
+}
+
+eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+
 query <- ct_list('NEUROTOXINS') %>% 
   pluck(., 1, 'dtxsids') %>% 
   ct_details(query = .)
@@ -11,10 +30,6 @@ query_cas <- query %>%
   str_remove_all(., "-")
 
 # -------------------------------------------------------------------------
-
-
-eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
-
 
 #need to filter for exposure types + groups to satisfy the dictionary from PPDB
 
@@ -103,11 +118,11 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
   mutate(
     result = as.numeric(str_remove_all(conc1_mean, pattern = "\\*")),
     endpoint_group = case_when(
-      str_detect(endpoint, 'EC05|LD05|LC05') ~ 'EC05 | LD05 | LC05',
-      str_detect(endpoint, 'LOEC|LOEL') ~ 'LOEC | LOEL',
-      str_detect(endpoint, 'EC25|LC25|LD25') ~ 'EC25 | LD25 | LC25',
-      str_detect(endpoint, 'EC50|LD50|LC50') ~ 'EC50 | LD50 | LC50',
-      str_detect(endpoint, 'NOEL|NOEC') ~ 'NOEL | NOEC'
+      str_detect(endpoint, 'EC05|LD05|LC05') ~ 'EC05 + LD05 + LC05',
+      str_detect(endpoint, 'LOEC|LOEL') ~ 'LOEC + LOEL',
+      str_detect(endpoint, 'EC25|LC25|LD25') ~ 'EC25 + LD25 + LC25',
+      str_detect(endpoint, 'EC50|LD50|LC50') ~ 'EC50 + LD50 + LC50',
+      str_detect(endpoint, 'NOEL|NOEC') ~ 'NOEL + NOEC'
     ),
     eco_group = case_when(
       str_detect(ecotox_group,'Insects/Spiders') ~ 'Insects/Spiders',
@@ -291,7 +306,7 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
 # duration ----------------------------------------------------------------
 
   mutate(test_type = case_when(
-
+    
     eco_group == 'Algae' & new_dur <= 96 ~ 'acute',
     eco_group == 'Algae' & new_dur > 144 ~ 'chronic',
     

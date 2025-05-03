@@ -13,3 +13,6 @@ raw*
 *.pdf
 /epa/toxval_raw
 curation.zip
+*.png
+*.download
+*.css

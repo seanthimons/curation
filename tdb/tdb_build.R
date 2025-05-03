@@ -5,9 +5,9 @@
   library(rio)
   library(tidyverse)
   library(janitor)
- # library(ComptoxR)
+  # library(ComptoxR)
   library(jsonlite)
- # library(colorspace)
+  # library(colorspace)
   library(DT)
 }
 
@@ -40,7 +40,7 @@ raw_json <-
 
 raw_json <- 
   map(raw_json, 
-  ~{unlist(.x) %>% paste(., collapse = "")})
+      ~{unlist(.x) %>% paste(., collapse = "")})
 
 
 # Build -------------------------------------------------------------------
@@ -48,22 +48,22 @@ raw_json <-
 js <- map(raw_json, fromJSON) %>% 
   map(., pluck(1)) %>% 
   keep(names(.) %in% c(
-  #  'CONT_PROC_AUDIT_TRAIL',
-  #  'CONT_PROC_SUMM_REF_XREF',
+    #  'CONT_PROC_AUDIT_TRAIL',
+    #  'CONT_PROC_SUMM_REF_XREF',
     'CONTAMINANT',
-  #  'CONTAMINANT_AUDIT_TRAIL',
-  #  'CONTAMINANT_DESC',
-  #  'CONTAMINANT_IMAGE',
-  #  'CONTAMINANT_PARAMETER',
-  #  'CONTAMINANT_PROC_SUMM_IMAGE',
-  #  'CONTAMINANT_PROCESS_DESC',
+    #  'CONTAMINANT_AUDIT_TRAIL',
+    #  'CONTAMINANT_DESC',
+    #  'CONTAMINANT_IMAGE',
+    #  'CONTAMINANT_PARAMETER',
+    #  'CONTAMINANT_PROC_SUMM_IMAGE',
+    #  'CONTAMINANT_PROCESS_DESC',
     'CONTAMINANT_PROCESS_SUMMARY', #compound-treatment-result rel't
-  #  'CONTAMINANT_PROPERTY',
-  #  'CONTAMINANT_QUICK_LINK',
-  #  'CONTAMINANT_REF_XREF', #may not be needed
-  #  'CONTAMINANT_SYNONYM',
+    #  'CONTAMINANT_PROPERTY',
+    #  'CONTAMINANT_QUICK_LINK',
+    #  'CONTAMINANT_REF_XREF', #may not be needed
+    #  'CONTAMINANT_SYNONYM',
     'CONTAMINANT_TYPE',
-  
+    
     'CP_DETAIL_ADSORP',
     'CP_DETAIL_AIR',
     'CP_DETAIL_BIO_TREATMENT',
@@ -92,19 +92,19 @@ js <- map(raw_json, fromJSON) %>%
     'CP_DETAIL_UV',
     'CP_DETAIL_UV_H2O2',
     'CP_DETAIL_UV_IRRAD_O3',
-  
-  #  'FUTURE_CONTAMINANT',
-  #  'QUICK_LINK',
-  #  
+    
+    #  'FUTURE_CONTAMINANT',
+    #  'QUICK_LINK',
+    #  
     'REFERENCE',
     'REFERENCE_TAG',
     'REFERENCE_TAG_TYPE',
-  
+    
     'TAG',
     'TREATMENT_PROCESS',
     'TREATMENT_PROCESS_COLUMN'
-  #  'TREATMENT_PROCESS_DESC',
-  #  'TREATMENT_PROCESS_IMAGE'
+    #  'TREATMENT_PROCESS_DESC',
+    #  'TREATMENT_PROCESS_IMAGE'
   )) %>% 
   map(.,  function(df) {
     if ("tmsp_last_updt" %in% names(df)) {
@@ -133,7 +133,7 @@ ref <- ref$REFERENCE %>%
 
 comp <- js %>% 
   keep(str_detect(names(js), 'CONTAMINANT'))
-  
+
 comp$CONTAMINANT <- comp$CONTAMINANT %>%   
   left_join(., comp$CONTAMINANT_TYPE, join_by(contaminant_type_code))
 
@@ -204,9 +204,9 @@ treat_uq <- treat %>%
     keep(str_detect(names(js), 'CP_')) %>% 
     compact() %>% #removes pressure filter
     discard_at('CP_DETAIL_GAC_ISOTHERM')
-   
- 
-# Fixes the units----
+  
+  
+  # Fixes the units----
   proc_col_list <- proc %>% 
     map(., colnames) %>% 
     map(., ~str_count(.x, 'units')) %>% 
@@ -229,7 +229,7 @@ treat_uq <- treat %>%
   proc <- c(proc_chem, proc_micro)
   rm(proc_chem, proc_micro)
   
-# keeps the processes that have multiple removal types ----
+  # keeps the processes that have multiple removal types ----
   proc_col_list <- proc %>% 
     map(., colnames) %>% 
     map(., ~str_count(.x, 'removal_')) %>% 
@@ -239,56 +239,56 @@ treat_uq <- treat %>%
   
   proc_good <- proc %>% 
     discard(., names(.) %in% proc_col_list)
-    
+  
   proc_fix <- proc %>% 
     keep(., names(.) %in% proc_col_list) %>% 
     map(., ~{
       pivot_longer(.x, 
-                          c(removal_both, removal_coag, removal_filt),
-                          names_to = 'removal_subtype',
-                          values_to = 'removal', 
-                          values_drop_na = T
-                         )
-        
+                   c(removal_both, removal_coag, removal_filt),
+                   names_to = 'removal_subtype',
+                   values_to = 'removal', 
+                   values_drop_na = T
+      )
       
-      })
-    
-    proc <- c(proc_good, proc_fix)
-    rm(proc_good, proc_fix)  
-
-# Fixes inf/eff types----
-    proc_col_list <- proc %>% 
-      map(., colnames) %>% 
-      map(., ~str_count(.x, 'removal_')) %>% 
-      map(., ~sum(.x)) %>% 
-      discard(., ~.x == 1) %>% 
-      names(.)
+      
+    })
+  
+  proc <- c(proc_good, proc_fix)
+  rm(proc_good, proc_fix)  
+  
+  # Fixes inf/eff types----
+  proc_col_list <- proc %>% 
+    map(., colnames) %>% 
+    map(., ~str_count(.x, 'removal_')) %>% 
+    map(., ~sum(.x)) %>% 
+    discard(., ~.x == 1) %>% 
+    names(.)
   
 }  
 
 #### Cutdown -----------------------------------------------------------------
 
-  proc_dat <- proc %>% 
-    map(., ~select(.x, c(
-      detail_id,
-      contaminant_process_id,
-      reference_id,
-      removal,
-      removal_type,
-      contaminant_units,
-      scale,
-      water,
-      modeled_data
-      #contaminant_inf,
-      #contaminant_eff
-      
-    ))) %>% 
+proc_dat <- proc %>% 
+  map(., ~select(.x, c(
+    detail_id,
+    contaminant_process_id,
+    reference_id,
+    removal,
+    removal_type,
+    contaminant_units,
+    scale,
+    water,
+    modeled_data
+    #contaminant_inf,
+    #contaminant_eff
+    
+  ))) %>% 
   list_rbind() %>% 
   mutate(removal_num = str_remove_all(removal, pattern = '<|>|#|\\*') %>% as.numeric) %>% 
   left_join(., comp, join_by(contaminant_process_id)) %>% 
   left_join(., treat_uq, join_by(treatment_process_id)) %>% 
   split(is.na(.$removal_num)) #splits for the ranged values
-  
+
 proc_fix <- proc_dat$`TRUE` %>% 
   filter(str_detect(removal, 'to')) %>% #removes ~37 records that are too complicated to fix
   mutate(removal_dupe = str_remove_all(removal, pattern = '<|>|#|\\*')) %>%
@@ -299,7 +299,7 @@ proc_fix <- proc_dat$`TRUE` %>%
     high = as.numeric(high), 
     low = as.numeric(low),
     removal_num = mean(c(low, high))
-         ) %>% 
+  ) %>% 
   select(-c(high, low)) %>% 
   ungroup()
 
@@ -358,34 +358,60 @@ proc_binned <- proc_dat %>%
   )) %>% 
   filter(!is.na(cat)) %>% 
   group_by(contaminant_name, treatment_process_name, contaminant_type_code) %>% 
-  reframe(score = weighted.mean(cat_int, scale_int)) %>%
-  mutate(score = floor(score),
-         score = case_when(
-           score == -1 ~ 'CONC',
-           score == 0 ~ 'XL',
-           score == 1 ~ 'L',
-           score == 2 ~ 'M',
-           score == 3 ~ 'H',
-           score == 4 ~ 'VH',
-           score == 5 ~ 'XH',
-           is.na(score) == TRUE ~ 'ND'
-          )
+  reframe(score = weighted.mean(cat_int, scale_int)) %>% 
+  mutate(
+    score = floor(score),
+    score = case_when(
+      score == -1 ~ 'CONC',
+      score == 0 ~ 'XL',
+      score == 1 ~ 'L',
+      score == 2 ~ 'M',
+      score == 3 ~ 'H',
+      score == 4 ~ 'VH',
+      score == 5 ~ 'XH',
+      is.na(score) == TRUE ~ 'ND'
+    ),
+    treatment_group = case_when(
+      treatment_process_name %in% c("Aeration and Air Stripping", "Membrane Separation", "Direct Filtration", "Membrane Filtration", "Slow Sand Filtration", "Diatomaceous Earth Filtration") ~ "Physical Treatment",
+      treatment_process_name %in% c("Chlorine", "Hydrogen Peroxide", "Ozone", "Ozone and Hydrogen Peroxide", "Permanganate", "Ultraviolet Irradiation", "Ultraviolet Irradiation and Hydrogen Peroxide", "Ultraviolet Irradiation and Ozone", "Chlorine Dioxide", "Chloramine") ~ "Chemical Treatment",
+      treatment_process_name %in% c("Biological Filtration", "Biological Treatment") ~ "Biological Treatment",
+      treatment_process_name %in% c("Adsorptive Media", "Granular Activated Carbon", "Powdered Activated Carbon") ~ "Adsorptive Treatment",
+      treatment_process_name %in% c("Conventional Treatment", "Chemical Treatment", "Precipitative Softening") ~ "Conventional and Combined Treatment",
+      treatment_process_name %in% c("Ion Exchange", "Other Treatment") ~ "Specialized Treatment",
+      .default = 'Unknown'
+    ),
+    treatment_stage = case_when(
+      treatment_process_name %in% c("Aeration and Air Stripping") ~ "Preliminary Treatment",
+      treatment_process_name %in% c("Direct Filtration", "Slow Sand Filtration", "Diatomaceous Earth Filtration") ~ "Primary Treatment",
+      treatment_process_name %in% c("Biological Filtration", "Biological Treatment") ~ "Secondary Treatment",
+      treatment_process_name %in% c("Membrane Separation", "Membrane Filtration", "Ion Exchange", "Adsorptive Media", "Granular Activated Carbon", "Powdered Activated Carbon") ~ "Tertiary Treatment",
+      treatment_process_name %in% c("Chemical Treatment", "Precipitative Softening", "Conventional Treatment") ~ "Advanced Treatment",
+      treatment_process_name %in% c("Chlorine", "Chloramine", "Chlorine Dioxide", "Ozone", "Ozone and Hydrogen Peroxide", "Ultraviolet Irradiation", "Ultraviolet Irradiation and Hydrogen Peroxide", "Ultraviolet Irradiation and Ozone") ~ "Disinfection",
+      treatment_process_name %in% c("Hydrogen Peroxide", "Permanganate", "Other Treatment") ~ "Specialized Treatment",
+      .default = 'Unknown'
+    )
   ) %>% 
-  ungroup() %>% 
   pivot_wider(., 
               names_from = treatment_process_name,
               values_from = score,
-              values_fill = 'ND')
-
+              values_fill = 'ND') %>% 
+  rowwise() %>%
+  mutate(
+    across(!contains(c('contaminant', 'treatment')), ~factor(.x, levels = c("XH", "VH", "H", "M", "L", "VL", "XL", "CONC", "I", "ND"))),
+    num_good_removal = sum(str_count(paste(c_across(!c(contaminant_name, contaminant_type_code)), collapse = " "), paste(c('XH', 'VH', 'H'), collapse = "|")))) %>% 
+  relocate(num_good_removal, .after = contaminant_type_code)
 
 rio::export(proc_binned, file = 'tdb_binned.xlsx')
 
 proc_export <- proc_binned %>%
   DT::datatable(., 
-  extensions = 'Buttons', options = list(
-    dom = 'Bfrtip',
-    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
-  )) %>% 
+                extensions = 'Buttons', 
+                options = list(
+                  dom = 'Bfrtip',
+                  buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                  pageLength = 20,
+                  lengthMenu = c(5, 10, 15, 20)
+                )) %>% 
   formatStyle(names(proc_binned), textAlign = "center") %>%
   formatStyle(names(proc_binned), backgroundColor = styleEqual("XH", "#11C638")) %>% 
   formatStyle(names(proc_binned), backgroundColor = styleEqual("VH", "#77D17F")) %>%
@@ -397,8 +423,17 @@ proc_export <- proc_binned %>%
   formatStyle(names(proc_binned), backgroundColor = styleEqual("CONC","black")) %>%
   formatStyle(names(proc_binned), color = styleEqual("CONC","white")) %>%
   formatStyle(names(proc_binned), backgroundColor = styleEqual("I", "slategrey")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("ND", "grey"))
+  formatStyle(names(proc_binned), backgroundColor = styleEqual("ND", "grey")) %>% 
+  formatStyle(
+    'num_good_removal',
+    backgroundColor = styleInterval(
+      #seq(min(proc_binned$num_good_removal, na.rm = TRUE), max(proc_binned$num_good_removal, na.rm = TRUE), length.out = 99),
+      seq(0, max(proc_binned$num_good_removal, na.rm = TRUE), length.out = 9),
+      RColorBrewer::brewer.pal(10, "RdYlGn")
+    )
+  )
 
+proc_export
 
 # testing on 1,4-d --------------------------------------------------------
 
