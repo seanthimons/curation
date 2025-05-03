@@ -193,3 +193,6 @@ dbDisconnect(eco_con)
 # deploy ------------------------------------------------------------------
 
 #source(here("ecotox", "plumber.R"))
+
+plumber::pr("plumber.R") %>% plumber::pr_run()
+ 
