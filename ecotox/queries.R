@@ -5,16 +5,24 @@ convert_units <- function(data, value_column, unit_column) {
   data %>%
     mutate(
       new_value = case_when(
+        
+        #Need to find a way of grabbing active ingredient values...
+        
         !!sym(unit_column) == "ug/L" ~ !!sym(value_column) / 1000,
         !!sym(unit_column) == "ppb" ~ !!sym(value_column) / 1000,
         !!sym(unit_column) == "ppm" ~ !!sym(value_column),
-        # !!sym(unit_column) == "mg/kg" ~ !!sym(value_column),
+        !!sym(unit_column) %in% c("g/bee", "grams per bee") ~ !!sym(value_column) * 1e6,
+        !!sym(unit_column) %in% c("mg/bee", "milligrams per bee") ~ !!sym(value_column) * 1000,
+        !!sym(unit_column) %in% c("ug/bee", "micrograms per bee") ~ !!sym(value_column),
         TRUE ~ !!sym(value_column)
       ),
       new_unit = case_when(
         !!sym(unit_column) == "ug/L" ~ "mg/L",
         !!sym(unit_column) == "ppb" ~ "mg/L",
         !!sym(unit_column) == "ppm" ~ "mg/L",
+        !!sym(unit_column) %in% c("g/bee", "grams per bee",
+                                  "mg/bee", "milligrams per bee",
+                                  "ug/bee", "micrograms per bee") ~ "ug/bee",
         TRUE ~ !!sym(unit_column)
       )
     )
