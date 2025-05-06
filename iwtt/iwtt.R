@@ -42,7 +42,6 @@ unzip(zipfile = here('iwtt', list.files(here('iwtt'), pattern = '.zip')))
 
 unlink(here('iwtt', list.files(here('iwtt'), pattern = '.zip')))
 
-
 # Load --------------------------------------------------------------------
 
 iwtt_con <- dbConnect(
@@ -78,6 +77,8 @@ rm(lof)
 
 dbListTables(iwtt_con)
 
+unlink(here('iwtt', 'raw'), recursive = TRUE)
+
 # Transform ---------------------------------------------------------------
 
 tbl(iwtt_con, 'parameter') %>% glimpse()
@@ -100,6 +101,19 @@ dbWriteTable(
     ),
   join_by('paramid')
   )
+)
+
+left_join(
+  tbl(iwtt_con, 'parameter'),
+  tbl(iwtt_con, 'key_parameter_code') %>% 
+    select(
+      'paramid',
+      'pollutant_search_term',
+      'cas_nmbr',
+      'category',
+      'category_2'
+    ),
+  join_by('paramid')
 )
 
 tbl(iwtt_con, '')
