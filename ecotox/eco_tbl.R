@@ -31,6 +31,10 @@ query <- ct_list('PESTHHBS') %>%
   pluck(., 1, 'dtxsids') %>% 
   ct_details(query = .)
 
+query_cas <- ct_search(query = 'Spirodiclofen', search_method = 'equal', request_method = 'GET') %>% 
+  pull(casrn) %>% 
+  str_remove_all(., "-")
+
 query_cas <- query %>% 
   pull(casrn) %>% 
   str_remove_all(., "-")
@@ -345,218 +349,425 @@ eco_risk_tbl <- tbl(eco_con, "tests") %>%
                    value_column = 'duration_value',
                    unit_column = 'duration_unit'
   ) %>% 
-  convert_units(., value_column = 'result', unit_column = 'conc1_unit')
+  convert_units(., value_column = 'result', unit_column = 'conc1_unit') %>% 
+  
+  # duration ----------------------------------------------------------------
 
-# duration ----------------------------------------------------------------
+#filter(eco_group == 'Mammals' | eco_group == 'Birds' | eco_group == 'Fish') %>% 
+mutate(test_type = case_when(
+  
+  # Mammals -----------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Mammals') &
+    (effect == 'MOR') &
+    (exposure_group == 'ORAL' | is.na(exposure_group)) &
+    #(life_stage == 'Adult') &
+    (new_unit == 'mg/kg') &
+    (endpoint == 'LD50') ~ 'acute',
+  
+  (eco_group == 'Mammals') &
+    (effect == 'MOR') &
+    (exposure_group == 'ORAL' | is.na(exposure_group)) &
+    #(life_stage == 'Adult') &
+    (new_unit == 'mg/kg bdwt') &
+    (endpoint == 'LD50') ~ 'acute',
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Mammals') &
+    (effect == 'MOR') &
+    (exposure_group == 'ORAL' | is.na(exposure_group)) &
+    #(life_stage == 'Adult') &
+    (endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
+    (new_unit == 'mg/kg/d') ~ 'chronic',
+  
+  # Birds -------------------------------------------------------------------
+  #NOTE Needs better breakdown for reptiles and amphibians... 
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Birds' | eco_group == 'Amphibians' | eco_group == 'Reptiles') &
+    (effect == 'MOR') &
+    (exposure_group == 'ORAL' | is.na(exposure_group)) &
+    #(life_stage == 'Adult') &
+    (new_unit == 'mg/kg') &
+    (endpoint == 'LD50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Birds' | eco_group == 'Amphibians' | eco_group == 'Reptiles') &
+    (effect == 'MOR') &
+    (exposure_group == 'ORAL' | is.na(exposure_group)) &
+    #(life_stage == 'Adult') &
+    (endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
+    (new_unit == 'mg/kg/d' | new_unit == 'mg/kg bdwt/d') ~ 'chronic',
+  
+  # Fish --------------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Fish') &
+    (effect == 'MOR') &
+    #(life_stage == 'Adult') &
+    (new_dur == 96) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Fish') &
+    (effect == 'MOR') &
+    #(life_stage == 'Adult') &
+    (new_dur >= 144) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~ 'chronic',
+  
+  (eco_group == 'Fish') &
+    (effect == 'MOR') &
+    #(life_stage == 'Adult') &
+    (new_dur == 504) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  # Bees --------------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  # Could be refined later, but OPP doesn't isn't entirely clear
+  (eco_group == 'Bees') &
+    (effect == 'MOR') &
+    (new_dur == 24 | new_dur == 28 | new_dur == 72) &
+    (new_unit == 'ug/bee') &
+    (endpoint == 'LD50' | endpoint == 'LC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Bees') &
+    (effect == 'MOR') &
+    (new_dur == 240) &
+    (new_unit == 'ug/bee') &
+    (endpoint == 'LD50' | endpoint == 'LC50') ~ 'chronic',
+  
+  # Insects -----------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Insects/Spiders') &
+    (effect == 'MOR') &
+    (new_dur == 24 | new_dur == 48 | new_dur == 72) &
+    (new_unit == 'mg/L' | new_unit == 'mg/kg') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  
+  (eco_group == 'Insects/Spiders') &
+    (effect == 'MOR') &
+    (new_dur == 504 | new_dur == 672) &
+    (new_unit == 'mg/L' | new_unit == 'mg/kg') &
+    (endpoint == 'NOEL' | endpoint == 'NOEC' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  # Invertebrates -----------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
+    (effect == 'MOR') &
+    (new_dur == 24 | new_dur == 48 | new_dur == 72 | new_dur == 96) &
+    (new_unit == 'mg/L' | new_unit == 'mg/kg') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
+    (effect == 'MOR') &
+    (new_dur == 504 | new_dur == 672) &
+    (new_unit == 'mg/L' | new_unit == 'mg/kg') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'chronic',
+  
+  # Worms -------------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Worms') &
+    (effect == 'MOR') &
+    (new_dur == 336) &
+    (new_unit == 'mg/kg') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Worms') &
+    (effect == 'MOR') &
+    (new_dur <= 336) &
+    (new_unit == 'mg/kg') &
+    (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  # Crustaceans -----------------------------------------------------------------------
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Crustaceans') &
+    (effect == 'MOR') &
+    (new_dur <= 96) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Crustaceans') &
+    (effect == 'MOR') &
+    (new_dur >= 672) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  # Algae -----------------------------------------------------------------------
+  #NOTE Needs better, hard to find data for fungi and mosses etc
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') &
+    (new_dur <= 24*7) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') &
+    (new_dur == 96) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  # Flowers, Trees, Shrubs, Ferns-----------------------------------------------------------------------
+  #Note probably could be something like developemental etc...
+  ## Acute -------------------------------------------------------------------
+  (eco_group == 'Flowers, Trees, Shrubs, Ferns') &
+    (new_dur <= 7*24) &
+    (new_unit == 'mg/L') &
+    (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
+  
+  ## Chronic -----------------------------------------------------------------
+  (eco_group == 'Flowers, Trees, Shrubs, Ferns') &
+    (effect != 'MOR') &
+    (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
+  
+  
+)) %>%
+  filter(!is.na(test_type))
 
-eco_risk_tbl %>% 
-  #filter(eco_group == 'Mammals' | eco_group == 'Birds' | eco_group == 'Fish') %>% 
-  mutate(test_type = case_when(
-    
-    # Mammals -----------------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Mammals') &
-      (effect == 'MOR') &
-      (exposure_group == 'ORAL' | is.na(exposure_group)) &
-      #(life_stage == 'Adult') &
-      (new_unit == 'mg/kg') &
-      (endpoint == 'LD50') ~ 'acute',
-    
-    (eco_group == 'Mammals') &
-      (effect == 'MOR') &
-      (exposure_group == 'ORAL' | is.na(exposure_group)) &
-      #(life_stage == 'Adult') &
-      (new_unit == 'mg/kg bdwt') &
-      (endpoint == 'LD50') ~ 'acute',
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Mammals') &
-      (effect == 'MOR') &
-      (exposure_group == 'ORAL' | is.na(exposure_group)) &
-      #(life_stage == 'Adult') &
-      (endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
-      (new_unit == 'mg/kg/d') ~ 'chronic',
-    
-    # Birds -------------------------------------------------------------------
-    #NOTE Needs better breakdown for reptiles and amphibians... 
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Birds' | eco_group == 'Amphibians' | eco_group == 'Reptiles') &
-      (effect == 'MOR') &
-      (exposure_group == 'ORAL' | is.na(exposure_group)) &
-      #(life_stage == 'Adult') &
-      (new_unit == 'mg/kg') &
-      (endpoint == 'LD50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Birds' | eco_group == 'Amphibians' | eco_group == 'Reptiles') &
-      (effect == 'MOR') &
-      (exposure_group == 'ORAL' | is.na(exposure_group)) &
-      #(life_stage == 'Adult') &
-      (endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
-      (new_unit == 'mg/kg/d' | new_unit == 'mg/kg bdwt/d') ~ 'chronic',
-    
-    # Fish --------------------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Fish') &
-      (effect == 'MOR') &
-      #(life_stage == 'Adult') &
-      (new_dur == 96) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Fish') &
-      (effect == 'MOR') &
-      #(life_stage == 'Adult') &
-      (new_dur >= 144) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~ 'chronic',
-    
-    (eco_group == 'Fish') &
-      (effect == 'MOR') &
-      #(life_stage == 'Adult') &
-      (new_dur == 504) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    # Bees --------------------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    # Could be refined later, but OPP doesn't isn't entirely clear
-    (eco_group == 'Bees') &
-      (effect == 'MOR') &
-      (new_dur == 24 | new_dur == 28 | new_dur == 72) &
-      (new_unit == 'ug/bee') &
-      (endpoint == 'LD50' | endpoint == 'LC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Bees') &
-      (effect == 'MOR') &
-      (new_dur == 240) &
-      (new_unit == 'ug/bee') &
-      (endpoint == 'LD50' | endpoint == 'LC50') ~ 'chronic',
-    
-    # Insects -----------------------------------------------------------------
-    # Acute -------------------------------------------------------------------
-    (eco_group == 'Insects/Spiders') &
-      (effect == 'MOR') &
-      (new_dur == 24 | new_dur == 48 | new_dur == 72) &
-      (new_unit == 'mg/L' | new_unit == 'mg/kg') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    # Chronic -----------------------------------------------------------------
-    
-    (eco_group == 'Insects/Spiders') &
-      (effect == 'MOR') &
-      (new_dur == 504 | new_dur == 672) &
-      (new_unit == 'mg/L' | new_unit == 'mg/kg') &
-      (endpoint == 'NOEL' | endpoint == 'NOEC' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    # Invertebrates -----------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
-      (effect == 'MOR') &
-      (new_dur == 24 | new_dur == 48 | new_dur == 72 | new_dur == 96) &
-      (new_unit == 'mg/L' | new_unit == 'mg/kg') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
-      (effect == 'MOR') &
-      (new_dur == 504 | new_dur == 672) &
-      (new_unit == 'mg/L' | new_unit == 'mg/kg') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'chronic',
-    
-    # Worms -------------------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Worms') &
-      (effect == 'MOR') &
-      (new_dur == 336) &
-      (new_unit == 'mg/kg') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Worms') &
-      (effect == 'MOR') &
-      (new_dur <= 336) &
-      (new_unit == 'mg/kg') &
-      (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    # Crustaceans -----------------------------------------------------------------------
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Crustaceans') &
-      (effect == 'MOR') &
-      (new_dur <= 96) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Crustaceans') &
-      (effect == 'MOR') &
-      (new_dur >= 672) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    # Algae -----------------------------------------------------------------------
-    #NOTE Needs better, hard to find data for fungi and mosses etc
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') &
-      (new_dur <= 24*7) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') &
-      (new_dur == 96) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    # Flowers, Trees, Shrubs, Ferns-----------------------------------------------------------------------
-    #Note probably could be something like developemental etc...
-    ## Acute -------------------------------------------------------------------
-    (eco_group == 'Flowers, Trees, Shrubs, Ferns') &
-      (new_dur <= 7*24) &
-      (new_unit == 'mg/L') &
-      (endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~ 'acute',
-    
-    ## Chronic -----------------------------------------------------------------
-    (eco_group == 'Flowers, Trees, Shrubs, Ferns') &
-      (effect != 'MOR') &
-      (endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~ 'chronic',
-    
-    
-  )) %>%
-  filter(!is.na(test_type)) %>% 
-  group_by(
-    test_cas,
+eco_risk_bin_tbl <- eco_risk_tbl %>%
+  select(
+    test_cas, 
     test_type,
-    eco_group,
-    #new_unit
-  ) %>%
-  summarize(
-    min = min(new_value),
-    #mean = mean(new_value),
-    #max = max(new_value)
+    eco_group, 
+    new_value
+  ) %>% 
+  #filter(eco_group == 'Mammals') %>% 
+  mutate(
+    bin = case_when(
+      
+      # Mammals -----------------------------------------------------------------
+      
+      eco_group == 'Mammals' & test_type == 'acute' & new_value < 10 ~ "VH",
+      eco_group == 'Mammals' & test_type == 'acute' & between(new_value, 10, 50) ~ "H",
+      eco_group == 'Mammals' & test_type == 'acute' & between(new_value, 50, 500) ~ "M",
+      eco_group == 'Mammals' & test_type == 'acute' & between(new_value, 500, 2000) ~ "L",
+      eco_group == 'Mammals' & test_type == 'acute' & new_value > 2000 ~ "XL",
+      
+      eco_group == 'Mammals' & test_type == 'chronic' & new_value < 1 ~ "VH",
+      eco_group == 'Mammals' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Mammals' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Mammals' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Mammals' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Birds -------------------------------------------------------------------
+      eco_group == 'Birds' & test_type == 'acute' & new_value < 10 ~ "VH",
+      eco_group == 'Birds' & test_type == 'acute' & between(new_value, 10, 50) ~ "H",
+      eco_group == 'Birds' & test_type == 'acute' & between(new_value, 50, 500) ~ "M",
+      eco_group == 'Birds' & test_type == 'acute' & between(new_value, 500, 2000) ~ "L",
+      eco_group == 'Birds' & test_type == 'acute' & new_value > 2000 ~ "XL",
+      
+      eco_group == 'Birds' & test_type == 'chronic' & new_value < 1 ~ "VH",
+      eco_group == 'Birds' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Birds' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Birds' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Birds' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Fish -------------------------------------------------------------------
+      
+      eco_group == 'Fish' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Fish' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Fish' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Fish' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Fish' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Fish' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Fish' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Fish' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Fish' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Fish' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Bees --------------------------------------------------------------------
+      
+      eco_group == 'Bees' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Bees' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Bees' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Bees' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Bees' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Bees' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Bees' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Bees' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Bees' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Bees' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Insects -----------------------------------------------------------------
+      
+      eco_group == 'Insects' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Insects' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Insects' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Insects' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Insects' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Insects' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Insects' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Insects' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Insects' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Insects' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      
+      # Invertebrates -----------------------------------------------------------
+      
+      eco_group == 'Invertebrates' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Invertebrates' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Invertebrates' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Invertebrates' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Invertebrates' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Invertebrates' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Invertebrates' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Invertebrates' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Invertebrates' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Invertebrates' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Worms --------------------------------------------------------------------
+      
+      eco_group == 'Worms' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Worms' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Worms' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Worms' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Worms' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Worms' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Worms' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Worms' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Worms' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Worms' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Crustaceans -------------------------------------------------------------
+      
+      eco_group == 'Crustaceans' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Crustaceans' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Crustaceans' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Crustaceans' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Crustaceans' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Crustaceans' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Crustaceans' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Crustaceans' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Crustaceans' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Crustaceans' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Algae -------------------------------------------------------------------
+      
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      (eco_group == 'Algae' | eco_group == 'Fungi' | eco_group == 'Moss, Hornworts') & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      # Flowers -----------------------------------------------------------------
+      
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'acute' & new_value < 0.1 ~ "VH",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'acute' & between(new_value, 0.1, 1) ~ "H",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'acute' & between(new_value, 1, 10) ~ "M",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'acute' & between(new_value, 10, 100) ~ "L",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'acute' & new_value > 100 ~ "XL",
+      
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'chronic' & new_value < 0.01 ~ "VH",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'chronic' & between(new_value, 1, 10) ~ "H",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'chronic' & between(new_value, 10, 200) ~ "M",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'chronic' & between(new_value, 200, 1000) ~ "L",
+      eco_group == 'Flowers, Trees, Shrubs, Ferns' & test_type == 'chronic' & new_value > 1000 ~ "XL",
+      
+      
+      .default = NA
+    ),
+    super_int = case_when(
+      
+      bin == 'XH' ~ 6,
+      bin == 'VH' ~ 5,
+      bin == 'H' ~ 4,
+      bin == 'M' ~ 3,
+      bin == 'L' ~ 2,
+      bin == 'XL' ~ 1,
+      bin == 'ND' ~ 0,
+      is.na(bin) ~ 0, 
+      .default = 0
+    )
+  ) %>% 
+  filter(!is.na(bin)) %>% 
+  group_by(test_cas, test_type, eco_group) %>% 
+  mutate(
+    super_bin = 
+      ceiling(
+        mean(super_int)), 
+    super_bin = case_when(
+      
+      super_bin >= 6 ~ 'XH',
+      super_bin == 5 ~ 'VH',
+      super_bin == 4 ~ 'H',
+      super_bin == 3 ~ 'M',
+      super_bin == 2 ~ 'L',
+      super_bin == 1 ~ 'XL',
+      super_bin == 0 ~ 'ND',
+      is.na(super_bin) ~ 'ND'
+    )
   ) %>% 
   ungroup() %>% 
-  #NOTE Sanity check
-  #get_dupes(test_cas, test_type, eco_group)
+  distinct(
+    test_cas, test_type, eco_group, super_bin
+  ) %>% 
+  
+  #Note need to remove duplicates
   pivot_wider(
     .,
     id_cols = test_cas,
     names_from = c(eco_group, test_type),
     names_sort = TRUE,
     values_from = c(
-      min,
-      #mean
-      #,max
+      super_bin
     )
+  )
+  select(
+    test_cas, 
+    Birds_acute,
+    Fish_acute,
+    Fish_chronic,
+    Mammals_acute,
+    Mammals_chronic,
+    Bees_acute
   ) %>% 
   mutate(
-    na_count = rowSums(is.na(.))
-  ) %>%
-  arrange(desc(na_count)) %>% 
-  print(n = Inf) #%>% View()
+    h_count = rowSums(
+      across(everything(), ~ str_detect(.x, "H"))
+    ),
+    na_count = rowSums(!is.na(.))
+  ) %>% 
+  arrange((h_count))
 
-# habitat -----------------------------------------------------------------
+library(DT)
+proc_export <- eco_risk_bin_tbl %>%
+  DT::datatable(., 
+                extensions = 'Buttons', 
+                options = list(
+                  dom = 'Bfrtip',
+                  buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                  pageLength = 20,
+                  lengthMenu = c(5, 10, 15, 20)
+                )) %>% 
+  formatStyle(names(eco_risk_bin_tbl), textAlign = "center") %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("XH", "darkred")) %>% 
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("VH", "#dc3545")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("H", "#fd7e14")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("M", "#ffc107")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("L", "#28a745")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("XL", "darkgreen")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("ND", "grey"))
+
+proc_export
+
+# testing -----------------------------------------------------------------
 
 eco_risk_tbl %>%
   select(

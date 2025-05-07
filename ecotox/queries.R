@@ -45,6 +45,11 @@ Mode <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
+weighted_average <- function(values, weights) {
+  sum(values * weights, na.rm = TRUE) / sum(weights, na.rm = TRUE)
+}
+
+
 # Queries -----------------------------------------------------------------
 
 query <- ComptoxR::testing_chemicals %>%
