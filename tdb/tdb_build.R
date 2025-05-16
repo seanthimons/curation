@@ -13,14 +13,14 @@
 
 # Raw ---------------------------------------------------------------------
 
-list_import <- list.files(here('tdb', 'tdb'), full.names = F) %>%
+list_import <- list.files(here('tdb', 'raw'), full.names = F) %>%
   as.list() %>% 
   discard_at(., 1) #discards app_options.json
 
 raw_json <- vector(mode = 'list', length = length(list_import))
 
 raw_json <- map(list_import, ~{
-  loc <- paste0(here('tdb', 'tdb'),'/',.x)
+  loc <- paste0(here('tdb', 'raw'),'/',.x)
   #.x <- paste(readLines(loc, warn = F),collapse = "")
   .x <- readLines(loc, warn = F)
   .x <- stringi::stri_enc_toutf8(.x, validate = T)
@@ -308,6 +308,12 @@ rm(proc_fix)
 
 # binning -----------------------------------------------------------------
 
+proc_bin_list <- list(
+  'treatment' = NA, 
+  'treatment_group' = NA,
+  'treatment_stage' = NA
+)
+
 proc_binned <- proc_dat %>% 
   left_join(., select(ref, reference_id, tag_value, tag_desc), join_by(reference_id)) %>% 
   mutate(
@@ -340,56 +346,145 @@ proc_binned <- proc_dat %>%
       scale == 'P'~ 5,
       scale == 'F'~ 10,
       .default = 1
+    ),
+    cat_int = case_when(
+      cat == 'Conc' ~ -1,
+      cat == 'VL' ~ 1,
+      cat == 'L' ~ 2,
+      cat == 'M' ~ 3,
+      cat == 'H' ~ 4,
+      cat == 'VH' ~ 5,
+      cat == 'XH' ~ 6,
+      is.na(cat) ~ 0,
+      .default = 0
     )
   ) %>% 
-  group_by(
-    contaminant_name,
-    scale_int,
-  ) %>% 
-  mutate(cat_int = case_when(
-    cat == 'Conc' ~ -1,
-    cat == 'XL' ~ 0,
-    cat == 'L' ~ 1,
-    cat == 'M' ~ 2,
-    cat == 'H' ~ 3,
-    cat == 'VH' ~ 4,
-    cat == 'XH' ~ 5,
-    .default = NA
-  )) %>% 
-  filter(!is.na(cat)) %>% 
-  group_by(contaminant_name, treatment_process_name, contaminant_type_code) %>% 
-  reframe(score = weighted.mean(cat_int, scale_int)) %>% 
+  group_by(contaminant_name, treatment_process_name) %>% 
+  reframe(
+    contaminant_type_code,
+    score = if (all(is.na(scale_int))) { # Handle cases where all weights are NA
+      NA_real_
+    } else {
+      sum(cat_int * scale_int, na.rm = TRUE) / sum(scale_int, na.rm = TRUE)
+    }
+    # Optional: also count number of observations per group
+    # n_obs = n(),
+    # n_valid_weights = sum(!is.na(scale_int))
+  ) %>%
+  distinct() %>% 
   mutate(
     score = floor(score),
-    score = case_when(
-      score == -1 ~ 'CONC',
+    score_bin = case_when(
+      score >= 6 ~ 'XH',
+      score == 5 ~ 'VH',
+      score == 4 ~ 'H',
+      score == 3 ~ 'M',
+      score == 2 ~ 'L',
+      score == 1 ~ 'VL',
       score == 0 ~ 'XL',
-      score == 1 ~ 'L',
-      score == 2 ~ 'M',
-      score == 3 ~ 'H',
-      score == 4 ~ 'VH',
-      score == 5 ~ 'XH',
-      is.na(score) == TRUE ~ 'ND'
+      score < 0 ~ 'CONC',
+      is.na(score) ~ 'ND'
     ),
     treatment_group = case_when(
-      treatment_process_name %in% c("Aeration and Air Stripping", "Membrane Separation", "Direct Filtration", "Membrane Filtration", "Slow Sand Filtration", "Diatomaceous Earth Filtration") ~ "Physical Treatment",
-      treatment_process_name %in% c("Chlorine", "Hydrogen Peroxide", "Ozone", "Ozone and Hydrogen Peroxide", "Permanganate", "Ultraviolet Irradiation", "Ultraviolet Irradiation and Hydrogen Peroxide", "Ultraviolet Irradiation and Ozone", "Chlorine Dioxide", "Chloramine") ~ "Chemical Treatment",
-      treatment_process_name %in% c("Biological Filtration", "Biological Treatment") ~ "Biological Treatment",
-      treatment_process_name %in% c("Adsorptive Media", "Granular Activated Carbon", "Powdered Activated Carbon") ~ "Adsorptive Treatment",
-      treatment_process_name %in% c("Conventional Treatment", "Chemical Treatment", "Precipitative Softening") ~ "Conventional and Combined Treatment",
-      treatment_process_name %in% c("Ion Exchange", "Other Treatment") ~ "Specialized Treatment",
-      .default = 'Unknown'
+      treatment_process_name == "Aeration and Air Stripping" ~ "Physical",
+      treatment_process_name == "Membrane Separation" ~ "Physical",
+      treatment_process_name == "Direct Filtration" ~ "Physical",
+      treatment_process_name == "Membrane Filtration" ~ "General/Category",
+      treatment_process_name == "Slow Sand Filtration" ~ "Physical",
+      treatment_process_name == "Diatomaceous Earth Filtration" ~ "Physical",
+      treatment_process_name == "Chlorine" ~ "Chemical",
+      treatment_process_name == "Hydrogen Peroxide" ~ "Chemical",
+      treatment_process_name == "Ozone" ~ "Chemical",
+      treatment_process_name == "Ozone and Hydrogen Peroxide" ~ "Chemical",
+      treatment_process_name == "Permanganate" ~ "Chemical",
+      treatment_process_name == "Ultraviolet Irradiation" ~ "Physical/Chemical",
+      treatment_process_name == "Ultraviolet Irradiation and Hydrogen Peroxide" ~ "Chemical",
+      treatment_process_name == "Ultraviolet Irradiation and Ozone" ~ "Chemical",
+      treatment_process_name == "Chlorine Dioxide" ~ "Chemical",
+      treatment_process_name == "Chloramine" ~ "Chemical",
+      treatment_process_name == "Biological Filtration" ~ "Hybrid (Biological/Physical)",
+      treatment_process_name == "Biological Treatment" ~ "Biological",
+      treatment_process_name == "Adsorptive Media" ~ "Adsorptive",
+      treatment_process_name == "Granular Activated Carbon" ~ "Adsorptive",
+      treatment_process_name == "Powdered Activated Carbon" ~ "Adsorptive",
+      treatment_process_name == "Conventional Treatment" ~ "General/Category",
+      treatment_process_name == "Chemical Treatment" ~ "General/Category",
+      treatment_process_name == "Precipitative Softening" ~ "Chemical",
+      treatment_process_name == "Ion Exchange" ~ "Chemical",
+      treatment_process_name == "Other Treatment" ~ "General/Category",
+      .default = NA # Default for safety
     ),
+    
     treatment_stage = case_when(
-      treatment_process_name %in% c("Aeration and Air Stripping") ~ "Preliminary Treatment",
-      treatment_process_name %in% c("Direct Filtration", "Slow Sand Filtration", "Diatomaceous Earth Filtration") ~ "Primary Treatment",
-      treatment_process_name %in% c("Biological Filtration", "Biological Treatment") ~ "Secondary Treatment",
-      treatment_process_name %in% c("Membrane Separation", "Membrane Filtration", "Ion Exchange", "Adsorptive Media", "Granular Activated Carbon", "Powdered Activated Carbon") ~ "Tertiary Treatment",
-      treatment_process_name %in% c("Chemical Treatment", "Precipitative Softening", "Conventional Treatment") ~ "Advanced Treatment",
-      treatment_process_name %in% c("Chlorine", "Chloramine", "Chlorine Dioxide", "Ozone", "Ozone and Hydrogen Peroxide", "Ultraviolet Irradiation", "Ultraviolet Irradiation and Hydrogen Peroxide", "Ultraviolet Irradiation and Ozone") ~ "Disinfection",
-      treatment_process_name %in% c("Hydrogen Peroxide", "Permanganate", "Other Treatment") ~ "Specialized Treatment",
-      .default = 'Unknown'
+      treatment_process_name == "Aeration and Air Stripping" ~ "Specialized/Tertiary",
+      treatment_process_name == "Membrane Separation" ~ "Tertiary/Advanced",
+      treatment_process_name == "Direct Filtration" ~ "Tertiary",
+      treatment_process_name == "Membrane Filtration" ~ "General/Category",
+      treatment_process_name == "Slow Sand Filtration" ~ "Tertiary",
+      treatment_process_name == "Diatomaceous Earth Filtration" ~ "Tertiary",
+      treatment_process_name == "Chlorine" ~ "Disinfection",
+      treatment_process_name == "Hydrogen Peroxide" ~ "Advanced",
+      treatment_process_name == "Ozone" ~ "Disinfection/Advanced",
+      treatment_process_name == "Ozone and Hydrogen Peroxide" ~ "Advanced",
+      treatment_process_name == "Permanganate" ~ "Advanced",
+      treatment_process_name == "Ultraviolet Irradiation" ~ "Disinfection/Advanced",
+      treatment_process_name == "Ultraviolet Irradiation and Hydrogen Peroxide" ~ "Advanced",
+      treatment_process_name == "Ultraviolet Irradiation and Ozone" ~ "Advanced",
+      treatment_process_name == "Chlorine Dioxide" ~ "Disinfection",
+      treatment_process_name == "Chloramine" ~ "Disinfection",
+      treatment_process_name == "Biological Filtration" ~ "Tertiary",
+      treatment_process_name == "Biological Treatment" ~ "Secondary",
+      treatment_process_name == "Adsorptive Media" ~ "Tertiary",
+      treatment_process_name == "Granular Activated Carbon" ~ "Tertiary",
+      treatment_process_name == "Powdered Activated Carbon" ~ "Tertiary/Ancillary/Support",
+      treatment_process_name == "Conventional Treatment" ~ "General/Category",
+      treatment_process_name == "Chemical Treatment" ~ "General/Category",
+      treatment_process_name == "Precipitative Softening" ~ "Tertiary",
+      treatment_process_name == "Ion Exchange" ~ "Tertiary/Advanced",
+      treatment_process_name == "Other Treatment" ~ "General/Category",
+      .default = NA # Default for safety
     )
+  )
+
+proc_bin_list$treatment <- proc_binned %>% 
+  select(-treatment_group, -treatment_stage, -score) %>% 
+  pivot_wider(., 
+              names_from = treatment_process_name,
+              values_from = score_bin,
+              values_fill = 'ND') %>% 
+  rowwise() %>%
+  mutate(
+    across(!contains(c('contaminant_')), ~factor(.x, levels = c("XH", "VH", "H", "M", "L", "VL", "XL", "CONC", "I", "ND"))),
+    num_good_removal = sum(str_count(paste(c_across(!c(contaminant_name, contaminant_type_code)), collapse = " "), paste(c('XH', 'VH', 'H'), collapse = "|")))) %>% 
+  relocate(num_good_removal, .after = contaminant_type_code)
+
+
+# ) %>% 
+#   filter(!is.na(bin)) %>% 
+#   group_by(test_cas, test_type, eco_group) %>% 
+#   mutate(
+#     super_bin = 
+#       ceiling(
+#         mean(super_int)), 
+#     super_bin = case_when(
+#       
+#       super_bin >= 6 ~ 'XH',
+#       super_bin == 5 ~ 'VH',
+#       super_bin == 4 ~ 'H',
+#       super_bin == 3 ~ 'M',
+#       super_bin == 2 ~ 'L',
+#       super_bin == 1 ~ 'XL',
+#       super_bin == 0 ~ 'ND',
+#       is.na(super_bin) ~ 'ND'
+#     )
+#   ) %>% 
+#   ungroup() %>% 
+
+
+proc_bin_list$treatment_group <- proc_binned %>% 
+  select(-treatment_stage) %>% 
+  mutate(
+    
   ) %>% 
   pivot_wider(., 
               names_from = treatment_process_name,
@@ -397,13 +492,30 @@ proc_binned <- proc_dat %>%
               values_fill = 'ND') %>% 
   rowwise() %>%
   mutate(
-    across(!contains(c('contaminant', 'treatment')), ~factor(.x, levels = c("XH", "VH", "H", "M", "L", "VL", "XL", "CONC", "I", "ND"))),
+    across(!contains(c('contaminant_')), ~factor(.x, levels = c("XH", "VH", "H", "M", "L", "VL", "XL", "CONC", "I", "ND"))),
     num_good_removal = sum(str_count(paste(c_across(!c(contaminant_name, contaminant_type_code)), collapse = " "), paste(c('XH', 'VH', 'H'), collapse = "|")))) %>% 
   relocate(num_good_removal, .after = contaminant_type_code)
 
-rio::export(proc_binned, file = 'tdb_binned.xlsx')
 
-proc_export <- proc_binned %>%
+
+proc_bin_list$treatment_stage <- proc_binned %>% 
+  select(-treatment_group, -treatment_stage) %>% 
+  pivot_wider(., 
+              names_from = treatment_process_name,
+              values_from = score,
+              values_fill = 'ND') %>% 
+  rowwise() %>%
+  mutate(
+    across(!contains(c('contaminant_')), ~factor(.x, levels = c("XH", "VH", "H", "M", "L", "VL", "XL", "CONC", "I", "ND"))),
+    num_good_removal = sum(str_count(paste(c_across(!c(contaminant_name, contaminant_type_code)), collapse = " "), paste(c('XH', 'VH', 'H'), collapse = "|")))) %>% 
+  relocate(num_good_removal, .after = contaminant_type_code)
+
+
+
+
+#rio::export(proc_binned, file = 'tdb_binned.xlsx')
+
+proc_export <- proc_bin_list$treatment %>% 
   DT::datatable(., 
                 extensions = 'Buttons', 
                 options = list(
@@ -412,23 +524,23 @@ proc_export <- proc_binned %>%
                   pageLength = 20,
                   lengthMenu = c(5, 10, 15, 20)
                 )) %>% 
-  formatStyle(names(proc_binned), textAlign = "center") %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("XH", "#11C638")) %>% 
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("VH", "#77D17F")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("H", "#B0DAB3")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("M", "lightyellow")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("L", "#EDC9B0")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("VL", "#F1B077")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("XL", "#EF9708")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("CONC","black")) %>%
-  formatStyle(names(proc_binned), color = styleEqual("CONC","white")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("I", "slategrey")) %>%
-  formatStyle(names(proc_binned), backgroundColor = styleEqual("ND", "grey")) %>% 
+  formatStyle(names(proc_bin_list$treatment), textAlign = "center") %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("XH", "#11C638")) %>% 
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("VH", "#77D17F")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("H", "#B0DAB3")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("M", "lightyellow")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("L", "#EDC9B0")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("VL", "#F1B077")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("XL", "#EF9708")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("CONC","black")) %>%
+  formatStyle(names(proc_bin_list$treatment), color = styleEqual("CONC","white")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("I", "slategrey")) %>%
+  formatStyle(names(proc_bin_list$treatment), backgroundColor = styleEqual("ND", "grey")) %>% 
   formatStyle(
     'num_good_removal',
     backgroundColor = styleInterval(
       #seq(min(proc_binned$num_good_removal, na.rm = TRUE), max(proc_binned$num_good_removal, na.rm = TRUE), length.out = 99),
-      seq(0, max(proc_binned$num_good_removal, na.rm = TRUE), length.out = 9),
+      seq(0, max(proc_bin_list$treatment$num_good_removal, na.rm = TRUE), length.out = 9),
       RColorBrewer::brewer.pal(10, "RdYlGn")
     )
   )
