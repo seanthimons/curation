@@ -690,7 +690,7 @@ eco_risk_bin_tbl <- eco_risk_tbl %>%
       bin == 'H' ~ 4,
       bin == 'M' ~ 3,
       bin == 'L' ~ 2,
-      bin == 'XL' ~ 1,
+      bin == 'VL' ~ 1,
       bin == 'ND' ~ 0,
       is.na(bin) ~ 0, 
       .default = 0
@@ -709,7 +709,7 @@ eco_risk_bin_tbl <- eco_risk_tbl %>%
       super_bin == 4 ~ 'H',
       super_bin == 3 ~ 'M',
       super_bin == 2 ~ 'L',
-      super_bin == 1 ~ 'XL',
+      super_bin == 1 ~ 'VL',
       super_bin == 0 ~ 'ND',
       is.na(super_bin) ~ 'ND'
     )
@@ -762,7 +762,7 @@ proc_export <- eco_risk_bin_tbl %>%
   formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("H", "#fd7e14")) %>%
   formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("M", "#ffc107")) %>%
   formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("L", "#28a745")) %>%
-  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("XL", "darkgreen")) %>%
+  formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("VL", "darkgreen")) %>%
   formatStyle(names(eco_risk_bin_tbl), backgroundColor = styleEqual("ND", "grey"))
 
 proc_export
