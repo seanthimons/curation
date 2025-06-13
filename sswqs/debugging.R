@@ -87,7 +87,22 @@ classes <- sswqs %>%
   filter(!is.na(dtxsid)) %>%
   distinct(dtxsid) %>% 
   pull(dtxsid) %>% 
-  ComptoxR::chemi_classyfire(query = .)
+  chemi_classyfire(query = .)
+
+classes %>% 
+  filter(!is.na(klass)) %>% 
+  summarize(
+    kd = unique(klass) %>% length(),
+    skd = unique(subklass) %>% length(),
+    supd = unique(superklass) %>% length()
+  )
+
+func_usage <- sswqs %>%
+  distinct(analyte, cas, dtxsid) %>%
+  filter(!is.na(dtxsid)) %>%
+  distinct(dtxsid) %>% 
+  pull(dtxsid) %>% 
+  ct_functional_use(.)
 
 sswqs %>%
   filter(
