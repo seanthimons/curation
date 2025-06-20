@@ -27,7 +27,7 @@ pretty_casewhen <- function(var, x) {
   # ! NOTE: Hard linked file
   cx$source("https://cfpub.epa.gov/wqsits/wqcsearch/data/criteria_json_5a.js")
 
-  # ! NOTE: JS parsing here
+  # ! NOTE: JS parsing here, do not modify
   vars <- cx$eval(
     "
   Object.keys(this).filter(function(key) {
@@ -164,14 +164,18 @@ pretty_casewhen <- function(var, x) {
     set_names(., state_vars$abv) %>%
     # ! NOTE: Removes some empty records that don't have full status yet; some tribes not yet authorized
     compact(.)
+  }
 
+# Export intermediate files ----------------------------------------------
+{  
   saveRDS(state_dat, file = "sswqs_state_dat.RDS")
   saveRDS(parent_dat, file = "sswqs_parent_dat.RDS")
-}
 
-# ! TEMP
-state_dat <- readRDS(file = "sswqs_state_dat.RDS")
-parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
+  # ! TEMP Read in if something is goofed.
+#state_dat <- readRDS(file = "sswqs_state_dat.RDS")
+#parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
+
+}
 
 # Extracting -------------------------------------------------------------
 
@@ -203,10 +207,12 @@ parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
     map(., ~ pluck(., "criteriaData_sub")) %>%
     list_rbind(names_to = "area")
 
+  # ! NOTE Manual extraction of relevant data, since it is not easy to parse
   protection_dict <- crit_dat %>%
     select(protection) %>%
     distinct(protection) %>%
     mutate(
+  # ! NOTE mapped manually here
       endpoint = case_when(
         protection == '' ~ NA,
         protection == 'H' ~ 'Human Health',
@@ -271,24 +277,24 @@ parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
         protection == 'HSa' ~ 'Human Health - Saltwater - Acute',
         protection == 'w' ~ 'Water + Organism',
       ),
-      # !
+      # ! Water
       location = case_when(
         str_detect(endpoint, 'Fresh') ~ 'freshwater',
         str_detect(endpoint, 'Salt') ~ 'saltwater',
         str_detect(endpoint, 'Brackish') ~ 'brackish'
       ),
-      # !
+      # ! Level of protection
       application = case_when(
         str_detect(endpoint, 'Human') ~ 'human health',
         str_detect(endpoint, 'Aquatic') ~ 'aquatic life',
         str_detect(endpoint, 'Organoleptic') ~ 'organoleptic'
       ),
-      # !
+      # ! Exposure group
       exposure = case_when(
         str_detect(endpoint, 'Water \\+ Organism') ~ 'water and organism',
         str_detect(endpoint, 'Organism Only') ~ 'organism only',
       ),
-      # !
+      # ! Exposure duration
       subtype = case_when(
         str_detect(endpoint, 'chronic|Chronic') ~ 'chronic',
         str_detect(endpoint, 'acute|Acute') ~ 'acute',
@@ -341,9 +347,7 @@ parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
     ) %>%
     mutate(coverage = na_if(coverage, ""))
 
-  rm(state_vars)
-
-  # ! NOTE Manual categories
+# ! NOTE Manual categories
   use_class_super <- read.table(
     'use_class_super.txt',
     sep = ",",
@@ -351,9 +355,10 @@ parent_dat <- readRDS(file = "sswqs_parent_dat.RDS")
     colClasses = "character"
   ) %>%
     select(-local)
+
 }
 # Building ---------------------------------------------------------------
-
+{
 sswqs <-
   crit_dat %>%
   # Area ----
@@ -380,7 +385,7 @@ sswqs <-
   ) %>%
   select(-analyte) %>%
   #glimpse()
-  # Pollutants ----
+# Pollutants ----
   left_join(
     .,
     pollutants,
@@ -427,7 +432,7 @@ sswqs <-
       source == key,
       short_code == area,
     )
-  ) %>%
+  ) %>% 
   # General usage ----
   left_join(
     .,
@@ -441,5 +446,7 @@ sswqs <-
       local == 'limited contact recreation waters' ~ 'Recreation',
       .default = general_usage
     )
-  ) %>%
-  filter(!is.na(result)) #%>% glimpse()
+  ) #%>% filter(!is.na(result)) #%>% glimpse()
+
+rm(parent_dat, units, use_class, sources, protection_dict, pollutants, pollutantRemap, entities, crit_dat)
+}
