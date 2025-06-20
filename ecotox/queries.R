@@ -51,24 +51,24 @@ weighted_average <- function(values, weights) {
 
 
 # Queries -----------------------------------------------------------------
-
-query <- ComptoxR::testing_chemicals %>%
-  pull(casrn) %>% 
-  str_remove_all(., "-")
-
-query <- ct_search(query = 'Spirodiclofen', search_method = 'equal', request_method = 'GET') %>% 
-  pull(casrn) %>% 
-  str_remove_all(., "-")
-
-ggplot(q1) +
- aes(
-   x = result,
-   y = forcats::fct_reorder(dtxsid, qrt),
-   colour = eco_group,
-   shape = endpoint_group
-   ) +
- geom_point() +
- scale_color_hue(direction = 1) +
- scale_x_continuous(trans = "log10") +
- theme_classic() + facet_grid('endpoint_group')
+# 
+# query <- ComptoxR::testing_chemicals %>%
+#   pull(casrn) %>% 
+#   str_remove_all(., "-")
+# 
+# query <- ct_search(query = 'Spirodiclofen', search_method = 'equal', request_method = 'GET') %>% 
+#   pull(casrn) %>% 
+#   str_remove_all(., "-")
+# 
+# ggplot(q1) +
+#  aes(
+#    x = result,
+#    y = forcats::fct_reorder(dtxsid, qrt),
+#    colour = eco_group,
+#    shape = endpoint_group
+#    ) +
+#  geom_point() +
+#  scale_color_hue(direction = 1) +
+#  scale_x_continuous(trans = "log10") +
+#  theme_classic() + facet_grid('endpoint_group')
 

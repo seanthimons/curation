@@ -20,7 +20,7 @@
 
 
 # download ----------------------------------------------------------------
-
+cli::cli_alert_info('Downloading zip')
 resp <- GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
   content(.) %>%
   html_elements(., 'a') %>%
@@ -44,13 +44,21 @@ download.file(
 
 unzip('ecotox.zip')
 
+eco_folder <- list.files(here('ecotox'))[str_detect(list.files(here('ecotox')), pattern = 'ecotox_ascii')]
+
+file.rename(
+  here('ecotox', eco_folder), 
+  here('ecotox', 'eco_files')
+)
+
 eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
 
 # main --------------------------------------------------------------------
-
+cli::cli_alert_info('Removing unneeded files')
 unlink(list.files(pattern = 'release'))
 unlink(list.files(pattern = 'ASCII|Ascii'))
 
+cli::cli_alert_info('Converting base files')
 walk(
   list.files(pattern = ".txt")[
     !str_detect(list.files(pattern = ".txt"), pattern = "release")
@@ -76,6 +84,7 @@ walk(
   .progress = TRUE
 )
 
+cli::cli_alert_info('Writing files to db')
 walk(
   list.files(pattern = ".parquet"),
   function(x) {
@@ -84,8 +93,8 @@ walk(
     dbWriteTable(
       eco_con,
       str_remove(x, pattern = ".parquet"),
-      read_parquet(x)
-      #  , overwrite = TRUE
+      read_parquet(x),
+      overwrite = TRUE
     )
 
     unlink(x)
@@ -95,8 +104,8 @@ walk(
 dbListTables(eco_con)
 
 # validation --------------------------------------------------------------
-
-setwd(here("ecotox", "validation"))
+cli::cli_alert_info('Converting validation files')  
+setwd(here("ecotox",'eco_files', "validation"))
 
 walk(
   list.files(pattern = ".txt"),
@@ -125,7 +134,12 @@ walk(
   function(x) {
     cli::cli_text(x)
 
-    dbWriteTable(eco_con, str_remove(x, pattern = ".parquet"), read_parquet(x))
+    dbWriteTable(
+      eco_con,
+      str_remove(x, pattern = ".parquet"),
+      read_parquet(x), 
+      overwrite = TRUE
+      )
 
     unlink(x)
   }
@@ -133,6 +147,7 @@ walk(
 
 
 # terms appendix ----------------------------------------------------------
+cli::cli_alert_info('Downloading appendix terms')
 
 GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
   content(.) %>%
@@ -142,7 +157,7 @@ GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
   paste0('https://gaftp.epa.gov/ecotox/', .) %>%
   download.file(
     url = .,
-    destfile = 'ecotox_terms_appendix.xlsx',
+    destfile = here('ecotox', 'ecotox_terms_appendix.xlsx'),
     mode = 'wb'
   )
 
@@ -163,8 +178,9 @@ iwalk(
   ecotox_appendix,
   function(x, y) {
     cli::cli_text(y)
+    #cli::cli_alert_info(x)
 
-    dbWriteTable(eco_con, y, x)
+    dbWriteTable(eco_con, y, x, overwrite = TRUE)
   }
 )
 
@@ -176,15 +192,15 @@ if (length(list.files(pattern = '.parquet')) > 0) {
   file.remove(list.files(pattern = '.parquet'))
 }
   
-dbWriteTable(eco_con, 'versions', resp)
+dbWriteTable(eco_con, 'versions', resp, overwrite = TRUE)
 
 setwd(here("ecotox"))
 
 file.remove(here('ecotox', 'ecotox.zip'))
 
-unlink(here('ecotox', 'validation'), recursive = TRUE)
+unlink(here('ecotox','eco_files', 'validation'), recursive = TRUE)
 
-rm(resp, ecotox_appendix, eco_toc, terms)
+rm(resp, ecotox_appendix, eco_toc, terms, eco_folder)
 
 dbListTables(eco_con)
 
@@ -195,4 +211,3 @@ dbDisconnect(eco_con)
 #source(here("ecotox", "plumber.R"))
 
 plumber::pr("plumber.R") %>% plumber::pr_run()
- 
