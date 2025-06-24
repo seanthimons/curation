@@ -12,7 +12,6 @@ options("plumber.port" = 5555)
 #* Health Check
 #* @get /health-check
 health <- function() {
-
   db = list.files(pattern = '.duckdb')
 
   con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
@@ -22,7 +21,7 @@ health <- function() {
     timestamp = Sys.time(),
     db = list.files(pattern = '.duckdb'),
     created = tbl(con, 'versions') %>% filter(latest == TRUE) %>% pull(date),
-    db_size_mb = round(file.size(db)/(1024*1024), 2)
+    db_size_mb = round(file.size(db) / (1024 * 1024), 2)
   )
 }
 
@@ -82,15 +81,18 @@ get_tbl <- function(table_name) {
   return(result)
 }
 
-
-get_results <- function(query, habitat = NA) {
+# TODO Finish this
+#* Retrieve data from database by CASRN
+#* @param query
+#* @post /results
+post_results <- function(query) {
   con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
   on.exit(dbDisconnect(con))
 
-  if (missing(habitat) | is.na(habitat)) {
-    habitat <- c('Non-Soil', 'Soil', 'Water')
-  }
+  # if (missing(habitat) | is.na(habitat)) {
+  #   habitat <- c('Non-Soil', 'Soil', 'Water')
+  # }
 
-  result = tbl()
+  result = tbl(con, )
   return(result)
 }
