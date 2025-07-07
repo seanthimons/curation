@@ -54,12 +54,13 @@ sswqs %>%
     #is.na(local),
     #str_detect(name, 'California'),
     #analyte == '',
-    dtxsid %in% c(
-'DTXSID2023981',
-'DTXSID7023982',
-'DTXSID3031022',
-'DTXSID70162189'
-    ),
+    dtxsid %in%
+      c(
+        'DTXSID2023981',
+        'DTXSID7023982',
+        'DTXSID3031022',
+        'DTXSID70162189'
+      ),
     #application == 'human health',
     general_usage == 'Water Supply'
   ) %>%
@@ -78,19 +79,19 @@ sswqs %>%
   mutate(result = as.numeric(result)) %>%
   filter(!is.na(result)) %>%
   arrange(region, result) %>%
-  distinct(region, .keep_all = TRUE) %>% 
+  distinct(region, .keep_all = TRUE) %>%
   print(n = Inf) %>%
   glimpse()
 
 classes <- sswqs %>%
   distinct(analyte, cas, dtxsid) %>%
   filter(!is.na(dtxsid)) %>%
-  distinct(dtxsid) %>% 
-  pull(dtxsid) %>% 
+  distinct(dtxsid) %>%
+  pull(dtxsid) %>%
   chemi_classyfire(query = .)
 
-classes %>% 
-  filter(!is.na(klass)) %>% 
+classes %>%
+  filter(!is.na(klass)) %>%
   summarize(
     kd = unique(klass) %>% length(),
     skd = unique(subklass) %>% length(),
@@ -100,8 +101,8 @@ classes %>%
 func_usage <- sswqs %>%
   distinct(analyte, cas, dtxsid) %>%
   filter(!is.na(dtxsid)) %>%
-  distinct(dtxsid) %>% 
-  pull(dtxsid) %>% 
+  distinct(dtxsid) %>%
+  pull(dtxsid) %>%
   ct_functional_use(.)
 
 sswqs %>%
@@ -109,9 +110,7 @@ sswqs %>%
     #is.na(local),
     str_detect(name, 'Puerto Rico'),
     #analyte == '',
-    dtxsid %in% c(
-
-    ),
+    dtxsid %in% c(),
     #application == 'human health',
     general_usage == 'Water Supply'
   ) %>%
