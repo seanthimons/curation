@@ -26,3 +26,6 @@ ecotox/temp.R
 *.duckdb
 *.xltm
 *.txt
+rais/gen_bgval.RDS
+iwtt/iwtt_db.duckdb
+.gitignore
