@@ -7,23 +7,31 @@
   library(here)
 }
 # OSPAR List of Substances of Possible Concern----
-webpage <- read_html("https://www.ospar.org/work-areas/hasec/hazardous-substances/possible-concern/list")
+webpage <- read_html(
+  "https://www.ospar.org/work-areas/hasec/hazardous-substances/possible-concern/list"
+)
 
-t_list <- c(1:4) %>% 
-  map(., ~{
-     .x <- html_nodes(webpage, xpath =  paste0('//*[@id="sections"]/section[',.x,']/div/table')) %>%
-        html_table() %>% 
+t_list <- c(1:4) %>%
+  map(
+    .,
+    ~ {
+      .x <- html_nodes(
+        webpage,
+        xpath = paste0('//*[@id="sections"]/section[', .x, ']/div/table')
+      ) %>%
+        html_table() %>%
         pluck(., 1)
-  }) %>% 
-  set_names(., LETTERS[1:4]) %>% 
-  list_rbind(names_to = 'list') %>% 
+    }
+  ) %>%
+  set_names(., LETTERS[1:4]) %>%
+  list_rbind(names_to = 'list') %>%
   distinct(., .keep_all = T)
 
 rm(webpage)
 
 # PLONOR----
 
-#Had to work out how to handle the split tables 
+#Had to work out how to handle the split tables
 
 library(tabulapdf)
 

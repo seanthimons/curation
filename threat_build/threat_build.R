@@ -1,4 +1,3 @@
-
 # Packages ----------------------------------------------------------------
 
 {
@@ -10,77 +9,82 @@
   library(arrow)
   library(duckdb)
   library(duckplyr)
-  
-  
+
   setwd(here('threat_build'))
-  
 }
 
 
 # functions ---------------------------------------------------------------
 
-query_db <- function(...){
+query_db <- function(...) {
   variables <- rlang::ensyms(...)
-  
+
   dbListTables(threat_db) %>%
-    map(., ~{
-      tbl(threat_db, .x) %>%
-        distinct(
-          !!!variables
-        ) %>%
-        collect()
-      
-    }, .progress = TRUE) %>%
-    list_rbind() %>% distinct()
+    map(
+      .,
+      ~ {
+        tbl(threat_db, .x) %>%
+          distinct(
+            !!!variables
+          ) %>%
+          collect()
+      },
+      .progress = TRUE
+    ) %>%
+    list_rbind() %>%
+    distinct()
 }
 
-pull_table <- function(...){
-  
+pull_table <- function(...) {
   variables <- rlang::ensyms(...)
-  
+
   dbListTables(threat_db) %>%
-    map(., ~{
-      tbl(threat_db, .x) %>% 
-        select(!!!variables) %>% 
-        collect()
-    }, .progress = TRUE) %>%
+    map(
+      .,
+      ~ {
+        tbl(threat_db, .x) %>%
+          select(!!!variables) %>%
+          collect()
+      },
+      .progress = TRUE
+    ) %>%
     list_rbind()
 }
 
 # init --------------------------------------------------------------------
 
-if(file.exists('threat.duckdb')){
-  
+if (file.exists('threat.duckdb')) {
   #threat_db <- dbConnect(duckdb(), dbdir = 'threat.duckdb', read_only = FALSE)
-  
   #dbListTables(threat_db)
-  
-  
-}else{
-  
-  final_lof <- list.files(here('final')) %>% 
-    str_subset(., pattern = '.RDS|bayes|treatment', negate = TRUE) %>% 
-    #TEMP
-    str_subset(., pattern = 'toxval_v96_1.parquet')
-  
-  final_lof
-  
-  threat_db <- 
+} else {
+  final_lof <- list.files(here('final')) %>%
+    str_subset(., pattern = '.RDS|bayes|treatment', negate = TRUE) %>%
+    #TODO Adjust this for better filtering or preference
+    #str_subset(.,pattern = 'toxval_v96_1.parquet|toxval_v96_0.parquet|toxval_v95_.parquet')
+    str_subset(., pattern = 'toxval')
+
+  #final_lof
+
+  threat_db <-
     dbConnect(duckdb(), dbdir = ":memory:", read_only = FALSE)
-    #dbConnect(duckdb(), dbdir = 'threat.duckdb', read_only = FALSE)
-  
-  final_lof %>% 
-    walk(., function(x){
-      cli::cli_alert_info(x, '\n')
-      dbWriteTable(threat_db, str_remove(x, pattern = '.parquet'), read_parquet(here('final', x)), overwrite = TRUE)
-      
-    }, .progress = TRUE)
-  
+  #dbConnect(duckdb(), dbdir = 'threat.duckdb', read_only = FALSE)
+
+  final_lof %>%
+    walk(
+      .,
+      function(x) {
+        cli::cli_alert_info(x, '\n')
+        #TODO adjust for query performance
+        duckdb::duckdb_register(
+          #dbWriteTable(
+          threat_db,
+          str_remove(x, pattern = '.parquet'),
+          read_parquet(here('final', x)),
+          overwrite = TRUE
+        )
+      },
+      .progress = TRUE
+    )
+
   dbListTables(threat_db)
 }
-
-
-
-
-
-

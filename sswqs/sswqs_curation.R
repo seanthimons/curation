@@ -494,23 +494,61 @@ if (!exists('sswqs') & file.exists("sswqs.RDS")) {
 numeric_only_pattern <- "^[><]?\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?(?:\\s*-\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?)?\\s*$"
 
 unique_non_numeric_results <- sswqs %>%
-  # Exclude results that are just references to other documents
   filter(
-    !str_detect(result, regex("\\bsee\\b", ignore_case = TRUE)),
-    !str_detect(result, regex("\\bwithin\\b", ignore_case = TRUE)),
-    !str_detect(result, regex("\\busing\\b", ignore_case = TRUE)),
-    !str_detect(result, regex("\\bmore\\b", ignore_case = TRUE)),
-    !str_detect(result, regex("\\bincrease\\b", ignore_case = TRUE)),
-    !str_detect(result, regex("\\bnot\\b", ignore_case = TRUE)),
-    !str_detect(result, pattern = '\\/')
-) %>%
-  mutate(
-    #result = str_remove_all(result, "[[:space:]]"),
-    result = str_remove_all(result, ",")
+    !str_detect(
+      string = result,
+      pattern = regex(
+        "\\bsee\\b|\\bwithin\\b|\\busing\\b|\\bmore\\b|\\bincrease\\b|\\bnot\\b|/",
+        ignore_case = TRUE
+      )
+    ),
+    !is.na(result),
+    result != ""
   ) %>%
-  # Ensure the result column is character and handle NAs/blanks
-  filter(!is.na(result) & result != "") %>%
-  # Keep rows where the 'result' does NOT match the numeric-only pattern
-  filter(!str_detect(result, numeric_only_pattern)) %>%
-  # Select the unique values from the result column
-  distinct(result)
+  mutate(
+    result = str_remove_all(string = result, pattern = ","),
+    result = str_trim(result),
+    result = case_when(
+      result == '6.90E+0.1' ~ '6.90E+01',
+      .default = result
+    )
+) %>% 
+  filter(!str_detect(string = result, pattern = numeric_only_pattern)) %>%
+  distinct(result) %>%
+  mutate(
+    # --- Start Cleaning Pipeline ---
+
+    # 1. Create a working copy and convert to lowercase for consistency
+    cleaned_string = str_to_lower(result),
+
+    # 2. Handle special text cases like "million"
+    cleaned_string = str_replace(cleaned_string, " million", "e6"),
+
+    # 3. Remove any non-essential characters like '*' or commas
+    cleaned_string = str_remove_all(cleaned_string, "[\\*,]"),
+
+    # 4. Remove all whitespace to simplify subsequent patterns
+    # e.g., "5.0 e - 9" becomes "5.0e-9" and "7 x 10-6" becomes "7x10-6"
+    cleaned_string = str_remove_all(cleaned_string, "[[:space:]]"),
+
+    # 5. Standardize scientific notation separator 'x10^' or 'x10' to 'e'
+    # e.g., "5x10^-9" becomes "5e-9" and "7x106" becomes "7e6"
+    cleaned_string = str_replace_all(cleaned_string, "x10\\^?", "e"),
+
+    # 6. Fix Fortran-style notation (e.g., '4.56+02') by inserting an 'e'
+    # This advanced regex finds a '+' or '-' that is preceded by a digit,
+    # but NOT preceded by an 'e'. It then inserts an 'e' before it.
+    # This correctly changes "4.56+02" to "4.56e+02" but leaves "5.1e-9" alone.
+    cleaned_string = str_replace(
+      cleaned_string,
+      "(?<=[0-9])(?<!e)([+-])",
+      "e\\1"
+    ),
+
+    # --- Final Conversion ---
+
+    # 7. Convert the fully cleaned string to a numeric value
+    parsed_value = as.numeric(cleaned_string)
+  )
+
+

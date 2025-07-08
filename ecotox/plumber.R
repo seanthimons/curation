@@ -1,11 +1,79 @@
+# packages ----------------------------------------------------------------
+
 {
+  library(here)
   library(plumber)
+  library(tidyverse)
   library(duckdb)
   library(duckplyr)
   library(DBI)
   library(magrittr)
+
+  options("plumber.port" = 5555)
+
+  setwd(here("ecotox"))
 }
-options("plumber.port" = 5555)
+
+# functions ---------------------------------------------------------------
+
+convert_units <- function(data, value_column, unit_column) {
+  data %>%
+    mutate(
+      new_value = case_when(
+        #Need to find a way of grabbing active ingredient values...
+
+        !!sym(unit_column) == "ug/L" ~ !!sym(value_column) / 1000,
+        !!sym(unit_column) == "ppb" ~ !!sym(value_column) / 1000,
+        !!sym(unit_column) == "ppm" ~ !!sym(value_column),
+        !!sym(unit_column) %in% c("g/bee", "grams per bee") ~
+          !!sym(value_column) * 1e6,
+        !!sym(unit_column) %in% c("mg/bee", "milligrams per bee") ~
+          !!sym(value_column) * 1000,
+        !!sym(unit_column) %in% c("ug/bee", "micrograms per bee") ~
+          !!sym(value_column),
+        TRUE ~ !!sym(value_column)
+      ),
+      new_unit = case_when(
+        !!sym(unit_column) == "ug/L" ~ "mg/L",
+        !!sym(unit_column) == "ppb" ~ "mg/L",
+        !!sym(unit_column) == "ppm" ~ "mg/L",
+        !!sym(unit_column) %in%
+          c(
+            "g/bee",
+            "grams per bee",
+            "mg/bee",
+            "milligrams per bee",
+            "ug/bee",
+            "micrograms per bee"
+          ) ~
+          "ug/bee",
+        TRUE ~ !!sym(unit_column)
+      )
+    )
+}
+
+convert_duration <- function(data, value_column, unit_column) {
+  data %>%
+    mutate(
+      new_dur = case_when(
+        !!sym(unit_column) == "days" ~ !!sym(value_column) * 24,
+        !!sym(unit_column) == "weeks" ~ !!sym(value_column) * 7 * 24,
+        TRUE ~ !!sym(value_column)
+      ),
+      new_dur_unit = "hours"
+    )
+}
+
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+weighted_average <- function(values, weights) {
+  sum(values * weights, na.rm = TRUE) / sum(weights, na.rm = TRUE)
+}
+
+# documentation ----------------------------------------------------------
 
 #* @apiTitle Testing API for EcoTox
 
@@ -22,7 +90,7 @@ health <- function() {
   on.exit(dbDisconnect(con))
 
   list(
-   # timestamp = Sys.time(),
+    # timestamp = Sys.time(),
     db = list.files(pattern = "\\.duckdb$"),
     created = tbl(con, "versions") %>%
       filter(latest == TRUE) %>%
@@ -89,7 +157,7 @@ get_tbl <- function(table_name) {
 
 # TODO Finish this
 #* Retrieve data from database by CASRN
-#* @param query
+#* @param query A list of CASRNs to query
 #* @post /results
 post_results <- function(query) {
   con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
