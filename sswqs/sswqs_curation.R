@@ -607,9 +607,201 @@ curated_sswqs <- sswqs %>%
 
 # Unit harmonization -----------------------------------------------------
 
+# Load necessary libraries
+library(dplyr)
+library(stringr)
+library(readr)
+
+# Recreate the input data from the text provided
+# In your actual script, you would load your 'curated_sswqs' object
+file_content <- '
+"most_common_analyte" "most_common_analyte_count" "orig_unit" "cleaned_unit"
+"total dissolved solids" 29 "%" "%"
+"biological integrity" 2 "% below background levels" "% below background levels"
+"alkalinity" 1 "% change from natural conditions" "% change from natural conditions"
+"filamentous algae" 1 "% cover" "% cover"
+"turbidity increase" 42 "% increase above background" "% increase above background"
+"dissolved oxygen" 51 "% of saturation value" "% of saturation value"
+"sodium" 2 "% of total cations" "% of total cations"
+"blue-green algae" 3 "% of total count" "% of total count"
+"total coliform" 1 "% positive samples/month" "% positive samples/month"
+"e. coli" 145 "CFU/100 mL or MPN/100 mL" "cfu/100 ml or mpn/100 ml"
+"total bacteroides" 2 "MBN per 100 mL" "mbn/100 ml"
+"fecal coliform" 47 "MPN/100 ml" "mpn/100 ml"
+"sodium" 2 "SAR" "sar"
+"acute toxicity" 1 "TUa" "tua"
+"chronic toxicity" 1 "TUc" "tuc"
+"e. coli" 6 "[no units]" "[no units]"
+"microcystis aeruginosa cell density" 2 "cells/ml" "cells/ml"
+"water flow" 4 "cfs" "cfs"
+"color" 2 "change in PCU" "change in pcu"
+"S-tube" 2 "cm" "cm"
+"color" 27 "color units" "color units"
+"e. coli" 326 "count/100ml" "count/100ml"
+"blue-green algae" 3 "count/ml" "count/ml"
+"conductivity" 6 "dS/m" "ds/m"
+"light penetration" 10 "feet" "feet"
+"2,3,7,8-tcdd (dioxin)" 2 "fg/l" "fg/l"
+"asbestos" 49 "fibers/l" "fibers/l"
+"ecosystem respiration" 1 "g O2/m2-day" "g o2/m2-day"
+"dimethyl phthalate" 3 "g/l" "g/l"
+"turbidity" 1 "jtu" "jtu"
+"total phosphorus" 2 "kg/yr" "kg/yr"
+"total phosphorus" 3 "lbs/year" "lbs/year"
+"clarity" 2 "m^-1" "m^-1"
+"carbonate, residual" 1 "meq/l" "meq/l"
+"secchi depth" 57 "meters" "meters"
+"asbestos" 3 "mf/l" "mf/l"
+"ammonia" 2 "mg TAN/L" "mg tan/l"
+"alkalinity" 3 "mg/L as CaCO3" "mg/l as caco3"
+"methylmercury" 65 "mg/kg" "mg/kg"
+"selenium" 62 "mg/kg dry wt" "mg/kg dry wt"
+"methylmercury" 11 "mg/kg fish tissue" "mg/kg fish tissue"
+"mercury" 1 "mg/kg wet weight" "mg/kg wet weight"
+"dissolved oxygen" 819 "mg/l" "mg/l"
+"total nitrogen" 6 "mg/l as n" "mg/l as n"
+"chlorophyll a" 3 "mg/m2" "mg/m2"
+"asbestos" 1 "microfibers/l" "microfibers/l"
+"specific conductance" 2 "micromhos" "micromhos"
+"asbestos" 34 "million fibers/l" "million fibers/l"
+"osmotic pressure" 1 "milliosmoles/kg" "milliosmoles/kg"
+"beta particles and photon activity" 3 "millirems" "millirems"
+"oxidation-reduction potential" 6 "millivolts" "millivolts"
+"settleable materials" 1 "ml/l" "ml/l"
+"fine sediment" 4 "mm" "mm"
+"e. coli" 4 "mpn" "mpn"
+"beta particles and photon activity" 20 "mrem/yr" "mrem/yr"
+"p,p\'-dichlorodiphenyltrichloroethane (ddt)" 35 "ng/l" "ng/l"
+"turbidity" 273 "ntu" "ntu"
+"fecal coliform" 39 "organisms/100 ml" "organisms/100 ml"
+"total phosphorus" 5 "parts per billion (ppb)" "parts/billion (ppb)"
+"radium 226 and 228 combined" 62 "pci/l" "pci/l"
+"2,3,7,8-tcdd (dioxin)" 35 "pg/l" "pg/l"
+"pH (acidity/alkalinity)" 279 "ph units" "ph units"
+"radium 226 and 228 combined" 41 "picocuries/l" "picocuries/l"
+"color" 9 "platinum cobalt units" "platinum cobalt units"
+"phosphorous (yellow)" 6 "pounds per acre-foot of lake volume per year" "pounds/acre-foot of lake volume/year"
+"total phosphorus" 16 "pounds per year" "pounds/year"
+"dissolved oxygen" 9 "ppm" "ppm"
+"2,3,7,8-tcdd (dioxin)" 4 "ppq" "ppq"
+"pH (acidity/alkalinity)" 725 "standard units" "standard units"
+"odor" 12 "threshold odor number" "threshold odor number"
+"total dissolved solids" 1 "tons" "tons"
+"total nitrogen" 2 "tons/million cubic meters of water" "tons/million cubic meters of water"
+"bromoform" 1 "total thms" "total thms"
+"temperature" 423 "°C" "°c"
+"temperature" 206 "°F" "°f"
+"specific conductance" 11 "µS/cm" "µs/cm"
+"arsenic" 1 "µg/kg" "µg/kg"
+"cyanide" 603 "µg/l" "µg/l"
+"conductivity" 26 "µmhos/cm" "µmhos/cm"
+"selenium" 6 "μg/g" "μg/g"
+"chromium (vi)" 4 NA NA
+'
+curated_sswqs <- read_delim(file_content, delim = " ", quote = "\"", trim_ws = TRUE) %>%
+  rename(unit = orig_unit)
+
+# --- Start of the Script Logic ---
+
+# Load necessary libraries
+library(dplyr)
+library(stringr)
+library(readr)
+
+# Recreate the input data from the text provided
+# In your actual script, you would load your 'curated_sswqs' object
+file_content <- '
+"most_common_analyte" "most_common_analyte_count" "orig_unit" "cleaned_unit"
+"total dissolved solids" 29 "%" "%"
+"biological integrity" 2 "% below background levels" "% below background levels"
+"alkalinity" 1 "% change from natural conditions" "% change from natural conditions"
+"filamentous algae" 1 "% cover" "% cover"
+"turbidity increase" 42 "% increase above background" "% increase above background"
+"dissolved oxygen" 51 "% of saturation value" "% of saturation value"
+"sodium" 2 "% of total cations" "% of total cations"
+"blue-green algae" 3 "% of total count" "% of total count"
+"total coliform" 1 "% positive samples/month" "% positive samples/month"
+"e. coli" 145 "CFU/100 mL or MPN/100 mL" "cfu/100 ml or mpn/100 ml"
+"total bacteroides" 2 "MBN per 100 mL" "mbn/100 ml"
+"fecal coliform" 47 "MPN/100 ml" "mpn/100 ml"
+"sodium" 2 "SAR" "sar"
+"acute toxicity" 1 "TUa" "tua"
+"chronic toxicity" 1 "TUc" "tuc"
+"e. coli" 6 "[no units]" "[no units]"
+"microcystis aeruginosa cell density" 2 "cells/ml" "cells/ml"
+"water flow" 4 "cfs" "cfs"
+"color" 2 "change in PCU" "change in pcu"
+"S-tube" 2 "cm" "cm"
+"color" 27 "color units" "color units"
+"e. coli" 326 "count/100ml" "count/100ml"
+"blue-green algae" 3 "count/ml" "count/ml"
+"conductivity" 6 "dS/m" "ds/m"
+"light penetration" 10 "feet" "feet"
+"2,3,7,8-tcdd (dioxin)" 2 "fg/l" "fg/l"
+"asbestos" 49 "fibers/l" "fibers/l"
+"ecosystem respiration" 1 "g O2/m2-day" "g o2/m2-day"
+"dimethyl phthalate" 3 "g/l" "g/l"
+"turbidity" 1 "jtu" "jtu"
+"total phosphorus" 2 "kg/yr" "kg/yr"
+"total phosphorus" 3 "lbs/year" "lbs/year"
+"clarity" 2 "m^-1" "m^-1"
+"carbonate, residual" 1 "meq/l" "meq/l"
+"secchi depth" 57 "meters" "meters"
+"asbestos" 3 "mf/l" "mf/l"
+"ammonia" 2 "mg TAN/L" "mg tan/l"
+"alkalinity" 3 "mg/L as CaCO3" "mg/l as caco3"
+"methylmercury" 65 "mg/kg" "mg/kg"
+"selenium" 62 "mg/kg dry wt" "mg/kg dry wt"
+"methylmercury" 11 "mg/kg fish tissue" "mg/kg fish tissue"
+"mercury" 1 "mg/kg wet weight" "mg/kg wet weight"
+"dissolved oxygen" 819 "mg/l" "mg/l"
+"total nitrogen" 6 "mg/l as n" "mg/l as n"
+"chlorophyll a" 3 "mg/m2" "mg/m2"
+"asbestos" 1 "microfibers/l" "microfibers/l"
+"specific conductance" 2 "micromhos" "micromhos"
+"asbestos" 34 "million fibers/l" "million fibers/l"
+"osmotic pressure" 1 "milliosmoles/kg" "milliosmoles/kg"
+"beta particles and photon activity" 3 "millirems" "millirems"
+"oxidation-reduction potential" 6 "millivolts" "millivolts"
+"settleable materials" 1 "ml/l" "ml/l"
+"fine sediment" 4 "mm" "mm"
+"e. coli" 4 "mpn" "mpn"
+"beta particles and photon activity" 20 "mrem/yr" "mrem/yr"
+"p,p\'-dichlorodiphenyltrichloroethane (ddt)" 35 "ng/l" "ng/l"
+"turbidity" 273 "ntu" "ntu"
+"fecal coliform" 39 "organisms/100 ml" "organisms/100 ml"
+"total phosphorus" 5 "parts per billion (ppb)" "parts/billion (ppb)"
+"radium 226 and 228 combined" 62 "pci/l" "pci/l"
+"2,3,7,8-tcdd (dioxin)" 35 "pg/l" "pg/l"
+"pH (acidity/alkalinity)" 279 "ph units" "ph units"
+"radium 226 and 228 combined" 41 "picocuries/l" "picocuries/l"
+"color" 9 "platinum cobalt units" "platinum cobalt units"
+"phosphorous (yellow)" 6 "pounds per acre-foot of lake volume per year" "pounds/acre-foot of lake volume/year"
+"total phosphorus" 16 "pounds per year" "pounds/year"
+"dissolved oxygen" 9 "ppm" "ppm"
+"2,3,7,8-tcdd (dioxin)" 4 "ppq" "ppq"
+"pH (acidity/alkalinity)" 725 "standard units" "standard units"
+"odor" 12 "threshold odor number" "threshold odor number"
+"total dissolved solids" 1 "tons" "tons"
+"total nitrogen" 2 "tons/million cubic meters of water" "tons/million cubic meters of water"
+"bromoform" 1 "total thms" "total thms"
+"temperature" 423 "°C" "°c"
+"temperature" 206 "°F" "°f"
+"specific conductance" 11 "µS/cm" "µs/cm"
+"arsenic" 1 "µg/kg" "µg/kg"
+"cyanide" 603 "µg/l" "µg/l"
+"conductivity" 26 "µmhos/cm" "µmhos/cm"
+"selenium" 6 "μg/g" "μg/g"
+"chromium (vi)" 4 NA NA
+'
+curated_sswqs <- read_delim(file_content, delim = " ", quote = "\"", trim_ws = TRUE) %>%
+  rename(unit = orig_unit)
+
+# --- Start of the Script Logic ---
+
 unit_harmonization <- curated_sswqs %>%
   select(analyte, unit) %>%
-  # For each unit, find the most common analyte and its count
+  filter(!is.na(unit)) %>%
   count(unit, analyte, sort = TRUE) %>%
   group_by(unit) %>%
   slice_head(n = 1) %>%
@@ -620,66 +812,108 @@ unit_harmonization <- curated_sswqs %>%
   ) %>%
   mutate(
     orig_unit = unit,
-
-    # --- Unicode Analysis ---
-    # Escape unicode characters to make them detectable as a string pattern
-    #unit_escaped = stringi::stri_escape_unicode(orig_unit),
-    ##unicode_bool = str_detect(unit_escaped, "\\\\u[0-9a-fA-F]{4}"),
-    #unicode_code = str_extract(unit_escaped, "\\\\u[0-9a-fA-F]{4}"),
-
-    # --- Unit Classification ---
-    # Clean the unit string for robust classification.
-    # Transliterate characters (e.g., 'µ' to 'u'), convert to lowercase,
-    # and normalize separators like 'per' or extra spaces around '/'.
-    cleaned_unit = orig_unit %>%
-      # Transliterate characters to their basic Latin-ASCII equivalents.
-      # This is crucial for normalizing units like 'µg/L' to 'ug/L'.
+    cleaned_unit = unit %>%
+      # Replace unicode mu characters (U+00B5; U+03BC) with "u"
+      str_replace_all("[\\u00B5\\u03BC]", "u") %>%
       stringi::stri_trans_general("latin-ascii") %>%
-      # Convert the entire string to lowercase for case-insensitive matching.
-      # e.g., "MG/L" -> "mg/l".
       str_to_lower() %>%
-      # Standardize the separator for compound units (e.g., concentration).
-      # Replaces variants like " per " or " / " (with spaces) with a single "/".
-      # e.g., "mg per l" -> "mg/l".
       str_replace_all("\\s+(per|/)\\s+", "/") %>%
-      # Remove any leading or trailing whitespace that might remain.
       str_trim(),
+    
+    # --- HARMONIZATION AND CONVERSION LOGIC ---
+    harmonized_unit = case_when(
+      # Temperature -> °c
+      cleaned_unit %in% c("°c", "°f") ~ "°c",
+      
+      # Concentration (Mass/Volume) -> ug/l
+      cleaned_unit %in% c("ug/l", "parts/billion (ppb)") ~ "ug/l",
+      cleaned_unit %in% c("mg/l", "ppm") ~ "ug/l",
+      cleaned_unit == "ng/l" ~ "ug/l",
+      cleaned_unit == "pg/l" ~ "ug/l",
+      cleaned_unit %in% c("ppq", "fg/l") ~ "ug/l", # NEW RULE
+      
+      # Concentration (Mass/Mass) - with careful distinctions
+      cleaned_unit %in% c("mg/kg fish tissue", "mg/kg wet weight") ~ "mg/kg (wet weight)",
+      cleaned_unit %in% c("ug/g", "ug/kg") ~ "mg/kg", # NEW RULE: ug/kg added
+      
+      # Biological Counts -> count/100ml
+      cleaned_unit %in% c("count/100ml", "cfu/100 ml or mpn/100 ml", "mpn/100 ml", "organisms/100 ml") ~ "count/100ml",
+      
+      # pH -> ph units
+      cleaned_unit %in% c("ph units", "standard units") ~ "ph units",
+      
+      # Conductivity -> us/cm
+      cleaned_unit %in% c("us/cm", "umhos/cm", "ds/m") ~ "us/cm",
+      
+      # Radioactivity -> pci/l
+      cleaned_unit %in% c("pci/l", "picocuries/l") ~ "pci/l",
+      
+      # Length/Depth -> meters
+      cleaned_unit %in% c("meters", "feet") ~ "meters",
+      
+      # Mass loading -> kg/yr
+      cleaned_unit %in% c("kg/yr", "lbs/year", "pounds/year") ~ "kg/yr",
 
-    # --- SI Unit Conversion ---
-    # Define a standard SI unit for common categories and a multiplicative
-    # factor to convert the original value to the new standard unit.
-    si_unit = case_when(
-      # Concentrations -> ug/L
-      str_detect(cleaned_unit, "mg/l|ppm") ~ "ug/L",
-      str_detect(cleaned_unit, "ng/l") ~ "ug/L",
-      str_detect(cleaned_unit, "ug/l|ppb") ~ "ug/L",
+      # Asbestos -> fibers/l
+      cleaned_unit %in% c("fibers/l", "million fibers/l", "mf/l", "microfibers/l") ~ "fibers/l",
+      
+      # Turbidity -> ntu
+      cleaned_unit %in% c("ntu", "jtu") ~ "ntu",
 
-      # Temperature -> deg C
-      str_detect(cleaned_unit, "deg f|degrees f") ~ "deg C",
-      str_detect(cleaned_unit, "deg c|degrees c") ~ "deg C",
-
-      # Counts -> count/100mL
-      str_detect(cleaned_unit, "(cfu|colonies|ecoli|no\\.|#)(/100ml)") ~
-        "count/100mL",
-
-      # Other
-      cleaned_unit == "ph units" ~ "pH",
-
-      .default = cleaned_unit
+      # Color -> pcu
+      cleaned_unit %in% c("color units", "platinum cobalt units", "change in pcu") ~ "pcu",
+      
+      # If no rule matches, keep the cleaned unit
+      TRUE ~ cleaned_unit
     ),
-
+    
     conversion_factor = case_when(
-      # mg/L to ug/L -> multiply by 1000
-      str_detect(cleaned_unit, "mg/l|ppm") ~ 1000,
-      # ng/L to ug/L -> divide by 1000
-      str_detect(cleaned_unit, "ng/l") ~ 0.001,
+      # Temperature (Formula)
+      cleaned_unit == "°f" ~ "°C = (°F - 32) * 5/9",
+      
+      # Concentration (Mass/Volume) -> ug/l
+      cleaned_unit %in% c("mg/l", "ppm") ~ "1000",
+      cleaned_unit == "ng/l" ~ "0.001",
+      cleaned_unit == "pg/l" ~ "1e-6",
+      cleaned_unit %in% c("ppq", "fg/l") ~ "1e-9", # NEW FACTOR
 
-      # Fahrenheit to Celsius is a formula (C=(F-32)*5/9), not a simple factor.
-      # Mark for special handling later.
-      str_detect(cleaned_unit, "deg f|degrees f") ~ NA_real_,
+      # Mass/Mass -> mg/kg
+      cleaned_unit == "ug/g" ~ "1",
+      cleaned_unit == "ug/kg" ~ "0.001", # NEW FACTOR
+      
+      # Conductivity -> us/cm
+      cleaned_unit == "ds/m" ~ "1000",
+      
+      # Length/Depth -> meters
+      cleaned_unit == "feet" ~ "0.3048",
+      
+      # Mass loading -> kg/yr
+      cleaned_unit %in% c("lbs/year", "pounds/year") ~ "0.453592",
 
-      # Default for units that are already in their target form (e.g., ug/L, deg C)
-      # or have no defined conversion (e.g., pH)
-      .default = 1
+      # Asbestos -> fibers/l
+      cleaned_unit %in% c("million fibers/l", "mf/l") ~ "1e6",
+
+      # Units that are equivalent or the target unit get a factor of 1
+      cleaned_unit %in% c("°c", "ug/l", "parts/billion (ppb)", "mg/kg", "mg/kg dry wt", 
+                          "mg/kg fish tissue", "mg/kg wet weight", "count/100ml", 
+                          "cfu/100 ml or mpn/100 ml", "mpn/100 ml", "organisms/100 ml",
+                          "ph units", "standard units", "us/cm", "umhos/cm", "meters", 
+                          "kg/yr", "fibers/l", "microfibers/l", "ntu", "jtu", "pcu",
+                          "color units", "platinum cobalt units", "change in pcu",
+                          "pci/l", "picocuries/l") ~ "1",
+      
+      # No conversion possible or needed
+      cleaned_unit == "[no units]" ~ NA_character_,
+      
+      # Default: No factor needed as unit is not being changed
+      TRUE ~ "1"
     )
+  ) %>%
+  select(
+    most_common_analyte,
+    most_common_analyte_count,
+    orig_unit,
+    cleaned_unit,
+    harmonized_unit,
+    conversion_factor
   )
