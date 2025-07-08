@@ -18,3 +18,11 @@ curation.zip
 *.css
 ecotox/ecotox.duckdb.wal
 ecotox/temp.R
+*.xlsx
+*.csv
+*.html
+*.RDS
+*.duckdb
+*.duckdb
+*.xltm
+*.txt
