@@ -489,14 +489,15 @@ if (!exists('sswqs') & file.exists("sswqs.RDS")) {
 # - Optional leading inequalities ('>' or '<')
 # - Numbers with decimals
 # - Scientific notation (e.g., 1.23E-05)
-# - Numerical ranges (e.g., "5.6 - 7.8")
 # The `^` and `$` anchors ensure the pattern matches the *entire* string.
-numeric_only_pattern <- "^[><]?\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?(?:\\s*-\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?)?\\s*$"
+#numeric_only_pattern <- "^[><]?\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?\\s*$"
 
-unique_non_numeric_results <- sswqs %>%
+curated_sswqs <- sswqs %>%
+  # ! NOTE: temporarily select only the result column for cleaning
+  #select(result) %>%
   filter(
     !str_detect(
-      string = result,
+      result,
       pattern = regex(
         "\\bsee\\b|\\bwithin\\b|\\busing\\b|\\bmore\\b|\\bincrease\\b|\\bnot\\b|/",
         ignore_case = TRUE
@@ -512,43 +513,173 @@ unique_non_numeric_results <- sswqs %>%
       result == '6.90E+0.1' ~ '6.90E+01',
       .default = result
     )
-) %>% 
-  filter(!str_detect(string = result, pattern = numeric_only_pattern)) %>%
-  distinct(result) %>%
+  ) %>%
+  rename(orig_result = result) %>%
   mutate(
+    # Initialize a unique identifier for each row
+    .id = 1:n(),
     # --- Start Cleaning Pipeline ---
 
     # 1. Create a working copy and convert to lowercase for consistency
-    cleaned_string = str_to_lower(result),
+    result = str_to_lower(orig_result),
 
     # 2. Handle special text cases like "million"
-    cleaned_string = str_replace(cleaned_string, " million", "e6"),
+    result = str_replace(result, " million", "e6"),
 
     # 3. Remove any non-essential characters like '*' or commas
-    cleaned_string = str_remove_all(cleaned_string, "[\\*,]"),
+    result = str_remove_all(result, "[\\*,]"),
 
     # 4. Remove all whitespace to simplify subsequent patterns
     # e.g., "5.0 e - 9" becomes "5.0e-9" and "7 x 10-6" becomes "7x10-6"
-    cleaned_string = str_remove_all(cleaned_string, "[[:space:]]"),
+    result = str_remove_all(result, "[[:space:]]"),
 
     # 5. Standardize scientific notation separator 'x10^' or 'x10' to 'e'
     # e.g., "5x10^-9" becomes "5e-9" and "7x106" becomes "7e6"
-    cleaned_string = str_replace_all(cleaned_string, "x10\\^?", "e"),
+    result = str_replace_all(result, "x10\\^?", "e"),
 
-    # 6. Fix Fortran-style notation (e.g., '4.56+02') by inserting an 'e'
+    # 6. Convert the fully cleaned string to a numeric value
+    parsed_value = as.numeric(result),
+    #num_bool = !is.na(parsed_value),
+
+    # 7. Fix Fortran-style notation (e.g., '4.56+02') by inserting an 'e'
     # This advanced regex finds a '+' or '-' that is preceded by a digit,
-    # but NOT preceded by an 'e'. It then inserts an 'e' before it.
-    # This correctly changes "4.56+02" to "4.56e+02" but leaves "5.1e-9" alone.
-    cleaned_string = str_replace(
-      cleaned_string,
-      "(?<=[0-9])(?<!e)([+-])",
-      "e\\1"
+    # but NOT preceded by an 'e', and is followed by exactly two digits.
+    # It then inserts an 'e' before the sign.
+    # This correctly changes "4.56+02" to "4.56e+02" but leaves "5.1e-09" or "4.56+023" alone.
+    # This fix is only applied to values that failed the initial numeric conversion.
+
+    result = case_when(
+      is.na(parsed_value) ~
+        str_replace(
+          result,
+          "(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))",
+          "e\\1"
+        ),
+      .default = result
     ),
 
-    # --- Final Conversion ---
+    # 8. Re-parse after the fix and create final boolean flag
+    parsed_value = as.numeric(result),
+    num_bool = !is.na(parsed_value)
+  ) %>%
 
-    # 7. Convert the fully cleaned string to a numeric value
-    parsed_value = as.numeric(cleaned_string)
+  # Process each row independently
+  rowwise() %>%
+  # Split 'result' column by '-' if it's not a numeric value
+  # Numeric values are wrapped in a list to maintain structure for unnest
+  mutate(
+    result = if (!num_bool) {
+      str_split(result, pattern = "-")
+    } else {
+      list(result)
+    }
+  ) %>%
+  # Unnest the 'result' column, expanding rows where splits occurred
+  unnest(result) %>%
+  # Remove row-wise grouping
+  ungroup() %>%
+  # 9. Re-parse the split values
+  mutate(
+    parsed_value = as.numeric(result),
+    num_bool = !is.na(parsed_value),
+  ) %>%
+  filter(
+    num_bool == TRUE
+  ) %>%
+  group_by(.id) %>%
+  mutate(
+    # Create `result_bin` to store a single representative value for each original result.
+    # If there's only one value after splitting (e.g., "5.8"), use that value.
+    # If there are multiple values (e.g., "5.6-7.8" splits into "5.6" and "7.8"),
+    # select both the minimum and maximum values from the split.
+    result_bin = case_when(
+      # If there's only one value in the split, assign it to `result_bin`.
+      n() == 1 ~ "as_is",
+      # If there are multiple values, and the current row represents the maximum value in the group, assign it.
+      n() > 1 & parsed_value == max(parsed_value) ~ "high",
+      # If there are multiple values, and the current row represents the minimum value in the group, assign it.
+      n() > 1 & parsed_value == min(parsed_value) ~ "low",
+    ),
+    curated_result = mean(parsed_value, na.rm = TRUE), # Calculate mean of the parsed values
+  ) %>%
+  ungroup()
+
+
+# Unit harmonization -----------------------------------------------------
+
+unit_harmonization <- curated_sswqs %>%
+  select(analyte, unit) %>%
+  # For each unit, find the most common analyte and its count
+  count(unit, analyte, sort = TRUE) %>%
+  group_by(unit) %>%
+  slice_head(n = 1) %>%
+  ungroup() %>%
+  rename(
+    most_common_analyte = analyte,
+    most_common_analyte_count = n
+  ) %>%
+  mutate(
+    orig_unit = unit,
+
+    # --- Unicode Analysis ---
+    # Escape unicode characters to make them detectable as a string pattern
+    #unit_escaped = stringi::stri_escape_unicode(orig_unit),
+    ##unicode_bool = str_detect(unit_escaped, "\\\\u[0-9a-fA-F]{4}"),
+    #unicode_code = str_extract(unit_escaped, "\\\\u[0-9a-fA-F]{4}"),
+
+    # --- Unit Classification ---
+    # Clean the unit string for robust classification.
+    # Transliterate characters (e.g., 'µ' to 'u'), convert to lowercase,
+    # and normalize separators like 'per' or extra spaces around '/'.
+    cleaned_unit = orig_unit %>%
+      # Transliterate characters to their basic Latin-ASCII equivalents.
+      # This is crucial for normalizing units like 'µg/L' to 'ug/L'.
+      stringi::stri_trans_general("latin-ascii") %>%
+      # Convert the entire string to lowercase for case-insensitive matching.
+      # e.g., "MG/L" -> "mg/l".
+      str_to_lower() %>%
+      # Standardize the separator for compound units (e.g., concentration).
+      # Replaces variants like " per " or " / " (with spaces) with a single "/".
+      # e.g., "mg per l" -> "mg/l".
+      str_replace_all("\\s+(per|/)\\s+", "/") %>%
+      # Remove any leading or trailing whitespace that might remain.
+      str_trim(),
+
+    # --- SI Unit Conversion ---
+    # Define a standard SI unit for common categories and a multiplicative
+    # factor to convert the original value to the new standard unit.
+    si_unit = case_when(
+      # Concentrations -> ug/L
+      str_detect(cleaned_unit, "mg/l|ppm") ~ "ug/L",
+      str_detect(cleaned_unit, "ng/l") ~ "ug/L",
+      str_detect(cleaned_unit, "ug/l|ppb") ~ "ug/L",
+
+      # Temperature -> deg C
+      str_detect(cleaned_unit, "deg f|degrees f") ~ "deg C",
+      str_detect(cleaned_unit, "deg c|degrees c") ~ "deg C",
+
+      # Counts -> count/100mL
+      str_detect(cleaned_unit, "(cfu|colonies|ecoli|no\\.|#)(/100ml)") ~
+        "count/100mL",
+
+      # Other
+      cleaned_unit == "ph units" ~ "pH",
+
+      .default = cleaned_unit
+    ),
+
+    conversion_factor = case_when(
+      # mg/L to ug/L -> multiply by 1000
+      str_detect(cleaned_unit, "mg/l|ppm") ~ 1000,
+      # ng/L to ug/L -> divide by 1000
+      str_detect(cleaned_unit, "ng/l") ~ 0.001,
+
+      # Fahrenheit to Celsius is a formula (C=(F-32)*5/9), not a simple factor.
+      # Mark for special handling later.
+      str_detect(cleaned_unit, "deg f|degrees f") ~ NA_real_,
+
+      # Default for units that are already in their target form (e.g., ug/L, deg C)
+      # or have no defined conversion (e.g., pH)
+      .default = 1
+    )
   )
-
-
