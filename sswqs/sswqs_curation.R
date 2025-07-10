@@ -474,27 +474,10 @@ if (!exists('sswqs') & file.exists("sswqs.RDS")) {
 	}
 }
 
-# Cleaning ---------------------------------------------------------------
-
-# Find unique non-numerical strings in the 'result' column
-
-# The goal is to identify unique values in `sswqs$result` that are
-# descriptive text (e.g., "Narrative", "Varies with hardness") rather than
-# purely numerical values (e.g., "5.8", ">1000", "5.6 - 7.8").
-
-# The most robust strategy is to define a regex for what constitutes a
-# purely numerical string and then select everything that *doesn't* match.
-
-# This regex identifies strings that are essentially numeric. It handles:
-# - Optional leading inequalities ('>' or '<')
-# - Numbers with decimals
-# - Scientific notation (e.g., 1.23E-05)
-# The `^` and `$` anchors ensure the pattern matches the *entire* string.
-#numeric_only_pattern <- "^[><]?\\s*[0-9.]+(?:[eE][-+]?[0-9]+)?\\s*$"
+# Cleaning and Unit Harmonization ----------------------------------------
 
 curated_sswqs <- sswqs %>%
-	# ! NOTE: temporarily select only the result column for cleaning
-	#select(result) %>%
+	# Filter out rows with narrative criteria or non-parsable text
 	filter(
 		!str_detect(
 			result,
@@ -506,6 +489,7 @@ curated_sswqs <- sswqs %>%
 		!is.na(result),
 		result != ""
 	) %>%
+	# Initial cleaning of the result string
 	mutate(
 		result = str_remove_all(string = result, pattern = ","),
 		result = str_trim(result),
@@ -515,249 +499,107 @@ curated_sswqs <- sswqs %>%
 		)
 	) %>%
 	rename(orig_result = result) %>%
+	# Main result parsing pipeline
 	mutate(
-		# Initialize a unique identifier for each row
-		.id = 1:n(),
-		# --- Start Cleaning Pipeline ---
-
-		# 1. Create a working copy and convert to lowercase for consistency
+		.id = 1:n(), # Unique identifier for each original row
 		result = str_to_lower(orig_result),
-
-		# 2. Handle special text cases like "million"
 		result = str_replace(result, " million", "e6"),
-
-		# 3. Remove any non-essential characters like '*' or commas
 		result = str_remove_all(result, "[\\*,]"),
-
-		# 4. Remove all whitespace to simplify subsequent patterns
-		# e.g., "5.0 e - 9" becomes "5.0e-9" and "7 x 10-6" becomes "7x10-6"
-		result = str_remove_all(result, "[[:space:]]"),
-
-		# 5. Standardize scientific notation separator 'x10^' or 'x10' to 'e'
-		# e.g., "5x10^-9" becomes "5e-9" and "7x106" becomes "7e6"
-		result = str_replace_all(result, "x10\\^?", "e"),
-
-		# 6. Convert the fully cleaned string to a numeric value
+		result = str_remove_all(result, "[[:space:]]"), # "5.0 e-9" -> "5.0e-9"
+		result = str_replace_all(result, "x10\\^?", "e"), # "5x10^-9" -> "5e-9"
 		parsed_value = as.numeric(result),
-		#num_bool = !is.na(parsed_value),
-
-		# 7. Fix Fortran-style notation (e.g., '4.56+02') by inserting an 'e'
-		# This advanced regex finds a '+' or '-' that is preceded by a digit,
-		# but NOT preceded by an 'e', and is followed by exactly two digits.
-		# It then inserts an 'e' before the sign.
-		# This correctly changes "4.56+02" to "4.56e+02" but leaves "5.1e-09" or "4.56+023" alone.
-		# This fix is only applied to values that failed the initial numeric conversion.
-
+		# Fix for Fortran-style exponents (e.g., '4.56+02')
 		result = case_when(
-			is.na(parsed_value) ~
-				str_replace(
-					result,
-					"(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))",
-					"e\\1"
-				),
+			is.na(parsed_value) ~ str_replace(result, "(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))", "e\\1"),
 			.default = result
 		),
-
-		# 8. Re-parse after the fix and create final boolean flag
 		parsed_value = as.numeric(result),
 		num_bool = !is.na(parsed_value)
 	) %>%
-
-	# Process each row independently
+	# Handle ranges (e.g., "5.6-7.8") by splitting into separate rows
 	rowwise() %>%
-	# Split 'result' column by '-' if it's not a numeric value
-	# Numeric values are wrapped in a list to maintain structure for unnest
 	mutate(
-		result = if (!num_bool) {
-			str_split(result, pattern = "-")
-		} else {
-			list(result)
-		}
+		result = if (!num_bool) str_split(result, pattern = "-") else list(result)
 	) %>%
-	# Unnest the 'result' column, expanding rows where splits occurred
 	unnest(result) %>%
-	# Remove row-wise grouping
 	ungroup() %>%
-	# 9. Re-parse the split values
+	# Re-parse values after splitting
 	mutate(
 		parsed_value = as.numeric(result),
-		num_bool = !is.na(parsed_value),
+		num_bool = !is.na(parsed_value)
 	) %>%
-	filter(
-		num_bool == TRUE
-	) %>%
-	group_by(.id) %>%
+	filter(num_bool == TRUE) %>%
+
+	# --- Unit Harmonization ---
 	mutate(
-		# Create `result_bin` to store a single representative value for each original result.
-		# If there's only one value after splitting (e.g., "5.8"), use that value.
-		# If there are multiple values (e.g., "5.6-7.8" splits into "5.6" and "7.8"),
-		# select both the minimum and maximum values from the split.
-		result_bin = case_when(
-			# If there's only one value in the split, assign it to `result_bin`.
-			n() == 1 ~ "as_is",
-			# If there are multiple values, and the current row represents the maximum value in the group, assign it.
-			n() > 1 & parsed_value == max(parsed_value) ~ "high",
-			# If there are multiple values, and the current row represents the minimum value in the group, assign it.
-			n() > 1 & parsed_value == min(parsed_value) ~ "low",
+		# Create a standardized, clean unit name for matching
+		cleaned_unit = case_when(
+			is.na(unit) ~ "[no units]",
+			TRUE ~ unit %>%
+				str_replace_all("[\\u00B5\\u03BC]", "u") %>% # Harmonize micro symbol
+				stringi::stri_trans_general("latin-ascii") %>%
+				str_to_lower() %>%
+				str_replace_all("\\s+(per|/)\\s+", "/") %>%
+				str_trim()
 		),
-		curated_result = mean(parsed_value, na.rm = TRUE), # Calculate mean of the parsed values
-	) %>%
-	ungroup()
 
-
-# Unit harmonization -----------------------------------------------------
-
-unit_harmonization <- curated_sswqs %>%
-	select(analyte, unit) %>%
-	filter(!is.na(unit)) %>%
-	count(unit, analyte, sort = TRUE) %>%
-	group_by(unit) %>%
-	slice_head(n = 1) %>%
-	ungroup() %>%
-	rename(
-		most_common_analyte = analyte,
-		most_common_analyte_count = n
-	) %>%
-	mutate(
-		orig_unit = unit,
-		cleaned_unit = unit %>%
-			# Replace unicode mu characters (U+00B5; U+03BC) with "u"
-			str_replace_all("[\\u00B5\\u03BC]", "u") %>%
-			stringi::stri_trans_general("latin-ascii") %>%
-			str_to_lower() %>%
-			str_replace_all("\\s+(per|/)\\s+", "/") %>%
-			str_trim(),
-
-		# --- HARMONIZATION AND CONVERSION LOGIC ---
+		# Define the target harmonized unit based on the cleaned unit
 		harmonized_unit = case_when(
-			# Temperature -> °c
 			cleaned_unit %in% c("°c", "°f") ~ "°c",
-
-			# Concentration (Mass/Volume) -> ug/l
-			cleaned_unit %in% c("ug/l", "parts/billion (ppb)") ~ "ug/l",
-			cleaned_unit %in% c("mg/l", "ppm") ~ "ug/l",
-			cleaned_unit == "ng/l" ~ "ug/l",
-			cleaned_unit == "pg/l" ~ "ug/l",
-			cleaned_unit %in% c("ppq", "fg/l") ~ "ug/l", # NEW RULE
-
-			# Concentration (Mass/Mass) - with careful distinctions
-			cleaned_unit %in% c("mg/kg fish tissue", "mg/kg wet weight") ~
-				"mg/kg (wet weight)",
-			cleaned_unit %in% c("ug/g", "ug/kg") ~ "mg/kg", # NEW RULE: ug/kg added
-
-			# Biological Counts -> count/100ml
-			cleaned_unit %in%
-				c(
-					"count/100ml",
-					"cfu/100 ml or mpn/100 ml",
-					"mpn/100 ml",
-					"organisms/100 ml"
-				) ~
-				"count/100ml",
-
-			# pH -> ph units
+			cleaned_unit %in% c("ug/l", "parts/billion (ppb)", "mg/l", "ppm", "ng/l", "pg/l", "ppq", "fg/l") ~ "ug/l",
+			cleaned_unit %in% c("mg/kg fish tissue", "mg/kg wet weight") ~ "mg/kg (wet weight)",
+			cleaned_unit %in% c("ug/g", "ug/kg") ~ "mg/kg",
+			cleaned_unit %in% c("count/100ml", "cfu/100 ml or mpn/100 ml", "mpn/100 ml", "organisms/100 ml") ~ "count/100ml",
 			cleaned_unit %in% c("ph units", "standard units") ~ "ph units",
-
-			# Conductivity -> us/cm
 			cleaned_unit %in% c("us/cm", "umhos/cm", "ds/m") ~ "us/cm",
-
-			# Radioactivity -> pci/l
 			cleaned_unit %in% c("pci/l", "picocuries/l") ~ "pci/l",
-
-			# Length/Depth -> meters
 			cleaned_unit %in% c("meters", "feet") ~ "meters",
-
-			# Mass loading -> kg/yr
 			cleaned_unit %in% c("kg/yr", "lbs/year", "pounds/year") ~ "kg/yr",
-
-			# Asbestos -> fibers/l
-			cleaned_unit %in%
-				c("fibers/l", "million fibers/l", "mf/l", "microfibers/l") ~
-				"fibers/l",
-
-			# Turbidity -> ntu
+			cleaned_unit %in% c("fibers/l", "million fibers/l", "mf/l", "microfibers/l") ~ "fibers/l",
 			cleaned_unit %in% c("ntu", "jtu") ~ "ntu",
-
-			# Color -> pcu
-			cleaned_unit %in%
-				c("color units", "platinum cobalt units", "change in pcu") ~
-				"pcu",
-
-			# If no rule matches, keep the cleaned unit
-			TRUE ~ cleaned_unit
+			cleaned_unit %in% c("color units", "platinum cobalt units", "change in pcu") ~ "pcu",
+			TRUE ~ cleaned_unit # Default to the cleaned unit if no rule matches
 		),
 
-		conversion_factor = case_when(
-			# Temperature (Formula)
+		# Define conversion factor string (to accommodate formulas and numbers)
+		conversion_factor_str = case_when(
 			cleaned_unit == "°f" ~ "°C = (°F - 32) * 5/9",
-
-			# Concentration (Mass/Volume) -> ug/l
 			cleaned_unit %in% c("mg/l", "ppm") ~ "1000",
 			cleaned_unit == "ng/l" ~ "0.001",
 			cleaned_unit == "pg/l" ~ "1e-6",
-			cleaned_unit %in% c("ppq", "fg/l") ~ "1e-9", # NEW FACTOR
-
-			# Mass/Mass -> mg/kg
+			cleaned_unit %in% c("ppq", "fg/l") ~ "1e-9",
 			cleaned_unit == "ug/g" ~ "1",
-			cleaned_unit == "ug/kg" ~ "0.001", # NEW FACTOR
-
-			# Conductivity -> us/cm
+			cleaned_unit == "ug/kg" ~ "0.001",
 			cleaned_unit == "ds/m" ~ "1000",
-
-			# Length/Depth -> meters
 			cleaned_unit == "feet" ~ "0.3048",
-
-			# Mass loading -> kg/yr
 			cleaned_unit %in% c("lbs/year", "pounds/year") ~ "0.453592",
-
-			# Asbestos -> fibers/l
 			cleaned_unit %in% c("million fibers/l", "mf/l") ~ "1e6",
-
-			# Units that are equivalent or the target unit get a factor of 1
-			cleaned_unit %in%
-				c(
-					"°c",
-					"ug/l",
-					"parts/billion (ppb)",
-					"mg/kg",
-					"mg/kg dry wt",
-					"mg/kg fish tissue",
-					"mg/kg wet weight",
-					"count/100ml",
-					"cfu/100 ml or mpn/100 ml",
-					"mpn/100 ml",
-					"organisms/100 ml",
-					"ph units",
-					"standard units",
-					"us/cm",
-					"umhos/cm",
-					"meters",
-					"kg/yr",
-					"fibers/l",
-					"microfibers/l",
-					"ntu",
-					"jtu",
-					"pcu",
-					"color units",
-					"platinum cobalt units",
-					"change in pcu",
-					"pci/l",
-					"picocuries/l"
-				) ~
-				"1",
-
-			# No conversion possible or needed
-			cleaned_unit == "[no units]" ~ NA_character_,
-
-			# Default: No factor needed as unit is not being changed
-			TRUE ~ "1"
+			harmonized_unit == cleaned_unit ~ "1", # If unit is not changed, factor is 1
+			unit == harmonized_unit ~ "1",
+			is.na(unit) ~ NA_character_,
+			TRUE ~ "1" # Default factor is 1
 		)
 	) %>%
-	select(
-		most_common_analyte,
-		most_common_analyte_count,
-		orig_unit,
-		cleaned_unit,
-		harmonized_unit,
-		conversion_factor
-	)
+	# Apply the conversion to create a harmonized numeric value
+	mutate(
+		numeric_conversion_factor = as.numeric(conversion_factor_str),
+		parsed_value = case_when(
+			cleaned_unit == "°f" ~ (parsed_value - 32) * 5/9,
+			!is.na(numeric_conversion_factor) ~ parsed_value * numeric_conversion_factor,
+			TRUE ~ parsed_value # Keep original value if no conversion is possible
+		)
+	) %>%
+	# --- Final Grouping and Calculation ---
+	# Re-group by the original row ID to process ranges correctly
+	group_by(.id) %>%
+	mutate(
+		# Identify if the value is a single value, or the high/low end of a range
+		result_bin = case_when(
+			n() == 1 ~ "as_is",
+			n() > 1 & parsed_value == max(parsed_value) ~ "high",
+			n() > 1 & parsed_value == min(parsed_value) ~ "low",
+		),
+		# Calculate the final curated result (mean of the harmonized range values)
+		curated_result = mean(parsed_value, na.rm = TRUE)
+	) %>%
+	ungroup()
