@@ -583,10 +583,14 @@ curated_sswqs <- sswqs %>%
 	# Apply the conversion to create a harmonized numeric value
 	mutate(
 		numeric_conversion_factor = as.numeric(conversion_factor_str),
+		# Overwrite parsed_value with the NEW, HARMONIZED value
 		parsed_value = case_when(
+			# Apply Fahrenheit to Celsius formula
 			cleaned_unit == "°f" ~ (parsed_value - 32) * 5/9,
+			# Apply all other numeric conversion factors
 			!is.na(numeric_conversion_factor) ~ parsed_value * numeric_conversion_factor,
-			TRUE ~ parsed_value # Keep original value if no conversion is possible
+			# If no conversion is defined or possible, keep the original value
+			TRUE ~ parsed_value
 		)
 	) %>%
 	# --- Final Grouping and Calculation ---
