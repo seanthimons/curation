@@ -17,41 +17,44 @@
 
 # Determine if a rebuild is necessary.
 # A rebuild is needed if any file is missing, or if any existing file is older than 90 days.
-
-files_to_check <- c(
-	'rais_eco_arars.RDS',
-	'rais_benchmarks_chemicals.RDS',
-	'rais_benchmarks_rads.RDS',
-	'rais_chemtox.RDS',
-	'rais_radstox.RDS',
-	'gen_bgval.RDS'
-)
-
-files_exist_check <- file.exists(files_to_check)
-
-rebuild_is_needed <- if (!all(files_exist_check)) {
-	cli::cli_alert_info("One or more data files are missing. Rebuilding dataset.")
-	tibble(files_to_check, files_exist_check) %>% print()
-	TRUE
-} else {
-	# Using mtime (modification time) is more robust for checking data freshness.
-	file_ages_days <- difftime(
-		Sys.time(),
-		file.info(files_to_check)$mtime,
-		units = "days"
+{
+	files_to_check <- c(
+		'rais_eco_arars.RDS',
+		'rais_benchmarks_chemicals.RDS',
+		'rais_benchmarks_rads.RDS',
+		'rais_chemtox.RDS',
+		'rais_radstox.RDS',
+		'gen_bgval.RDS'
 	)
-	if (any(file_ages_days > 90)) {
-		cli::cli_alert_warning(
-			"One or more data files are older than 90 days. Rebuilding dataset."
+
+	files_exist_check <- file.exists(files_to_check)
+
+	rebuild_is_needed <- if (!all(files_exist_check)) {
+		cli::cli_alert_info(
+			"One or more data files are missing. Rebuilding dataset."
 		)
-		tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
+		tibble(files_to_check, files_exist_check) %>% print()
 		TRUE
 	} else {
-		cli::cli_alert_success(
-			"All data files are present and up-to-date. Skipping rebuild."
+		# Using mtime (modification time) is more robust for checking data freshness.
+		file_ages_days <- difftime(
+			Sys.time(),
+			file.info(files_to_check)$mtime,
+			units = "days"
 		)
-		tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
-		FALSE
+		if (any(file_ages_days > 90)) {
+			cli::cli_alert_warning(
+				"One or more data files are older than 90 days. Rebuilding dataset."
+			)
+			tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
+			TRUE
+		} else {
+			cli::cli_alert_success(
+				"All data files are present and up-to-date. Skipping rebuild."
+			)
+			tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
+			FALSE
+		}
 	}
 }
 
@@ -515,18 +518,18 @@ if (rebuild_is_needed) {
 
 		eco_bench <- rais_tbl %>%
 			mutate(
-				orig_result = value_footnotes,
-				result = value_footnotes %>%
-					str_remove_all(., pattern = '\\s*\\([^\\)]+\\)') %>%
-					as.numeric,
-				ft_num = str_extract(value_footnotes, "\\(([^)]+)\\)") %>%
-					str_remove_all(., "\\(|\\)| "),
-				idx = 1:n()
+				footnotes = na_if(footnotes, ""), # Changed column name scheme; now footnotes but has empty strings.
+				idx = 1:n() # Creates a unique index for each row.
 			) %>%
-			separate_longer_delim(., cols = ft_num, delim = ',') %>%
-			left_join(., rais_ft, join_by(ft_num == num)) %>%
+			separate_longer_delim(., cols = footnotes, delim = ',') %>%
+			left_join(., rais_ft, join_by(footnotes == num)) %>%
 			rename(., ft = val) %>%
-			select(-c(value_footnotes, ft_num)) %>%
+			select(
+				-c(
+					footnotes
+					#	, ft_num
+				)
+			) %>%
 			group_by(idx) %>%
 			mutate(ft_num = paste0("ft", row_number())) %>%
 			ungroup() %>%
@@ -538,7 +541,7 @@ if (rebuild_is_needed) {
 				cit = benchmark,
 				local = organism,
 				unit_name = units,
-				criterion_value = result,
+				criterion_value = value,
 				meta = ft
 			)
 
@@ -685,18 +688,18 @@ if (rebuild_is_needed) {
 
 		rads_bench <- rais_tbl %>%
 			mutate(
-				orig_result = value_footnotes,
-				result = value_footnotes %>%
-					str_remove_all(., pattern = '\\s*\\([^\\)]+\\)') %>%
-					as.numeric,
-				ft_num = str_extract(value_footnotes, "\\(([^)]+)\\)") %>%
-					str_remove_all(., "\\(|\\)| "),
-				idx = 1:n()
+				footnotes = na_if(footnotes, ""), # Changed column name scheme; now footnotes but has empty strings.
+				idx = 1:n() # Creates a unique index for each row.
 			) %>%
-			separate_longer_delim(., cols = ft_num, delim = ',') %>%
-			left_join(., rais_ft, join_by(ft_num == num)) %>%
+			separate_longer_delim(., cols = footnotes, delim = ',') %>%
+			left_join(., rais_ft, join_by(footnotes == num)) %>%
 			rename(., ft = val) %>%
-			select(-c(value_footnotes, ft_num)) %>%
+			select(
+				-c(
+					footnotes
+					#	, ft_num
+				)
+			) %>%
 			group_by(idx) %>%
 			mutate(ft_num = paste0("ft", row_number())) %>%
 			ungroup() %>%
@@ -708,7 +711,7 @@ if (rebuild_is_needed) {
 				cit = benchmark,
 				local = organism,
 				unit_name = units,
-				criterion_value = result,
+				criterion_value = value,
 				meta = ft
 			)
 
@@ -1142,4 +1145,5 @@ if (rebuild_is_needed) {
 		write_rds(gen_bgval, 'gen_bgval.RDS')
 		rm(list = ls())
 	}
+	rm(file_ages_days, files_exist_check, files_to_check)
 }
