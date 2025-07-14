@@ -20,6 +20,8 @@ if (file.exists('iwtt_db.duckdb')) {
 		dbdir = 'iwtt_db.duckdb'
 		#dbdir = ":memory:"
 	)
+
+	dbListTables(iwtt_con)
 } else {
 	# Download ----------------------------------------------------------------
 
@@ -135,7 +137,7 @@ if (file.exists('iwtt_db.duckdb')) {
 
 	unlink(list.files(path = here('iwtt'), pattern = '.xlsx'))
 
-	# Transform ---------------------------------------------------------------
+	#Quality check
 
 	dbListTables(iwtt_con)
 }
