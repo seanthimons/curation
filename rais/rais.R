@@ -12,6 +12,7 @@
 	setwd(here('rais'))
 }
 
+# ! TODO Add logic that checks against the files to selectively redownload the files instead of all of them
 
 # Checkpoint -------------------------------------------------------------
 
@@ -53,13 +54,18 @@
 				"All data files are present and up-to-date. Skipping rebuild."
 			)
 			tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
+			rm(files_to_check, files_exist_check, file_ages_days)
 			FALSE
 		}
 	}
 }
 
+
+# Rebuild ----------------------------------------------------------------
+
 # If a rebuild is needed, run the data scraping and processing sections.
 if (rebuild_is_needed) {
+
 	# Established Regulatory Limits for Surface Water and Groundwater ---------
 	## ARARs; Applicable or Relevant and Appropriate Requirements ----
 
@@ -885,6 +891,13 @@ if (rebuild_is_needed) {
 
 		## Radionuclide Specific Parameters ----------------------------------------
 		{
+			rais_radtox_params <- c(
+				'ARAR',
+				'Inhalation Exposure Factor',
+				'Maximum Contamination Limit',
+				'Specific Activity'
+			)
+
 			webpage <- read_html(
 				"https://rais.ornl.gov/cgi-bin/tools/TOX_search?select=radspef"
 			)
@@ -946,13 +959,9 @@ if (rebuild_is_needed) {
 
 			unit_table <- tibble(name = c_names, units = units) %>%
 				filter(
+					# ! Filtering out unwanted options, may go back later to add them back in
 					name %in%
-						c(
-							'ARAR',
-							'Inhalation Exposure Factor',
-							'Maximum Contamination Limit',
-							'Specific Activity'
-						)
+						rais_radtox_params
 				)
 
 			rm(webpage, endpoints)
@@ -1042,6 +1051,9 @@ if (rebuild_is_needed) {
 
 	# Generic background values-----------------------------------------------
 	{
+
+		# ! NOTE Did not parse the mean values because they didn't make sense. 
+
 		webpage <- read_html("https://rais.ornl.gov/tools/bg_search.php")
 
 		chems <- list(
@@ -1146,4 +1158,7 @@ if (rebuild_is_needed) {
 		rm(list = ls())
 	}
 	rm(file_ages_days, files_exist_check, files_to_check)
+	rm(rebuild_is_needed)
+} else {
+	(rm(rebuild_is_needed))
 }
