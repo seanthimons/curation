@@ -25,3 +25,4 @@ ecotox/temp.R
 *.duckdb
 *.xltm
 *.txt
+*.parquet

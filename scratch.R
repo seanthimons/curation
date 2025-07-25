@@ -118,3 +118,11 @@ job::job({
       )
     )
 })
+
+
+qq <- c('DTXSID7020267','DTXSID5023954')
+q1 <- ct_related(qq)
+
+q1 %>% 
+	filter(query %in% qq & dtxsid	%in% qq)
+
