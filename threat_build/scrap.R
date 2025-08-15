@@ -5,13 +5,21 @@ tbl(threat_db, "toxval_v96_1") %>%
   #filter()
   glimpse()
 
-cwa <- ct_list('CWA311HS') %>% pluck(., 1)
+cwa <- ct_list('PRODWATER') %>% 
+	as_tibble() %>% 
+	select(dtxsids = value) %>% 
+duckdb::dbWriteTable(
+	threat_db, name = 'cwa', value = ., overwrite = TRUE, temporary = TRUE
+)
+
+cwa <- tbl(threat_db, "cwa")
+
 
 {
   tbl(threat_db, "toxval_v96_1") %>%
+		semi_join(cwa, join_by('DTXSID' =='dtxsids')) %>% 
     filter(
       SOURCE != "ECOTOX",
-      DTXSID %in% cwa$dtxsids,
       SPECIES_COMMON == 'Human',
       EXPOSURE_ROUTE == "oral",
       RISK_ASSESSMENT_CLASS == 'Water',
