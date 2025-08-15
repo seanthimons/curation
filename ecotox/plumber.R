@@ -14,6 +14,19 @@
 	setwd(here("ecotox"))
 }
 
+# Checkpoint -------------------------------------------------------------
+
+# Determine if a rebuild is necessary.
+{
+	if (
+		!all(
+			file.exists(
+				c("ecotox.duckdb")
+			)
+		)
+	) {cli::cli_abort("One or more data files are missing.")}
+}
+
 # functions ---------------------------------------------------------------
 
 convert_units <- function(data, value_column, unit_column) {
