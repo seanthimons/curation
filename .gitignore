@@ -26,3 +26,4 @@ ecotox/temp.R
 *.xltm
 *.txt
 *.parquet
+/ecotox/rsconnect
