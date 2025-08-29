@@ -21,6 +21,7 @@ ecotox/temp.R
 *.xlsx
 *.csv
 *.html
+*.RData
 *.RDS
 *.duckdb
 *.xltm
