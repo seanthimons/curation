@@ -20,6 +20,7 @@ ecotox/ecotox.duckdb.wal
 ecotox/temp.R
 *.xlsx
 *.csv
+*.tsv
 *.html
 *.RData
 *.RDS
