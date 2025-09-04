@@ -301,17 +301,38 @@ get_tbl <- function(table_name) {
 }
 
 
+# ... existing code ...
+#* Retrieve table from database by name
+#* @get /tables/<table_name:str>
+#* @param table_name:str
+get_tbl <- function(table_name) {
+	con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
+	on.exit(dbDisconnect(con))
+
+	result <- tbl(con, table_name) %>% collect()
+	return(result)
+}
+
+
 #* Retrieve data from database by CASRN, species, endpoint, or ecotox group
 #* @param casrn A list of CASRNs to query
-#* @param species A list of species names (common or latin) to query
+#* @param common_name A list of common species names to query
+#* @param latin_name A list of latin species names to query
 #* @param endpoint A list of endpoints to query
 #* @param ecotox_group A list of ecotox groups to query
+#* @param invasive boolean to filter by invasive species
+#* @param standard boolean to filter by standard species
+#* @param threatened boolean to filter by threatened species
 #* @post /results
 post_results <- function(
 	casrn = NULL,
-	species = NULL,
+	common_name = NULL,
+	latin_name = NULL,
 	endpoint = NULL,
-	ecotox_group = NULL
+	ecotox_group = NULL,
+	invasive = FALSE,
+	standard = FALSE,
+	threatened = FALSE
 ) {
 	con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
 	on.exit(dbDisconnect(con))
@@ -319,12 +340,16 @@ post_results <- function(
 	# At least one query parameter must be provided to avoid returning the whole database
 	if (
 		is.null(casrn) &&
-			is.null(species) &&
-			is.null(endpoint) &&
-			is.null(ecotox_group)
+		is.null(common_name) &&
+		is.null(latin_name) &&
+		is.null(endpoint) &&
+		is.null(ecotox_group) &&
+		!invasive &&
+		!standard &&
+		!threatened
 	) {
 		stop(
-			"At least one query parameter (casrn, species, endpoint, ecotox_group) must be provided."
+			"At least one query parameter (casrn, common_name, latin_name, endpoint, ecotox_group, invasive, standard, threatened) must be provided."
 		)
 	}
 
@@ -334,12 +359,37 @@ post_results <- function(
 
 	# Apply filters to base tables if parameters are provided
 	if (!is.null(casrn) && length(casrn) > 0) {
+		# Cleans casrns to format expected by database
+		casrn <- unique(casrn) %>%
+			str_remove_all(., pattern = '-')
+
 		tests_tbl <- tests_tbl %>% filter(test_cas %in% casrn)
 	}
-
-	if (!is.null(species) && length(species) > 0) {
+	
+	# Filter by species using common and/or latin names.
+	# If both are provided, records matching either will be returned (OR condition).
+	if (!is.null(common_name) && length(common_name) > 0 && !is.null(latin_name) && length(latin_name) > 0) {
 		species_tbl <- species_tbl %>%
-			filter(common_name %in% species | latin_name %in% species)
+			filter(.data$common_name %in% common_name | .data$latin_name %in% latin_name)
+	} else if (!is.null(common_name) && length(common_name) > 0) {
+		species_tbl <- species_tbl %>%
+			filter(.data$common_name %in% common_name)
+	} else if (!is.null(latin_name) && length(latin_name) > 0) {
+		species_tbl <- species_tbl %>%
+			filter(.data$latin_name %in% latin_name)
+	}
+
+	# Add species characteristic filters
+	if (invasive) {
+		species_tbl <- species_tbl %>% filter(invasive_species == TRUE)
+	}
+
+	if (standard) {
+		species_tbl <- species_tbl %>% filter(standard_test_species == TRUE)
+	}
+
+	if (threatened) {
+		species_tbl <- species_tbl %>% filter(endangered_threatened_species == TRUE)
 	}
 
 	result_query <- tests_tbl %>%
@@ -370,27 +420,6 @@ post_results <- function(
 	# collected. It is calculated again after collection to ensure consistency.
 	if (!is.null(ecotox_group) && length(ecotox_group) > 0) {
 		result_query <- result_query %>%
-			mutate(
-				eco_group = case_when(
-					str_detect(family, 'Megachilidae|Apidae') ~ 'Bees',
-					str_detect(ecotox_group, 'Insects/Spiders') ~ 'Insects/Spiders',
-					str_detect(ecotox_group, 'Flowers, Trees, Shrubs, Ferns') ~
-						'Flowers, Trees, Shrubs, Ferns',
-					str_detect(ecotox_group, 'Fungi') ~ 'Fungi',
-					str_detect(ecotox_group, 'Algae') ~ 'Algae',
-					str_detect(ecotox_group, 'Fish') ~ 'Fish',
-					str_detect(ecotox_group, 'Crustaceans') ~ 'Crustaceans',
-					str_detect(ecotox_group, 'Invertebrates') ~ 'Invertebrates',
-					str_detect(ecotox_group, 'Worms') ~ 'Worms',
-					str_detect(ecotox_group, 'Molluscs') ~ 'Molluscs',
-					str_detect(ecotox_group, 'Birds') ~ 'Birds',
-					str_detect(ecotox_group, 'Mammals') ~ 'Mammals',
-					str_detect(ecotox_group, 'Amphibians') ~ 'Amphibians',
-					str_detect(ecotox_group, 'Reptiles') ~ 'Reptiles',
-					str_detect(ecotox_group, 'Moss, Hornworts') ~ 'Moss, Hornworts',
-					.default = ecotox_group
-				)
-			) %>%
 			filter(eco_group %in% ecotox_group)
 	}
 

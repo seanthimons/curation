@@ -256,6 +256,62 @@ if (rebuild_is_needed) {
 		unlink('eco_files', recursive = TRUE)
 	}
 
+	
+
+	# Eco group --------------------------------------------------------------
+
+	{
+		# Create a dbplyr query object for the updated species table
+		species_query <- tbl(eco_con, 'species') %>%
+			mutate(
+				eco_group = case_when(
+					str_detect(family, 'Megachilidae|Apidae') ~ 'Bees',
+					str_detect(ecotox_group, 'Insects/Spiders') ~ 'Insects/Spiders',
+					str_detect(ecotox_group, 'Flowers, Trees, Shrubs, Ferns') ~
+						'Flowers, Trees, Shrubs, Ferns',
+					str_detect(ecotox_group, 'Fungi') ~ 'Fungi',
+					str_detect(ecotox_group, 'Algae') ~ 'Algae',
+					str_detect(ecotox_group, 'Fish') ~ 'Fish',
+					str_detect(ecotox_group, 'Crustaceans') ~ 'Crustaceans',
+					str_detect(ecotox_group, 'Invertebrates') ~ 'Invertebrates',
+					str_detect(ecotox_group, 'Worms') ~ 'Worms',
+					str_detect(ecotox_group, 'Molluscs') ~ 'Molluscs',
+					str_detect(ecotox_group, 'Birds') ~ 'Birds',
+					str_detect(ecotox_group, 'Mammals') ~ 'Mammals',
+					str_detect(ecotox_group, 'Amphibians') ~ 'Amphibians',
+					str_detect(ecotox_group, 'Reptiles') ~ 'Reptiles',
+					str_detect(ecotox_group, 'Moss, Hornworts') ~ 'Moss, Hornworts',
+					.default = ecotox_group
+				),
+				standard_test_species = case_when(
+					str_detect(ecotox_group, 'Standard') ~ TRUE,
+					.default = FALSE
+				),
+
+				invasive_species = case_when(
+					str_detect(ecotox_group, 'Invasive') ~ TRUE,
+					.default = FALSE
+
+				),
+				endangered_threatened_species = case_when(
+					str_detect(ecotox_group, 'Endangered') ~ TRUE,
+					.default = FALSE
+
+				)
+			)
+
+		# Render the dbplyr query to an SQL SELECT statement
+		select_sql <- dbplyr::sql_render(species_query)
+
+		# Construct the SQL statement to replace the table with the new data.
+		# This is more efficient than pulling data into R and writing it back.
+		overwrite_sql <- paste0("CREATE OR REPLACE TABLE species AS ", select_sql)
+
+		# Execute the SQL command to overwrite the table in the database.
+		dbExecute(eco_con, overwrite_sql)
+	}
+
+
 	# Life stage harmonization -----------------------------------------------
 
 	{
