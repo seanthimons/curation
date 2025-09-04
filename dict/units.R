@@ -11,7 +11,6 @@
 
   setwd(here('dict'))
 
-  todor::todor()
 }
 
 
@@ -29,3 +28,5 @@ unit_conv <- rio::import(file = here('dict', 'UOMConversion.csv')) %>%
 unit_dict <- list(preferred_units = preferred_units, unit_conv = unit_conv)
 
 saveRDS(unit_dict, file = here('final', 'unit_dict.RDS'))
+
+
