@@ -301,14 +301,48 @@ get_tbl <- function(table_name) {
 }
 
 
-#* Retrieve data from database by CASRN
-#* @param query A list of CASRNs to query
+#* Retrieve data from database by CASRN, species, endpoint, or ecotox group
+#* @param casrn A list of CASRNs to query
+#* @param species A list of species names (common or latin) to query
+#* @param endpoint A list of endpoints to query
+#* @param ecotox_group A list of ecotox groups to query
 #* @post /results
-post_results <- function(query) {
+post_results <- function(
+	casrn = NULL,
+	species = NULL,
+	endpoint = NULL,
+	ecotox_group = NULL
+) {
 	con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
 	on.exit(dbDisconnect(con))
 
-	result <- tbl(con, "tests") %>%
+	# At least one query parameter must be provided to avoid returning the whole database
+	if (
+		is.null(casrn) &&
+			is.null(species) &&
+			is.null(endpoint) &&
+			is.null(ecotox_group)
+	) {
+		stop(
+			"At least one query parameter (casrn, species, endpoint, ecotox_group) must be provided."
+		)
+	}
+
+	# Base tables
+	tests_tbl <- tbl(con, "tests")
+	species_tbl <- tbl(con, "species")
+
+	# Apply filters to base tables if parameters are provided
+	if (!is.null(casrn) && length(casrn) > 0) {
+		tests_tbl <- tests_tbl %>% filter(test_cas %in% casrn)
+	}
+
+	if (!is.null(species) && length(species) > 0) {
+		species_tbl <- species_tbl %>%
+			filter(common_name %in% species | latin_name %in% species)
+	}
+
+	result_query <- tests_tbl %>%
 		select(
 			'test_id',
 			'test_cas',
@@ -317,13 +351,8 @@ post_results <- function(query) {
 			'test_type',
 			'organism_lifestage'
 		) %>%
-		filter(
-			test_cas %in% query
-		) %>%
 		inner_join(
-			tbl(con, "species") %>%
-				# ! NOTE need logic here on restricting on certain species or not
-				#filter(species_number %in% eco_species) %>%
+			species_tbl %>%
 				select(
 					species_number,
 					common_name,
@@ -335,7 +364,46 @@ post_results <- function(query) {
 					ecotox_group
 				),
 			join_by('species_number')
-		) %>%
+		)
+
+	# NOTE: The eco_group is derived here for filtering purposes before data is
+	# collected. It is calculated again after collection to ensure consistency.
+	if (!is.null(ecotox_group) && length(ecotox_group) > 0) {
+		result_query <- result_query %>%
+			mutate(
+				eco_group = case_when(
+					str_detect(family, 'Megachilidae|Apidae') ~ 'Bees',
+					str_detect(ecotox_group, 'Insects/Spiders') ~ 'Insects/Spiders',
+					str_detect(ecotox_group, 'Flowers, Trees, Shrubs, Ferns') ~
+						'Flowers, Trees, Shrubs, Ferns',
+					str_detect(ecotox_group, 'Fungi') ~ 'Fungi',
+					str_detect(ecotox_group, 'Algae') ~ 'Algae',
+					str_detect(ecotox_group, 'Fish') ~ 'Fish',
+					str_detect(ecotox_group, 'Crustaceans') ~ 'Crustaceans',
+					str_detect(ecotox_group, 'Invertebrates') ~ 'Invertebrates',
+					str_detect(ecotox_group, 'Worms') ~ 'Worms',
+					str_detect(ecotox_group, 'Molluscs') ~ 'Molluscs',
+					str_detect(ecotox_group, 'Birds') ~ 'Birds',
+					str_detect(ecotox_group, 'Mammals') ~ 'Mammals',
+					str_detect(ecotox_group, 'Amphibians') ~ 'Amphibians',
+					str_detect(ecotox_group, 'Reptiles') ~ 'Reptiles',
+					str_detect(ecotox_group, 'Moss, Hornworts') ~ 'Moss, Hornworts',
+					.default = ecotox_group
+				)
+			) %>%
+			filter(eco_group %in% ecotox_group)
+	}
+
+	# Build endpoint regex for filtering
+	endpoint_regex <- if (!is.null(endpoint) && length(endpoint) > 0) {
+		# ensure endpoints are matched from the start of the string
+		paste0("^", endpoint, collapse = "|")
+	} else {
+		# default endpoints if none are provided
+		"^EC50|^LC50|^LD50|LR50|^LOEC|^LOEL|NOEC|NOEL|NR-ZERO"
+	}
+
+	result <- result_query %>%
 		inner_join(
 			tbl(con, 'results') %>%
 				select(
@@ -353,7 +421,7 @@ post_results <- function(query) {
 		filter(
 			str_detect(
 				endpoint,
-				"^EC50|^LC50|^LD50|LR50|^LOEC|^LOEL|NOEC|NOEL|NR-ZERO"
+				endpoint_regex
 			),
 			str_detect(effect, 'MOR|DVP|GRO|MPH'),
 			conc1_unit %in%
@@ -447,7 +515,8 @@ post_results <- function(query) {
 			),
 
 			# Eco grouping ------------------------------------------------------------
-
+			# NOTE: This is recalculated after collection to standardize the column
+			# in the final output, even if no ecotox_group filter was applied.
 			eco_group = case_when(
 				str_detect(family, 'Megachilidae|Apidae') ~ 'Bees',
 				str_detect(ecotox_group, 'Insects/Spiders') ~ 'Insects/Spiders',
