@@ -1,19 +1,158 @@
 # packages ----------------------------------------------------------------
-
 {
-	library(here)
-	library(plumber)
-	library(tidyverse)
-	library(duckdb)
-	library(duckplyr)
-	library(DBI)
-	library(magrittr)
+	install_booster_pack <- function(package, load = TRUE) {
+		# Loop through each package
+		for (pkg in package) {
+			# Check if the package is installed
+			if (!requireNamespace(pkg, quietly = TRUE)) {
+				# If not installed, install the package
+				install.packages(pkg)
+			}
+			# Load the package
+			if (load) {
+				library(pkg, character.only = TRUE)
+			}
+		}
+	}
+
+	if (file.exists('packages.txt')) {
+		packages <- read.table('packages.txt')
+
+		install_booster_pack(package = packages$Package, load = FALSE)
+
+		rm(packages)
+	} else {
+		# Packages ----
+
+		booster_pack <- c(
+			## IO ----
+			'fs',
+			'here',
+			'janitor',
+			'rio',
+			'tidyverse',
+			# 'data.table',
+			'mirai',
+			# 'targets',
+			# 'crew',
+
+			## DB ----
+			'arrow',
+			'nanoparquet',
+			'duckdb',
+			'duckplyr',
+			'dbplyr',
+
+			## EDA ----
+			'skimr',
+
+			## Web ----
+			'rvest',
+			'plumber',
+			#	'plumber2', #Still experimental
+			'httr2',
+
+			## Plot ----
+			# 'paletteer',
+			# 'ragg',
+			# 'camcorder',
+			# 'esquisse',
+			# 'geofacet',
+			# 'patchwork',
+			# 'marquee',
+			# 'ggiraph',
+			# 'geomtextpath',
+			# 'ggpattern',
+			# 'ggbump',
+			# 'gghighlight',
+			# 'ggdist',
+			# 'ggforce',
+			# 'gghalves',
+			# 'ggtext',
+			# 'ggrepel',   # Suggested for non-overlapping labels
+			# 'gganimate', # Suggested for animations
+			# 'ggsignif',
+			# 'ggTimeSeries',
+
+			## Modeling ----
+			# 'tidymodels',
+
+			## Shiny ----
+			# 'shiny',
+			# 'bslib',
+			# 'DT',
+			# 'plotly',
+
+			## Reporting ----
+			# 'quarto',
+			# 'gt',
+
+			## Spatial ----
+			# 'sf',
+			# 'geoarrow',
+			# 'duckdbfs',
+			# 'duckspatial',
+			# 'ducksf',
+			# 'tidycensus', # Needs API
+			# 'mapgl',
+			# 'dataRetrieval', # Needs API
+			# 'StreamCatTools',
+
+			## Misc ----
+			# 'devtools',
+			# 'usethis',
+			# 'pak',
+			'remotes'
+		)
+
+		# ! Change load flag to load packages
+		install_booster_pack(package = booster_pack, load = TRUE)
+		rm(install_booster_pack, booster_pack)
+	}
+
+	# Custom Functions ----
+
+	`%ni%` <- Negate(`%in%`)
+
+	skim_count <- skim_with(
+		numeric = sfl(
+			n = length,
+			min = ~ min(.x, na.rm = T),
+			median = ~ median(.x, na.rm = T),
+			max = ~ max(.x, na.rm = T)
+		)
+	)
+
+	# Camcorder ----
+
+	# gg_record(
+	# 	here::here('output'),
+	# 	device = "png",
+	# 	width = 10,
+	# 	height = 7,
+	# 	units = "in",
+	# 	dpi = 320
+	# )
+
+	# Theme ----
+
+	theme_custom <- function() {
+		theme_minimal() +
+			theme(
+				plot.background = element_rect(colour = "white"),
+				panel.grid.major = element_blank(),
+				panel.grid.minor = element_blank(),
+				strip.background = element_rect(colour = "white"),
+				axis.text.x = element_text(angle = 90L)
+			)
+	}
+
+	# Options ----
 
 	options("plumber.port" = 5555)
 
 	setwd(here("ecotox"))
 }
-
 # Checkpoint -------------------------------------------------------------
 
 # Determine if a rebuild is necessary.
@@ -24,7 +163,9 @@
 				c("ecotox.duckdb")
 			)
 		)
-	) {cli::cli_abort("One or more data files are missing.")}
+	) {
+		cli::cli_abort("One or more data files are missing.")
+	}
 }
 
 # functions ---------------------------------------------------------------
@@ -128,16 +269,7 @@ all_tbls <- function() {
 	con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
 	on.exit(dbDisconnect(con))
 
-	result <- DBI::dbListObjects(con) %>%
-		.$table %>%
-		map(
-			.,
-			~ pluck(., 'name') %>%
-				unname()
-		) %>%
-		unlist()
-
-	return(result)
+	DBI::dbListTables(con)
 }
 
 #* Retrieve column names for a given table
@@ -168,7 +300,7 @@ get_tbl <- function(table_name) {
 	return(result)
 }
 
-# TODO Finish this
+
 #* Retrieve data from database by CASRN
 #* @param query A list of CASRNs to query
 #* @post /results
@@ -363,213 +495,7 @@ post_results <- function(query) {
 			value_column = 'duration_value',
 			unit_column = 'duration_unit'
 		) %>%
-		convert_units(., value_column = 'result', unit_column = 'conc1_unit') %>%
+		convert_units(., value_column = 'result', unit_column = 'conc1_unit')
 
-		# duration ----------------------------------------------------------------
-
-		#filter(eco_group == 'Mammals' | eco_group == 'Birds' | eco_group == 'Fish') %>%
-		mutate(
-			test_type = case_when(
-				# Mammals -----------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Mammals') &
-					(effect == 'MOR') &
-					(exposure_group == 'ORAL' | is.na(exposure_group)) &
-					#(life_stage == 'Adult') &
-					(new_unit == 'mg/kg') &
-					(endpoint == 'LD50') ~
-					'acute',
-
-				(eco_group == 'Mammals') &
-					(effect == 'MOR') &
-					(exposure_group == 'ORAL' | is.na(exposure_group)) &
-					#(life_stage == 'Adult') &
-					(new_unit == 'mg/kg bdwt') &
-					(endpoint == 'LD50') ~
-					'acute',
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Mammals') &
-					(effect == 'MOR') &
-					(exposure_group == 'ORAL' | is.na(exposure_group)) &
-					#(life_stage == 'Adult') &
-					(endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
-					(new_unit == 'mg/kg/d') ~
-					'chronic',
-
-				# Birds -------------------------------------------------------------------
-				#NOTE Needs better breakdown for reptiles and amphibians...
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Birds' |
-					eco_group == 'Amphibians' |
-					eco_group == 'Reptiles') &
-					(effect == 'MOR') &
-					(exposure_group == 'ORAL' | is.na(exposure_group)) &
-					#(life_stage == 'Adult') &
-					(new_unit == 'mg/kg') &
-					(endpoint == 'LD50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Birds' |
-					eco_group == 'Amphibians' |
-					eco_group == 'Reptiles') &
-					(effect == 'MOR') &
-					(exposure_group == 'ORAL' | is.na(exposure_group)) &
-					#(life_stage == 'Adult') &
-					(endpoint == 'NOEL' | endpoint == 'NR-ZERO') &
-					(new_unit == 'mg/kg/d' | new_unit == 'mg/kg bdwt/d') ~
-					'chronic',
-
-				# Fish --------------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur == 96) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur >= 144) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
-					'chronic',
-
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur == 504) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
-
-				# Bees --------------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				# Could be refined later, but OPP doesn't isn't entirely clear
-				(eco_group == 'Bees') &
-					(effect == 'MOR') &
-					(new_dur == 24 | new_dur == 28 | new_dur == 72) &
-					(new_unit == 'ug/bee') &
-					(endpoint == 'LD50' | endpoint == 'LC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Bees') &
-					(effect == 'MOR') &
-					(new_dur == 240) &
-					(new_unit == 'ug/bee') &
-					(endpoint == 'LD50' | endpoint == 'LC50') ~
-					'chronic',
-
-				# Insects -----------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Insects/Spiders') &
-					(effect == 'MOR') &
-					(new_dur == 24 | new_dur == 48 | new_dur == 72) &
-					(new_unit == 'mg/L' | new_unit == 'mg/kg') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-
-				(eco_group == 'Insects/Spiders') &
-					(effect == 'MOR') &
-					(new_dur == 504 | new_dur == 672) &
-					(new_unit == 'mg/L' | new_unit == 'mg/kg') &
-					(endpoint == 'NOEL' | endpoint == 'NOEC' | endpoint == 'NR-ZERO') ~
-					'chronic',
-
-				# Invertebrates -----------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
-					(effect == 'MOR') &
-					(new_dur == 24 | new_dur == 48 | new_dur == 72 | new_dur == 96) &
-					(new_unit == 'mg/L' | new_unit == 'mg/kg') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Invertebrates' | eco_group == 'Molluscs') &
-					(effect == 'MOR') &
-					(new_dur == 504 | new_dur == 672) &
-					(new_unit == 'mg/L' | new_unit == 'mg/kg') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'chronic',
-
-				# Worms -------------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Worms') &
-					(effect == 'MOR') &
-					(new_dur == 336) &
-					(new_unit == 'mg/kg') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Worms') &
-					(effect == 'MOR') &
-					(new_dur <= 336) &
-					(new_unit == 'mg/kg') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
-
-				# Crustaceans -----------------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Crustaceans') &
-					(effect == 'MOR') &
-					(new_dur <= 96) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Crustaceans') &
-					(effect == 'MOR') &
-					(new_dur >= 672) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
-
-				# Algae -----------------------------------------------------------------------
-				#NOTE Needs better, hard to find data for fungi and mosses etc
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Algae' |
-					eco_group == 'Fungi' |
-					eco_group == 'Moss, Hornworts') &
-					(new_dur <= 24 * 7) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Algae' |
-					eco_group == 'Fungi' |
-					eco_group == 'Moss, Hornworts') &
-					(new_dur == 96) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
-
-				# Flowers, Trees, Shrubs, Ferns-----------------------------------------------------------------------
-				#Note probably could be something like developemental etc...
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Flowers, Trees, Shrubs, Ferns') &
-					(new_dur <= 7 * 24) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'LC50' | endpoint == 'EC50') ~
-					'acute',
-
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Flowers, Trees, Shrubs, Ferns') &
-					(effect != 'MOR') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
-			)
-		) %>%
-		filter(!is.na(test_type))
 	return(result)
 }
