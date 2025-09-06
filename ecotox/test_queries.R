@@ -40,16 +40,16 @@ print("--- Test Query 6: Multiple Endpoints ---")
 head(test_endpoint_multiple)
 
 # Example 7: Query by ecotox group
-# This tests the `ecotox_group` parameter.
-test_ecotox_group <- post_results(ecotox_group = "Fish")
+# This tests the `eco_group` parameter.
+test_eco_group <- post_results(eco_group = "Fish")
 print("--- Test Query 7: Ecotox Group ---")
-head(test_ecotox_group)
+head(test_eco_group)
 
 # Example 8: Query combining CASRN and ecotox group
 # This tests the function with multiple parameters specified.
 test_combination_casrn_group <- post_results(
 	casrn = "50-29-3",
-	ecotox_group = "Fish"
+	eco_group = "Fish"
 )
 print("--- Test Query 8: Combination of CASRN and Ecotox Group ---")
 head(test_combination_casrn_group)
@@ -90,6 +90,6 @@ tryCatch(
 # This tests the function with multiple parameters specified.
 test_combination_casrn_group_standard <- post_results(
 	casrn = "50-29-3",
-	ecotox_group = "Fish",
+	eco_group = "Fish",
 	standard = TRUE
 )

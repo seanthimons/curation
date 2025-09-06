@@ -16,6 +16,8 @@
 	# library(ComptoxR)
 
 	setwd(here("ecotox"))
+
+	deploy = FALSE
 }
 
 # Checkpoint -------------------------------------------------------------
@@ -256,8 +258,6 @@ if (rebuild_is_needed) {
 		unlink('eco_files', recursive = TRUE)
 	}
 
-	
-
 	# Eco group --------------------------------------------------------------
 
 	{
@@ -291,12 +291,10 @@ if (rebuild_is_needed) {
 				invasive_species = case_when(
 					str_detect(ecotox_group, 'Invasive') ~ TRUE,
 					.default = FALSE
-
 				),
 				endangered_threatened_species = case_when(
 					str_detect(ecotox_group, 'Endangered') ~ TRUE,
 					.default = FALSE
-
 				)
 			)
 
@@ -310,7 +308,6 @@ if (rebuild_is_needed) {
 		# Execute the SQL command to overwrite the table in the database.
 		dbExecute(eco_con, overwrite_sql)
 	}
-
 
 	# Life stage harmonization -----------------------------------------------
 
@@ -618,8 +615,8 @@ if (rebuild_is_needed) {
 		dbExecute(
 			eco_con,
 			"ATTACH 'ecotox.duckdb';
-  COPY FROM DATABASE memory TO ecotox;
-  DETACH ecotox;"
+			COPY FROM DATABASE memory TO ecotox;
+			DETACH ecotox;"
 		)
 
 		dbDisconnect(eco_con)
@@ -629,5 +626,10 @@ if (rebuild_is_needed) {
 # deploy ------------------------------------------------------------------
 
 #source(here("ecotox", "plumber.R"))
-
-plumber::pr("plumber.R") %>% plumber::pr_run()
+if (deploy) {
+	cli::cli_alert_success('Deploying API + Documentation')
+	plumber::pr("plumber.R") %>% plumber::pr_run()
+}else{
+	cli::cli_alert_success('Deploying local connection')
+	eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+}

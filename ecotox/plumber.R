@@ -170,6 +170,30 @@
 
 # functions ---------------------------------------------------------------
 
+#' Convert Concentration Units to Standardized Formats
+#'
+#' @description
+#' This function standardizes concentration values from various units to a common
+#' base unit within a dataframe. It creates two new columns, `new_value` and
+#' `new_unit`, to store the converted values and their corresponding standardized units.
+#'
+#' The function handles two main categories of conversions:
+#' 1.  Aqueous concentrations (`ug/L`, `ppb`, `ppm`) are standardized to 'mg/L'.
+#' 2.  Dose-per-bee metrics (`g/bee`, `mg/bee`, `ug/bee` and their full-text
+#'     equivalents) are standardized to 'ug/bee'.
+#'
+#' Units that do not fall into these categories are passed through without modification.
+#'
+#' @param data A data frame containing the data to be processed.
+#' @param value_column The name of the column (as a string) containing numeric
+#'   concentration values. This is evaluated using non-standard evaluation.
+#' @param unit_column The name of the column (as a string) containing character
+#'   unit strings corresponding to the values. This is also evaluated using
+#'   non-standard evaluation.
+#'
+#' @return A data frame with two additional columns: `new_value` (the converted
+#'   numeric value) and `new_unit` (the standardized character unit).
+#'
 convert_units <- function(data, value_column, unit_column) {
 	data %>%
 		mutate(
@@ -217,6 +241,49 @@ convert_duration <- function(data, value_column, unit_column) {
 			new_dur_unit = "hours"
 		)
 }
+
+#' Convert Duration Units Flexibly
+#'
+#' @description
+#' This function takes a data frame with duration values and their corresponding
+#' units and converts them into a standardized 'duration' object using the
+#' lubridate package. It then calculates the duration in a desired target unit.
+#'
+#' @param data A data frame containing the data to be processed.
+#' @param value_column The name of the column (as a string) containing numeric
+#'   duration values.
+#' @param unit_column The name of the column (as a string) containing character
+#'   unit strings (e.g., "days", "weeks", "hours").
+#' @param output_unit The desired output unit for the duration (e.g., "hours", "minutes").
+#'
+#' @return A data frame with a new column `duration_obj` (a lubridate duration object)
+#'   and `new_dur` (the numeric value in the specified `output_unit`).
+#'
+#' @examples
+#' library(dplyr)
+#' library(lubridate)
+#'
+#' # Create a sample data frame
+#' df <- tibble::tribble(
+#'   ~time_val, ~time_unit,
+#'   10,        "days",
+#'   2,         "weeks",
+#'   48,        "hours",
+#'   3600,      "seconds"
+#' )
+#'
+#' convert_duration(df, "time_val", "time_unit", output_unit = "hours")
+#' convert_duration(df, "time_val", "time_unit", output_unit = "minutes")
+#'
+convert_duration <- function(data, value_column, unit_column, output_unit = "hours") {
+  data %>%
+    mutate(
+      duration_obj = lubridate::duration(!!sym(value_column), units = !!sym(unit_column)),
+      new_dur = lubridate::as.duration(duration_obj) / lubridate::duration(1, output_unit),
+			new_dur_unit = output_unit
+    )
+}
+
 
 Mode <- function(x) {
 	ux <- unique(x)
@@ -329,7 +396,7 @@ post_results <- function(
 	common_name = NULL,
 	latin_name = NULL,
 	endpoint = NULL,
-	ecotox_group = NULL,
+	eco_group = NULL,
 	invasive = FALSE,
 	standard = FALSE,
 	threatened = FALSE
@@ -340,13 +407,13 @@ post_results <- function(
 	# At least one query parameter must be provided to avoid returning the whole database
 	if (
 		is.null(casrn) &&
-		is.null(common_name) &&
-		is.null(latin_name) &&
-		is.null(endpoint) &&
-		is.null(ecotox_group) &&
-		!invasive &&
-		!standard &&
-		!threatened
+			is.null(common_name) &&
+			is.null(latin_name) &&
+			is.null(endpoint) &&
+			is.null(eco_group) &&
+			!invasive &&
+			!standard &&
+			!threatened
 	) {
 		stop(
 			"At least one query parameter (casrn, common_name, latin_name, endpoint, ecotox_group, invasive, standard, threatened) must be provided."
@@ -365,12 +432,19 @@ post_results <- function(
 
 		tests_tbl <- tests_tbl %>% filter(test_cas %in% casrn)
 	}
-	
+
 	# Filter by species using common and/or latin names.
 	# If both are provided, records matching either will be returned (OR condition).
-	if (!is.null(common_name) && length(common_name) > 0 && !is.null(latin_name) && length(latin_name) > 0) {
+	if (
+		!is.null(common_name) &&
+			length(common_name) > 0 &&
+			!is.null(latin_name) &&
+			length(latin_name) > 0
+	) {
 		species_tbl <- species_tbl %>%
-			filter(.data$common_name %in% common_name | .data$latin_name %in% latin_name)
+			filter(
+				.data$common_name %in% common_name | .data$latin_name %in% latin_name
+			)
 	} else if (!is.null(common_name) && length(common_name) > 0) {
 		species_tbl <- species_tbl %>%
 			filter(.data$common_name %in% common_name)
@@ -418,7 +492,7 @@ post_results <- function(
 
 	# NOTE: The eco_group is derived here for filtering purposes before data is
 	# collected. It is calculated again after collection to ensure consistency.
-	if (!is.null(ecotox_group) && length(ecotox_group) > 0) {
+	if (!is.null(eco_group) && length(eco_group) > 0) {
 		result_query <- result_query %>%
 			filter(eco_group %in% ecotox_group)
 	}
@@ -543,28 +617,6 @@ post_results <- function(
 				endpoint == 'NR-ZERO/' ~ 'NR-ZERO',
 			),
 
-			# Eco grouping ------------------------------------------------------------
-			# NOTE: This is recalculated after collection to standardize the column
-			# in the final output, even if no ecotox_group filter was applied.
-			eco_group = case_when(
-				str_detect(family, 'Megachilidae|Apidae') ~ 'Bees',
-				str_detect(ecotox_group, 'Insects/Spiders') ~ 'Insects/Spiders',
-				str_detect(ecotox_group, 'Flowers, Trees, Shrubs, Ferns') ~
-					'Flowers, Trees, Shrubs, Ferns',
-				str_detect(ecotox_group, 'Fungi') ~ 'Fungi',
-				str_detect(ecotox_group, 'Algae') ~ 'Algae',
-				str_detect(ecotox_group, 'Fish') ~ 'Fish',
-				str_detect(ecotox_group, 'Crustaceans') ~ 'Crustaceans',
-				str_detect(ecotox_group, 'Invertebrates') ~ 'Invertebrates',
-				str_detect(ecotox_group, 'Worms') ~ 'Worms',
-				str_detect(ecotox_group, 'Molluscs') ~ 'Molluscs',
-				str_detect(ecotox_group, 'Birds') ~ 'Birds',
-				str_detect(ecotox_group, 'Mammals') ~ 'Mammals',
-				str_detect(ecotox_group, 'Amphibians') ~ 'Amphibians',
-				str_detect(ecotox_group, 'Reptiles') ~ 'Reptiles',
-				str_detect(ecotox_group, 'Moss, Hornworts') ~ 'Moss, Hornworts',
-				.default = ecotox_group
-			),
 			duration_value = as.numeric(obs_duration_mean),
 			duration_unit = case_when(
 				obs_duration_unit == 'h' ~ 'hours',
