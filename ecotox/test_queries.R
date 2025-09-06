@@ -1,3 +1,154 @@
+library(ComptoxR)
+
+all_lists <- ct_lists_all()
+
+query_chems <- ct_list(
+	list_name = c(
+		'EPAHFR',
+		'EPAHFRTABLE2',
+		'FRACFOCUS',
+		'CALWATERBDS',
+		'PRODWATER'
+	)
+) %>%
+	ct_details(query = .) %>%
+	mutate(casrn = str_remove_all(casrn, "-"))
+
+q1 <- post_results(query = query_chems$casrn)
+
+q2 <- q1 %>%
+	left_join(query_chems, ., join_by(casrn == test_cas)) %>%
+	group_by(
+		preferredName,
+		casrn,
+		endpoint,
+		#test_type,
+		eco_group,
+		#harmonized_life_stage
+	) %>%
+	reframe(
+		result = min(new_value),
+		unit = new_unit
+	) %>%
+	distinct() %>%
+	filter(!is.na(result) & endpoint == 'EC50')
+
+
+df <- tibble::tribble(
+	~time_val,
+	~time_unit,
+	10,
+	"days",
+	2,
+	"weeks",
+	48,
+	"hours",
+	3600,
+	"seconds"
+)
+
+
+unit_dict <- rio::import(here('ecotox', 'MeasureUnit.csv')) %>% 
+	clean_names()  %>% 
+	select(
+		code, 
+		target_unit,
+		conversion_factor, 
+		conversion_coefficient,
+		description
+	)
+
+tbl(eco_con, 'results') %>%
+	filter(conc1_unit == 'pt/acre') %>%
+	inner_join(tbl(eco_con, 'tests'), join_by('test_id')) %>%
+	count(test_cas, species_number) %>%
+	arrange(desc(n)) %>%
+	head(., 5) %>%
+	inner_join(., tbl(eco_con, 'species')) %>% 
+	select(test_cas, species_number, common_name, latin_name) %>%
+	collect() %>% 
+	glimpse() %>% 
+	View()
+
+
+
+units <- tbl(eco_con, 'results') %>%
+	select(orig = conc1_unit, test_id) %>%
+	inner_join(
+		.,
+		tbl(eco_con, 'tests') %>%
+			select(test_id, test_cas, species_number, reference_number),
+		join_by('test_id')
+	) %>%
+	group_by(orig) %>%
+	summarize(
+		n = n(),
+		cas_n = n_distinct(test_cas),
+		species_n = n_distinct(species_number),
+		ref_n = n_distinct(reference_number)
+	) %>%
+	ungroup() %>%
+	arrange(desc(n), desc(cas_n), desc(species_n), desc(ref_n)) %>%
+	filter(cas_n >= 10 & ref_n > 1) %>%
+	collect() %>%
+	# select(
+	# 	-cas_n,
+	# 	-species_n,
+	# 	-ref_n
+	# ) %>%
+	mutate(
+		orig_part_counts = str_count(orig, pattern = "/"),
+		raw = str_remove_all(orig, 'ae|AE|ai|AI|fl|litter|of |eu|/eu|-atoms') %>%
+			str_replace_all(., c(
+				"/ |-" = "/",
+				"sd" = "seed",
+				"bt" = "bait",
+				"0/00" = "ppt",
+				'ml' = 'mL',
+				'ul' = 'uL',
+				'acres|acre' = 'ac',
+				'dpm' = 'counts/min'
+			)) %>%
+			str_replace_all(., pattern = "/(\\d*\\.?\\d+) ", replacement = "/\\1_") %>%
+			
+			str_squish(),
+		part_counts = str_count(raw, pattern = "/"),
+		has_numbers = str_detect(raw, pattern = '/\\d+'),
+		num = str_extract(raw, "^[^/\\s]+"),
+		denom = str_extract(raw, "(?<=/)[^/\\s]+"),
+		suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
+
+		# cur_unit = case_when(
+		# 	part_counts >= 1 & !isTRUE(has_numbers) ~ paste0(num,"/",denom),
+		# 	part_counts == 0 ~ num
+		# )
+	) %>% 
+	left_join(
+		., 
+		unit_dict,
+		join_by(num == code))  %>% 
+	rename_with(.cols = target_unit:description, .fn  = ~paste0('num_', .x)) %>% 
+	left_join(
+		., 
+		unit_dict,
+		join_by(denom == code)) %>% 
+	rename_with(.cols = target_unit:description, .fn  = ~paste0('denom_', .x)) %>% 
+	mutate(
+		# cur_unit = case_when(
+		# # 	part_counts >= 1 & !isTRUE(has_numbers) ~ paste0(num,"/",denom),
+		# # 	part_counts == 0 ~ num
+		# )
+	)
+
+
+units %>%
+	filter(part_counts == 1) %>%
+	count(num) %>%
+	arrange(desc(n))
+
+
+
+
 # This script is for testing the updated `post_results` function.
 # It assumes that 'plumber.R' has been sourced, providing the
 # `post_results` function and its dependencies. If not, you may need to run:
