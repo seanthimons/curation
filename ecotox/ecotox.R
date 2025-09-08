@@ -151,12 +151,11 @@
 	# 			axis.text.x = element_text(angle = 90L)
 	# 		)
 
-		# library(ComptoxR)
+	# library(ComptoxR)
 
-		setwd(here("ecotox"))
+	setwd(here("ecotox"))
 
-		deploy = FALSE
-	
+	deploy = FALSE
 }
 # Checkpoint -------------------------------------------------------------
 
@@ -774,8 +773,16 @@ if (rebuild_is_needed) {
 		rm(eco_con)
 	}
 
-	rm(files_to_check, files_exist_check, file_ages_days, rebuild_is_needed, overwrite_sql, select_sql, species_query, life_stage)
-
+	rm(
+		files_to_check,
+		files_exist_check,
+		file_ages_days,
+		rebuild_is_needed,
+		overwrite_sql,
+		select_sql,
+		species_query,
+		life_stage
+	)
 }
 # deploy ------------------------------------------------------------------
 
@@ -788,6 +795,8 @@ if (deploy) {
 } else {
 	cli::cli_alert_success('Deploying local connection')
 	eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+
+	source("plumber.R")
 
 	rm(deploy)
 }
