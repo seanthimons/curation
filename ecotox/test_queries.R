@@ -119,11 +119,11 @@ units <- tbl(eco_con, 'results') %>%
 	arrange(desc(n), desc(cas_n), desc(species_n), desc(ref_n)) %>%
 	filter(cas_n >= 10 & ref_n > 1) %>%
 	collect() %>%
-	# select(
-	# 	-cas_n,
-	# 	-species_n,
-	# 	-ref_n
-	# ) %>%
+	select(
+		-cas_n,
+		-species_n,
+		-ref_n
+	) %>%
 	mutate(
 		orig_part_counts = str_count(orig, pattern = "/"),
 		raw = str_remove_all(orig, 'ae|AE|ai|AI|fl|litter|of |eu|/eu|-atoms') %>%
@@ -142,25 +142,35 @@ units <- tbl(eco_con, 'results') %>%
 					'dpm' = 'counts/min'
 				)
 			) %>%
+			# The regex replaces a space following a number in the denominator
+			# of a fraction with an underscore.
+			# e.g. "ml/100 g" -> "ml/100_g"
 			str_replace_all(
 				.,
 				pattern = "/(\\d*\\.?\\d+) ",
 				replacement = "/\\1_"
 			) %>%
 			str_squish(),
+		# Counts the number of forward slashes, to identify ratios.
 		part_counts = str_count(raw, pattern = "/"),
+		# The regex checks for a slash followed by one or more digits.
 		has_numbers = str_detect(raw, pattern = '/\\d+'),
+		# The regex extracts characters from the start of the string
+		# until a forward slash or space is encountered (i.e., the numerator).
 		num = str_extract(raw, "^[^/\\s]+"),
+		# The regex uses a positive lookbehind to extract characters
+		# that follow a forward slash (i.e., the denominator).
 		denom = str_extract(raw, "(?<=/)[^/\\s]+"),
+		# The regex matches the first word and captures everything that
+		# follows it.
 		suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
 		cur_units = case_when(
+			# The regex checks for the presence of a percent sign.
 			str_detect(raw, pattern = '%') ~ NA,
 			part_counts >= 1 ~ paste0(num, "/", denom),
 			.default = num
 		)
-	)
-
-
+	) %>% 
 left_join(
 	.,
 	standardtox_dict,
@@ -172,7 +182,20 @@ left_join(
 		standardtox_dict,
 		join_by(denom == unit)
 	) %>%
-	rename(denom_type = type)
+	rename(denom_type = type) %>% 
+	mutate(domain_type = case_when(
+		str_detect(raw, pattern = "%") ~ 'percent',
+		num_type == 'mass' & denom_type == 'volume' ~ 'concentration',
+		num_type == 'mass' & denom_type == 'mass' ~ 'concentration',
+		num_type == 'mass' & is.na(denom_type) ~ 'mass',
+		num_type == 'mass' & denom_type == 'area' ~ 'application',
+		num_type == 
+)
+		
+		
+
+
+	))
 
 units %>%
 	distinct(num) %>%
@@ -279,3 +302,5 @@ test_combination_casrn_group_standard <- post_results(
 	eco_group = "Fish",
 	standard = TRUE
 )
+
+
