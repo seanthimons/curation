@@ -70,6 +70,13 @@ tbl(eco_con, 'results') %>%
 	glimpse() %>% 
 	View()
 
+library(units)
+
+units::valid_udunits() %>% View()
+
+a <- set_units(1, 'hectare')
+units(a) <- units::make_units(m^2)
+a
 
 
 units <- tbl(eco_con, 'results') %>%
@@ -106,7 +113,7 @@ units <- tbl(eco_con, 'results') %>%
 				"0/00" = "ppt",
 				'ml' = 'mL',
 				'ul' = 'uL',
-				'acres|acre' = 'ac',
+			#	'acres|acre' = 'ac',
 				'dpm' = 'counts/min'
 			)) %>%
 			str_replace_all(., pattern = "/(\\d*\\.?\\d+) ", replacement = "/\\1_") %>%

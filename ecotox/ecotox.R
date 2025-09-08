@@ -1,25 +1,163 @@
 # packages ----------------------------------------------------------------
-
 {
-	library(rio)
-	library(janitor)
-	library(tidyverse)
-	library(here)
-	library(httr)
-	library(rvest)
-	library(polite)
-	library(arrow)
-	library(duckdb)
-	library(duckplyr)
-	library(plumber)
+	{
+		install_booster_pack <- function(package, load = TRUE) {
+			# Loop through each package
+			for (pkg in package) {
+				# Check if the package is installed
+				if (!requireNamespace(pkg, quietly = TRUE)) {
+					# If not installed, install the package
+					install.packages(pkg)
+				}
+				# Load the package
+				if (load) {
+					library(pkg, character.only = TRUE)
+				}
+			}
+		}
 
-	# library(ComptoxR)
+		if (file.exists('packages.txt')) {
+			packages <- read.table('packages.txt')
 
-	setwd(here("ecotox"))
+			install_booster_pack(package = packages$Package, load = FALSE)
 
-	deploy = FALSE
+			rm(packages)
+		} else {
+			# Packages ----
+
+			booster_pack <- c(
+				## IO ----
+				'fs',
+				'here',
+				'janitor',
+				'rio',
+				'tidyverse',
+				# 'data.table',
+				#'mirai',
+				#'targets',
+				#'crew',
+
+				## DB ----
+				'arrow',
+				# 'nanoparquet',
+				'duckdb',
+				'duckplyr',
+				'dbplyr',
+
+				## EDA ----
+				'skimr',
+
+				## Web ----
+				'rvest',
+				'polite',
+				'plumber',
+				#	'plumber2', #Still experimental
+				'httr',
+				'httr2',
+
+				## Plot ----
+				# 'paletteer',
+				# 'ragg',
+				# 'camcorder',
+				# 'esquisse',
+				# 'geofacet',
+				# 'patchwork',
+				# 'marquee',
+				# 'ggiraph',
+				# 'geomtextpath',
+				# 'ggpattern',
+				# 'ggbump',
+				# 'gghighlight',
+				# 'ggdist',
+				# 'ggforce',
+				# 'gghalves',
+				# 'ggtext',
+				# 'ggrepel',   # Suggested for non-overlapping labels
+				# 'gganimate', # Suggested for animations
+				# 'ggsignif',
+				# 'ggTimeSeries',
+
+				## Modeling ----
+				# 'tidymodels',
+
+				## Shiny ----
+				# 'shiny',
+				# 'bslib',
+				# 'DT',
+				# 'plotly',
+
+				## Reporting ----
+				# 'quarto',
+				# 'gt',
+
+				## Spatial ----
+				# 'sf',
+				# 'geoarrow',
+				# 'duckdbfs',
+				# 'duckspatial',
+				# 'ducksf',
+				# 'tidycensus', # Needs API
+				# 'mapgl',
+				# 'dataRetrieval', # Needs API
+				# 'StreamCatTools',
+
+				## Misc ----
+				# 'devtools',
+				# 'usethis',
+				# 'pak',
+				'usethis',
+				'remotes'
+			)
+
+			# ! Change load flag to load packages
+			install_booster_pack(package = booster_pack, load = TRUE)
+			rm(install_booster_pack, booster_pack)
+		}
+	}
+
+	# Custom Functions ----
+
+	# `%ni%` <- Negate(`%in%`)
+
+	# skim_count <- skim_with(
+	# 	numeric = sfl(
+	# 		n = length,
+	# 		min = ~ min(.x, na.rm = T),
+	# 		median = ~ median(.x, na.rm = T),
+	# 		max = ~ max(.x, na.rm = T)
+	# 	)
+	# )
+
+	# Camcorder ----
+
+	# gg_record(
+	# 	here::here('output'),
+	# 	device = "png",
+	# 	width = 10,
+	# 	height = 7,
+	# 	units = "in",
+	# 	dpi = 320
+	# )
+
+	# Theme ----
+
+	# theme_custom <- function() {
+	# 	theme_minimal() +
+	# 		theme(
+	# 			plot.background = element_rect(colour = "white"),
+	# 			panel.grid.major = element_blank(),
+	# 			panel.grid.minor = element_blank(),
+	# 			strip.background = element_rect(colour = "white"),
+	# 			axis.text.x = element_text(angle = 90L)
+	# 		)
+
+		# library(ComptoxR)
+
+		setwd(here("ecotox"))
+
+		deploy = FALSE
+	
 }
-
 # Checkpoint -------------------------------------------------------------
 
 # Determine if a rebuild is necessary.
@@ -45,11 +183,24 @@
 			units = "days"
 		)
 		if (any(file_ages_days > 180)) {
-			cli::cli_alert_warning(
-				"One or more data files are older than 180 days. Rebuilding dataset."
-			)
-			tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
-			TRUE
+			if (interactive()) {
+				cli::cli_alert_warning(
+					"One or more data files are older than 180 days."
+				)
+				tibble(files_to_check, files_exist_check, file_ages_days) %>% print()
+
+				if (usethis::ui_yeah("Do you want to rebuild the dataset?")) {
+					cli::cli_alert_success("User approved. Rebuilding dataset.")
+					TRUE
+				} else {
+					cli::cli_alert_abort("User declined. Skipping rebuild.")
+					FALSE
+				}
+			} else {
+				# In non-interactive mode, proceed with rebuild
+				cli::cli_alert_warning("Data files are old. Rebuilding dataset.")
+				TRUE
+			}
 		} else {
 			cli::cli_alert_success(
 				"All data files are present and up-to-date. Skipping rebuild."
@@ -622,6 +773,9 @@ if (rebuild_is_needed) {
 		dbDisconnect(eco_con)
 		rm(eco_con)
 	}
+
+	rm(files_to_check, files_exist_check, file_ages_days, rebuild_is_needed, overwrite_sql, select_sql, species_query, life_stage)
+
 }
 # deploy ------------------------------------------------------------------
 
@@ -629,7 +783,13 @@ if (rebuild_is_needed) {
 if (deploy) {
 	cli::cli_alert_success('Deploying API + Documentation')
 	plumber::pr("plumber.R") %>% plumber::pr_run()
-}else{
+
+	rm(deploy)
+} else {
 	cli::cli_alert_success('Deploying local connection')
 	eco_con <- dbConnect(duckdb(), dbdir = "ecotox.duckdb", read_only = FALSE)
+
+	rm(deploy)
 }
+
+rm(rebuild_is_needed)
