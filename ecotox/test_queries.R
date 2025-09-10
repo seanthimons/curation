@@ -64,23 +64,31 @@ unit_dict <- rio::import(here('ecotox', 'MeasureUnit.csv')) %>%
 	) %>%
 	select(-description)
 
-standardtox_dict <- rio::import(here('ecotox', 'lookup_unit_result.csv')) %>%
-	clean_names() %>%
-	select(
-		unit,
-		type
-	)
+unit_result <- rio::import(here('ecotox', 'lookup_unit_result.csv')) %>%
+	clean_names()
+
+unit_symbols <- rio::import(here(
+	'ecotox',
+	'lookup_unit_result_symbols.csv'
+)) %>%
+	clean_names()
 
 
 # Diagnostics ------------------------------------------------------------
 
 tbl(eco_con, 'results') %>%
-	filter(is.na(conc1_unit)) %>%
-	#filter(is.na(conc1_unit) == 'ppmw') %>%
-	inner_join(tbl(eco_con, 'tests'), join_by('test_id')) %>%
-	count(test_cas, species_number) %>%
+	#filter(is.na(conc1_unit)) %>%
+	filter(conc1_unit == 'AI lb/100 gal/acre') %>%
+	inner_join(., tbl(eco_con, 'tests'), join_by('test_id')) %>%
+	inner_join(
+		.,
+		tbl(eco_con, 'references') %>%
+			select(reference_number, publication_year),
+		join_by('reference_number')
+	) %>%
+	add_count(test_cas, species_number) %>%
 	inner_join(., tbl(eco_con, 'species')) %>%
-	select(test_cas, species_number, common_name, latin_name, n) %>%
+	#select(test_cas, species_number, common_name, latin_name, n) %>%
 	arrange(desc(n)) %>%
 	#head(., 5) %>%
 	collect() %>%
@@ -90,16 +98,15 @@ tbl(eco_con, 'results') %>%
 
 # Testing ----------------------------------------------------------------
 
-library(units)
+# library(units)
 
-valid_units <- units::valid_udunits()
+# valid_units <- units::valid_udunits()
 
-install_unit("gal100", def = "100 gal")
+# install_unit("gal100", def = "100 gal")
 
-a <- set_units(5 / 100, 'lb/ gal')
-units(a) <- units::make_units(g / L)
-a <- set_units(a, 'g/L')
-
+# a <- set_units(5 / 100, 'lb/ gal')
+# units(a) <- units::make_units(g / L)
+# a <- set_units(a, 'g/L')
 
 # Parsing ----------------------------------------------------------------
 
@@ -111,38 +118,62 @@ units <- tbl(eco_con, 'results') %>%
 			select(test_id, test_cas, species_number, reference_number),
 		join_by('test_id')
 	) %>%
+	inner_join(
+		.,
+		tbl(eco_con, 'references') %>%
+			select(reference_number, publication_year),
+		join_by('reference_number')
+	) %>%
 	group_by(orig) %>%
 	summarize(
 		n = n(),
 		cas_n = n_distinct(test_cas),
 		species_n = n_distinct(species_number),
-		ref_n = n_distinct(reference_number)
+		ref_n = n_distinct(reference_number),
+		date_n = n_distinct(publication_year),
+		ref_date = max(
+			sql("TRY_CAST(REPLACE(publication_year, 'xx', '15') AS NUMERIC)"),
+			na.rm = TRUE
+		)
 	) %>%
 	ungroup() %>%
-	arrange(desc(n), desc(cas_n), desc(species_n), desc(ref_n)) %>%
-	filter(cas_n >= 10 & ref_n > 1) %>%
+	arrange(
+		desc(n),
+		desc(cas_n),
+		desc(species_n),
+		desc(ref_n),
+		#	desc(ref_date)
+	) %>%
+	filter(!is.na(orig) & n > 2 & ref_n > 2) %>%
 	collect() %>%
 	select(
+		-n,
 		-cas_n,
 		-species_n,
-		-ref_n
+		-ref_n,
+		-date_n,
+		-ref_date,
 	) %>%
 	mutate(
-		orig_part_counts = str_count(orig, pattern = "/"),
-		raw = str_remove_all(orig, 'ae|AE|ai|AI|fl|litter|of |eu|/eu|-atoms') %>%
+		raw = str_remove_all(orig, 'ae|AE|ai|AI|fl|litter|of |eu|EU|-atoms') %>%
+			str_squish() %>%
 			str_replace_all(
 				.,
 				c(
 					"/ |-" = "/",
 					"sd" = "seed",
 					"bt" = "bait",
+					'bw' = 'bwdt',
+					'wet ' = 'wet_',
+					'dry ' = 'dry_',
 					"0/00" = "ppt",
 					'ppmw' = 'ppm',
 					'ppmv' = 'ppm',
 					'ml' = 'mL',
 					'ul' = 'uL',
 					#	'acres|acre' = 'ac',
-					'dpm' = 'counts/min'
+					'dpm' = 'counts/min',
+					'% ' = '%_'
 				)
 			) %>%
 			# The regex replaces a space following a number in the denominator
@@ -152,33 +183,28 @@ units <- tbl(eco_con, 'results') %>%
 				.,
 				pattern = "/(\\d*\\.?\\d+) ",
 				replacement = "/\\1_"
-			) %>%
-			str_squish(),
+			) #%>%
+		#str_replace_all(., c(' ' = "/")) %>%
+		#str_squish(),
 		# Counts the number of forward slashes, to identify ratios.
-		part_counts = str_count(raw, pattern = "/"),
+		#	part_counts = str_count(raw, pattern = "/"),
 		# The regex checks for a slash followed by one or more digits.
-		has_numbers = str_detect(raw, pattern = '/\\d+'),
-		# The regex extracts characters from the start of the string
-		# until a forward slash or space is encountered (i.e., the numerator).
-		num = str_extract(raw, "^[^/\\s]+"),
-		# The regex uses a positive lookbehind to extract characters
-		# that follow a forward slash (i.e., the denominator).
-		denom = str_extract(raw, "(?<=/)[^/\\s]+"),
-		# The regex matches the first word and captures everything that
-		# follows it.
-		suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
-		cur_units = case_when(
-			# The regex checks for the presence of a percent sign.
-			str_detect(raw, pattern = '%') ~ NA,
-			part_counts >= 1 ~ paste0(num, "/", denom),
-			.default = num
-		)
-	) %>%
-	left_join(
-		.,
-		standardtox_dict,
-		join_by(num == unit)
-	) %>%
+		#	has_numbers = str_detect(raw, pattern = '/\\d+'),
+
+		#	u = raw
+	)
+separate_wider_regex(
+	u,
+	patterns = "/| ",
+	names_sep = "_",
+	too_few = 'align_start'
+)
+
+left_join(
+	.,
+	standardtox_dict,
+	join_by(num == unit)
+) %>%
 	rename(num_type = type) %>%
 	left_join(
 		.,
@@ -255,6 +281,27 @@ units <- tbl(eco_con, 'results') %>%
 		)
 	)
 
+mutate(
+	# The regex extracts characters from the start of the string
+	# until a forward slash or space is encountered (i.e., the numerator).
+	num = str_extract(raw, "^[^/\\s]+"),
+	# The regex uses a positive lookbehind to extract characters
+	# that follow a forward slash (i.e., the denominator).
+	denom = str_extract(raw, "(?<=/)[^/\\s]+"),
+
+	# The regex matches the first word and captures everything that
+	# follows it.
+	suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
+	cur_units = case_when(
+		# The regex checks for the presence of a percent sign.
+		str_detect(raw, pattern = '%') ~ NA,
+		part_counts >= 1 ~ paste0(num, "/", denom),
+		.default = num
+	)
+)
+
+units %>%
+	filter(str_detect(orig, 'mg/L 10 mi') | str_detect(raw, 'mg/L 10 mi'))
 
 units %>%
 	distinct(num) %>%
