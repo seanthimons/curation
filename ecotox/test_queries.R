@@ -71,7 +71,8 @@ unit_symbols <- rio::import(here(
 	'ecotox',
 	'lookup_unit_result_symbols.csv'
 )) %>%
-	clean_names()
+	clean_names() %>%
+	bind_rows(mutate(., symbol = toupper(symbol)))
 
 
 # Diagnostics ------------------------------------------------------------
@@ -155,17 +156,29 @@ units <- tbl(eco_con, 'results') %>%
 		-ref_date,
 	) %>%
 	mutate(
-		raw = str_remove_all(orig, 'ae|AE|ai|AI|fl|litter|of |eu|EU|-atoms') %>%
-			str_squish() %>%
+		raw = str_replace_all(
+			orig,
+			{
+				# Create a regex pattern for whole-word matching of symbols.
+				# Symbols are sorted by length (desc) to prioritize longer matches 
+				# (e.g., 'mg/L' over 'g').
+				# Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not 
+				# part of other words.
+				# 'str_escape' is used to handle special characters in symbols.
+				unit_symbols %>%
+					arrange(-stringr::str_length(symbol)) %>%
+					pull(symbol) %>%
+					stringr::str_escape() %>%
+					paste0("(?<!\\w)", ., "(?!\\w)") %>%
+					stringr::str_flatten(., "|")
+			},
+			replacement = ""
+		)	%>% 
+			str_squish() %>% 
 			str_replace_all(
 				.,
 				c(
 					"/ |-" = "/",
-					"sd" = "seed",
-					"bt" = "bait",
-					'bw' = 'bwdt',
-					'wet ' = 'wet_',
-					'dry ' = 'dry_',
 					"0/00" = "ppt",
 					'ppmw' = 'ppm',
 					'ppmv' = 'ppm',
@@ -173,9 +186,9 @@ units <- tbl(eco_con, 'results') %>%
 					'ul' = 'uL',
 					#	'acres|acre' = 'ac',
 					'dpm' = 'counts/min',
-					'% ' = '%_'
-				)
-			) %>%
+					'% ' = '%_',
+					'fl oz' = 'fl_oz'
+				)) %>% 
 			# The regex replaces a space following a number in the denominator
 			# of a fraction with an underscore.
 			# e.g. "ml/100 g" -> "ml/100_g"
@@ -183,22 +196,22 @@ units <- tbl(eco_con, 'results') %>%
 				.,
 				pattern = "/(\\d*\\.?\\d+) ",
 				replacement = "/\\1_"
-			) #%>%
-		#str_replace_all(., c(' ' = "/")) %>%
-		#str_squish(),
-		# Counts the number of forward slashes, to identify ratios.
-		#	part_counts = str_count(raw, pattern = "/"),
-		# The regex checks for a slash followed by one or more digits.
-		#	has_numbers = str_detect(raw, pattern = '/\\d+'),
-
-		#	u = raw
-	)
-separate_wider_regex(
+			) %>%
+			str_replace_all(., c(' ' = "/", "//" = "/")) %>%
+			str_squish(),
+		# suffix = str_extract_all(orig, str_flatten(unit_symbols$symbol, "|")),
+		# suffix = map_chr(suffix, ~ paste(.x, collapse = " "))
+		u = raw
+	) %>% 
+	separate_wider_delim(
 	u,
-	patterns = "/| ",
+	delim = "/",
 	names_sep = "_",
 	too_few = 'align_start'
-)
+) %>% 
+	mutate(across(dplyr::starts_with('u'), ~na_if(.x, "")))
+
+# ! HERE
 
 left_join(
 	.,
