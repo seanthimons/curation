@@ -65,36 +65,103 @@ unit_dict <- rio::import(here('ecotox', 'MeasureUnit.csv')) %>%
 	select(-description)
 
 unit_result <- rio::import(here('ecotox', 'lookup_unit_result.csv')) %>%
-	clean_names()
-
-unit_symbols <- rio::import(here(
-	'ecotox',
-	'lookup_unit_result_symbols.csv'
-)) %>%
 	clean_names() %>%
-	bind_rows(mutate(., symbol = toupper(symbol)))
+	select(
+		-source,
+		-unit_si,
+		-unit_conv_si,
+		-conv,
+		-prefix,
+		-word,
+		-remove
+	) %>%
+	mutate(
+		unit = case_when(
+			unit == 'fl oz' ~ 'fl_oz',
+			.default = unit
+		)
+	)
+
+# fmt: skip
+unit_symbols <- 
+tibble::tribble(
+~symbol,	~name,
+"CEC","soil.cation.exchange",
+"DT","digestivetract",
+"H2O","water",
+"TI","tissue",
+"ae","acidequivalents",
+"agar","agar",
+"ai","activeingredient",
+"bdwt","bodyweight",
+"blood","blood",
+"bt","bait",
+"bw","bodyweight",
+"caliper","caliper",
+"circ","circular",
+"dbh","diameterbreastheight",
+"dia","diameter",
+"diet","diet",
+"disk","disk",
+"dry wght", "dry weight",
+"dw","dry weight",
+"dry","dry",
+"egg","egg",
+"eu","experimentalunit",
+"fd","food",
+"fish","fish",
+"food","food",
+"humus","humus",
+"ld","lipid",
+"lipid","lipid",
+"litter","litter",
+"mat","material",
+"media","media",
+"om","organicmatter",
+"org","organism",
+"pellet","pellet",
+"plt","pellet",
+"sd","seed",
+"seed","seed",
+"soil","soil",
+"solvent","solvent",
+"tubers","tubers",
+"wet wght", "wet weight",
+"wet","wet",
+"wt","wet",
+'wght', 'weight'
+) %>% 
+bind_rows(mutate(., symbol = toupper(symbol)))
 
 
 # Diagnostics ------------------------------------------------------------
 
 tbl(eco_con, 'results') %>%
 	#filter(is.na(conc1_unit)) %>%
-	filter(conc1_unit == 'AI lb/100 gal/acre') %>%
+	filter(conc1_unit == 'ppm w/w') %>%
 	inner_join(., tbl(eco_con, 'tests'), join_by('test_id')) %>%
+	add_count(test_cas, species_number) %>%
+	inner_join(., tbl(eco_con, 'species')) %>%
 	inner_join(
 		.,
 		tbl(eco_con, 'references') %>%
 			select(reference_number, publication_year),
 		join_by('reference_number')
 	) %>%
-	add_count(test_cas, species_number) %>%
-	inner_join(., tbl(eco_con, 'species')) %>%
-	#select(test_cas, species_number, common_name, latin_name, n) %>%
+	select(
+		test_cas,
+		species_number,
+		common_name,
+		latin_name,
+		organism_habitat,
+		n,
+		publication_year
+	) %>%
 	arrange(desc(n)) %>%
+	distinct() %>%
 	#head(., 5) %>%
 	collect() %>%
-	glimpse() %>%
-	View()
+	glimpse() #%>%	View()
 
 
 # Testing ----------------------------------------------------------------
@@ -145,6 +212,7 @@ units <- tbl(eco_con, 'results') %>%
 		desc(ref_n),
 		#	desc(ref_date)
 	) %>%
+	# ! NOTE: Removes infrequent units
 	filter(!is.na(orig) & n > 2 & ref_n > 2) %>%
 	collect() %>%
 	select(
@@ -156,13 +224,14 @@ units <- tbl(eco_con, 'results') %>%
 		-ref_date,
 	) %>%
 	mutate(
+		idx = 1:n(),
 		raw = str_replace_all(
 			orig,
 			{
 				# Create a regex pattern for whole-word matching of symbols.
-				# Symbols are sorted by length (desc) to prioritize longer matches 
+				# Symbols are sorted by length (desc) to prioritize longer matches
 				# (e.g., 'mg/L' over 'g').
-				# Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not 
+				# Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not
 				# part of other words.
 				# 'str_escape' is used to handle special characters in symbols.
 				unit_symbols %>%
@@ -173,22 +242,30 @@ units <- tbl(eco_con, 'results') %>%
 					stringr::str_flatten(., "|")
 			},
 			replacement = ""
-		)	%>% 
-			str_squish() %>% 
+		) %>%
+			str_squish() %>%
 			str_replace_all(
 				.,
 				c(
 					"/ |-" = "/",
 					"0/00" = "ppt",
-					'ppmw' = 'ppm',
-					'ppmv' = 'ppm',
-					'ml' = 'mL',
-					'ul' = 'uL',
+					'\\bppmw\\b' = 'ppm',
+					'\\bppmv\\b' = 'ppm',
+					'\\bppm w/w\\b' = 'ppm',
+					'\\bml\\b' = 'mL',
+					'\\bul\\b' = 'uL',
+					'\\bof\\b' = "",
+					'\\bmi\\b' = 'min',
+					# '\\bh\\b' = 'hour',
+					# '\\bwk\\b' = 'week',
+					# '\\byr\\b' = 'year',
+					# '\\bd\\b' = 'day',
 					#	'acres|acre' = 'ac',
-					'dpm' = 'counts/min',
+					#'dpm' = 'counts/min',
 					'% ' = '%_',
 					'fl oz' = 'fl_oz'
-				)) %>% 
+				)
+			) %>%
 			# The regex replaces a space following a number in the denominator
 			# of a fraction with an underscore.
 			# e.g. "ml/100 g" -> "ml/100_g"
@@ -197,134 +274,135 @@ units <- tbl(eco_con, 'results') %>%
 				pattern = "/(\\d*\\.?\\d+) ",
 				replacement = "/\\1_"
 			) %>%
-			str_replace_all(., c(' ' = "/", "//" = "/")) %>%
-			str_squish(),
-		# suffix = str_extract_all(orig, str_flatten(unit_symbols$symbol, "|")),
-		# suffix = map_chr(suffix, ~ paste(.x, collapse = " "))
+			str_replace_all(
+				.,
+				c(
+					' ' = "/",
+					"//" = "/",
+					"%_v/v" = "%_v_v",
+					"%_w/v" = "%_w_v",
+					"%_w/w" = "%_w_w",
+					"%_g/g" = "%_w_w"
+				)
+			) %>%
+			str_squish() %>%
+			str_remove(., "/$"),
+
+		has_number = str_detect(raw, pattern = '/\\d+'),
+		suffix = str_extract_all(orig, str_flatten(unit_symbols$symbol, "|")),
+		suffix = map_chr(suffix, ~ paste(.x, collapse = " ")),
 		u = raw
-	) %>% 
+	) %>%
 	separate_wider_delim(
-	u,
-	delim = "/",
-	names_sep = "_",
-	too_few = 'align_start'
-) %>% 
-	mutate(across(dplyr::starts_with('u'), ~na_if(.x, "")))
+		u,
+		delim = "/",
+		names_sep = "_",
+		too_few = 'align_start'
+	) %>%
+	mutate(
+		across(dplyr::starts_with('u'), ~ na_if(.x, "")),
+		part_counts = rowSums(!is.na(select(., dplyr::starts_with('u'))))
+	) %>%
+	relocate(part_counts, .after = has_number) %>%
+	pivot_longer(
+		.,
+		cols = dplyr::starts_with('u'),
+		names_to = 'name'
+	) %>%
+	mutate(
+		value = case_when(
+			value == "%_" ~ "%",
+			value == "%_v_v" ~ "% v/v",
+			value == "%_w_v" ~ "% w/v",
+			value == "%_w_w" ~ "% w/v",
+			.default = value
+		),
+		num_mod = str_extract(value, pattern = "\\b\\d*\\.?\\d+_") %>%
+			str_remove_all(., pattern = "_") %>%
+			as.numeric(),
+		value = str_remove_all(value, pattern = "\\b\\d*\\.?\\d+_")
+	) %>%
+	left_join(
+		.,
+		unit_result,
+		join_by(value == unit)
+	) %>%
+	pivot_wider(
+		.,
+		names_from = name,
+		values_from = value:type
+	) %>%
+	mutate(
+		across(matches("^(num_mod|mult)"), ~ if_else(is.na(.x), 1, .x)),
+		conversion = (multiplier_u_1 * num_mod_u_1) /
+			(multiplier_u_2 * num_mod_u_2) /
+			(multiplier_u_3 * num_mod_u_3),
+		# The `pmap_chr` function is used to apply a function row-wise.
+		# Here, it combines unit and type columns, omitting any NA values,
+		# and collapses them into a single string separated by "/".
+		cur_unit = purrr::pmap_chr(
+			list(unit_conv_u_1, unit_conv_u_2, unit_conv_u_3),
+			~ paste(na.omit(c(...)), collapse = "/")
+		),
+		cur_unit_type = purrr::pmap_chr(
+			list(type_u_1, type_u_2, type_u_3),
+			~ paste(na.omit(c(...)), collapse = "/")
+		),
+		unit_domain = case_when(
+			# --- Rule 1: Invalid or Uncategorized Units (Highest Priority) ---
+			# Catch anything with "noscience" or empty strings first.
+			str_detect(cur_unit_type, "noscience") | cur_unit_type == "" ~
+				"Invalid / Uncategorized",
+
+			# --- Rule 2: Dosing Rates (Amount / Normalization / Time) ---
+			# These are the most specific, so they must come before simpler rates or concentrations.
+			str_ends(cur_unit_type, "/time") & str_count(cur_unit_type, "/") == 2 ~
+				"Dosing Rate",
+
+			# --- Rule 3: Application Rates (Amount / Area) ---
+			cur_unit_type %in% c("mass/area", "volume/area", "mol/area") ~
+				"Application Rate",
+
+			# --- Rule 4: Concentrations (Amount / Volume or Amount / Mass) ---
+			# Liquid-based concentrations
+			cur_unit_type %in% c("mass/volume", "mol/volume", "fraction/volume") ~
+				"Concentration (Liquid)",
+			# Matrix-based concentrations (e.g., in soil, tissue)
+			cur_unit_type %in% c("mass/mass", "mol/mass", "volume/mass") ~
+				"Concentration (Matrix)",
+
+			# --- Rule 5: Simple Rates (Amount / Time) ---
+			cur_unit_type %in% c("mass/time", "volume/time", "fraction/time") ~
+				"Rate",
+
+			# --- Rule 6: Dimensionless Ratios ---
+			cur_unit_type %in% c("fraction", "volume/volume") ~ "Ratio / Fraction",
+
+			# --- Rule 7: Radioactivity ---
+			# Catches all variations like "radioactivity/volume", "radioactivity/mass", etc.
+			str_starts(cur_unit_type, "radioactivity") ~ "Radioactivity",
+
+			# --- Rule 8: Linear Density (Amount / Length) ---
+			cur_unit_type %in% c("mass/length", "volume/length") ~ "Linear Density",
+
+			# --- Rule 9: Simple Fundamental Quantities ---
+			cur_unit_type == "mass" ~ "Mass",
+			cur_unit_type == "volume" ~ "Volume",
+			cur_unit_type == "mol" ~ "Amount (molar)",
+			cur_unit_type == "length" ~ "Length",
+			cur_unit_type == "time" ~ "Time",
+
+			# --- Rule 10: Catch-all for Other Valid but Complex Types ---
+			# This will group any remaining complex but valid units.
+			TRUE ~ "Other Complex Unit"
+		)
+	)
+unit_conversion_tbl <- units %>%
+	select()
 
 # ! HERE
 
-left_join(
-	.,
-	standardtox_dict,
-	join_by(num == unit)
-) %>%
-	rename(num_type = type) %>%
-	left_join(
-		.,
-		standardtox_dict,
-		join_by(denom == unit)
-	) %>%
-	rename(denom_type = type) %>%
-	mutate(
-		derived_unit = case_when(
-			# -- Dosage per unit/organism (highest priority) --
-			!is.na(cur_units) &
-				str_detect(cur_units, "/org|/fish|/egg|/bee|/cell|/disk|/cntr") ~
-				"dosage (amount/unit)",
-
-			# -- Specific Formulations / Non-science --
-			!is.na(cur_units) & str_to_lower(cur_units) == "granules" ~ "noscience",
-
-			# -- Application Rates (amount per area) --
-			num_type == "mass" & denom_type == "area" ~
-				"application rate (mass/area)",
-			num_type == "volume" & denom_type == "area" ~
-				"application rate (volume/area)",
-			num_type == "mol" & denom_type == "area" ~ "molar application rate",
-
-			# -- Molar Concentration (moles per volume) --
-			num_type %in% c("mol", "mol/volume") & denom_type == "volume" ~
-				"molar concentration",
-			!is.na(cur_units) & cur_units %in% c("mM", "M", "nM", "pM", "uM", "N") ~
-				"molar concentration",
-			!is.na(cur_units) & str_detect(cur_units, fixed("mol/")) ~
-				"molar concentration",
-
-			# -- Concentration (mass/volume) --
-			is.na(cur_units) & str_detect(raw, "% w/v") ~
-				"concentration (mass/volume)",
-			num_type == "mass" & denom_type == "volume" ~
-				"concentration (mass/volume)",
-
-			# -- Concentration (volume/mass) -- NEW CATEGORY
-			num_type == "volume" & denom_type == "mass" ~
-				"concentration (volume/mass)",
-
-			# -- Fractions (like-units divided by like-units) --
-			is.na(cur_units) & str_detect(raw, "% v/v") ~ "volume fraction",
-			num_type == "mass" & denom_type == "mass" ~ "mass fraction",
-			num_type == "volume" & denom_type == "volume" ~ "volume fraction",
-			num_type == "fraction" & (is.na(denom_type) | denom_type == "noscience") ~
-				"fraction (dimensionless)",
-
-			# -- Molality (moles per mass) --
-			num_type %in% c("mol", "mol/volume") & denom_type == "mass" ~ "molality",
-
-			# -- Linear Density (mass per length) --
-			num_type == "mass" & denom_type == "length" ~ "linear density",
-
-			# -- Radioactivity Units --
-			num_type == "radioactivity" & denom_type == "volume" ~
-				"radioactivity concentration",
-			num_type == "radioactivity" & denom_type == "mass" ~ "specific activity",
-			num_type == "radioactivity" & denom_type == "mol" ~ "molar activity",
-
-			# -- Flow/Count Rates (amount per time) --
-			(num_type == "mass" | num_type == "volume") & denom_type == "time" ~
-				"flow rate",
-			!is.na(cur_units) & str_detect(cur_units, "counts/min") ~ "count rate",
-
-			# -- Base Units (not derived from a ratio) --
-			is.na(denom_type) &
-				num_type %in% c("mass", "volume", "length", "mol", "radioactivity") ~
-				num_type,
-
-			# -- Final catch-all for anything else --
-			TRUE ~ NA_character_
-		)
-	)
-
-mutate(
-	# The regex extracts characters from the start of the string
-	# until a forward slash or space is encountered (i.e., the numerator).
-	num = str_extract(raw, "^[^/\\s]+"),
-	# The regex uses a positive lookbehind to extract characters
-	# that follow a forward slash (i.e., the denominator).
-	denom = str_extract(raw, "(?<=/)[^/\\s]+"),
-
-	# The regex matches the first word and captures everything that
-	# follows it.
-	suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
-	cur_units = case_when(
-		# The regex checks for the presence of a percent sign.
-		str_detect(raw, pattern = '%') ~ NA,
-		part_counts >= 1 ~ paste0(num, "/", denom),
-		.default = num
-	)
-)
-
-units %>%
-	filter(str_detect(orig, 'mg/L 10 mi') | str_detect(raw, 'mg/L 10 mi'))
-
-units %>%
-	distinct(num) %>%
-	print(n = Inf)
-
-units %>%
-	filter(part_counts == 1) %>%
-	count(num) %>%
-	arrange(desc(n))
-
+# testing + validation ---------------------------------------------------
 
 # This script is for testing the updated `post_results` function.
 # It assumes that 'plumber.R' has been sourced, providing the

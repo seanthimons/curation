@@ -333,3 +333,117 @@ tbl(eco_con, 'tests') %>%
 		# 	)
 		# ) %>%
 		# filter(!is.na(test_type))
+
+
+
+left_join(
+	.,
+	standardtox_dict,
+	join_by(num == unit)
+) %>%
+	rename(num_type = type) %>%
+	left_join(
+		.,
+		standardtox_dict,
+		join_by(denom == unit)
+	) %>%
+	rename(denom_type = type) %>%
+	mutate(
+		derived_unit = case_when(
+			# -- Dosage per unit/organism (highest priority) --
+			!is.na(cur_units) &
+				str_detect(cur_units, "/org|/fish|/egg|/bee|/cell|/disk|/cntr") ~
+				"dosage (amount/unit)",
+
+			# -- Specific Formulations / Non-science --
+			!is.na(cur_units) & str_to_lower(cur_units) == "granules" ~ "noscience",
+
+			# -- Application Rates (amount per area) --
+			num_type == "mass" & denom_type == "area" ~
+				"application rate (mass/area)",
+			num_type == "volume" & denom_type == "area" ~
+				"application rate (volume/area)",
+			num_type == "mol" & denom_type == "area" ~ "molar application rate",
+
+			# -- Molar Concentration (moles per volume) --
+			num_type %in% c("mol", "mol/volume") & denom_type == "volume" ~
+				"molar concentration",
+			!is.na(cur_units) & cur_units %in% c("mM", "M", "nM", "pM", "uM", "N") ~
+				"molar concentration",
+			!is.na(cur_units) & str_detect(cur_units, fixed("mol/")) ~
+				"molar concentration",
+
+			# -- Concentration (mass/volume) --
+			is.na(cur_units) & str_detect(raw, "% w/v") ~
+				"concentration (mass/volume)",
+			num_type == "mass" & denom_type == "volume" ~
+				"concentration (mass/volume)",
+
+			# -- Concentration (volume/mass) -- NEW CATEGORY
+			num_type == "volume" & denom_type == "mass" ~
+				"concentration (volume/mass)",
+
+			# -- Fractions (like-units divided by like-units) --
+			is.na(cur_units) & str_detect(raw, "% v/v") ~ "volume fraction",
+			num_type == "mass" & denom_type == "mass" ~ "mass fraction",
+			num_type == "volume" & denom_type == "volume" ~ "volume fraction",
+			num_type == "fraction" & (is.na(denom_type) | denom_type == "noscience") ~
+				"fraction (dimensionless)",
+
+			# -- Molality (moles per mass) --
+			num_type %in% c("mol", "mol/volume") & denom_type == "mass" ~ "molality",
+
+			# -- Linear Density (mass per length) --
+			num_type == "mass" & denom_type == "length" ~ "linear density",
+
+			# -- Radioactivity Units --
+			num_type == "radioactivity" & denom_type == "volume" ~
+				"radioactivity concentration",
+			num_type == "radioactivity" & denom_type == "mass" ~ "specific activity",
+			num_type == "radioactivity" & denom_type == "mol" ~ "molar activity",
+
+			# -- Flow/Count Rates (amount per time) --
+			(num_type == "mass" | num_type == "volume") & denom_type == "time" ~
+				"flow rate",
+			!is.na(cur_units) & str_detect(cur_units, "counts/min") ~ "count rate",
+
+			# -- Base Units (not derived from a ratio) --
+			is.na(denom_type) &
+				num_type %in% c("mass", "volume", "length", "mol", "radioactivity") ~
+				num_type,
+
+			# -- Final catch-all for anything else --
+			TRUE ~ NA_character_
+		)
+	)
+
+mutate(
+	# The regex extracts characters from the start of the string
+	# until a forward slash or space is encountered (i.e., the numerator).
+	num = str_extract(raw, "^[^/\\s]+"),
+	# The regex uses a positive lookbehind to extract characters
+	# that follow a forward slash (i.e., the denominator).
+	denom = str_extract(raw, "(?<=/)[^/\\s]+"),
+
+	# The regex matches the first word and captures everything that
+	# follows it.
+	suffix = stringr::str_match(raw, "^\\S+\\s+(.*)")[, 2],
+	cur_units = case_when(
+		# The regex checks for the presence of a percent sign.
+		str_detect(raw, pattern = '%') ~ NA,
+		part_counts >= 1 ~ paste0(num, "/", denom),
+		.default = num
+	)
+)
+
+units %>%
+	filter(str_detect(orig, 'mg/L 10 mi') | str_detect(raw, 'mg/L 10 mi'))
+
+units %>%
+	distinct(num) %>%
+	print(n = Inf)
+
+units %>%
+	filter(part_counts == 1) %>%
+	count(num) %>%
+	arrange(desc(n))
