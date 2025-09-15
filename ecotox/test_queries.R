@@ -134,6 +134,36 @@ tibble::tribble(
 bind_rows(mutate(., symbol = toupper(symbol)))
 
 
+duration_dict <- tbl(eco_con, 'duration_unit_codes') %>%
+	mutate(
+		base_unit = case_when(
+			str_detect(tolower(description), "minute") ~ "minutes",
+			str_detect(tolower(description), "second") ~ "seconds",
+			str_detect(tolower(description), "hour") ~ "hours",
+			str_detect(tolower(description), "day") ~ "days",
+			str_detect(tolower(description), "week") ~ "weeks",
+			str_detect(tolower(description), "month") ~ "months",
+			str_detect(tolower(description), "year") ~ "years",
+			.default = NA
+		),
+		# Converts to hours
+		conversion = case_when(
+			str_detect(tolower(description), "minute") ~ 1/60,
+			str_detect(tolower(description), "second") ~ 1/3600,
+			str_detect(tolower(description), "hour") ~ 1,
+			str_detect(tolower(description), "day") ~ 24,
+			str_detect(tolower(description), "week") ~ 24*7,
+			# Average month
+			str_detect(tolower(description), "month") ~ 24*30.43685,
+			.default = 1
+		),
+		cur_duration = case_when(
+			!is.na(base_unit) ~ 'h',
+			.default = code
+		)
+	) %>%
+	collect()
+
 # Diagnostics ------------------------------------------------------------
 
 tbl(eco_con, 'results') %>%
@@ -166,17 +196,19 @@ tbl(eco_con, 'results') %>%
 
 # Testing ----------------------------------------------------------------
 
-# library(units)
+library(units)
 
-# valid_units <- units::valid_udunits()
+valid_units <- units::valid_udunits()
 
-# install_unit("gal100", def = "100 gal")
+install_unit("gal100", def = "100 gal")
 
-# a <- set_units(5 / 100, 'lb/ gal')
-# units(a) <- units::make_units(g / L)
-# a <- set_units(a, 'g/L')
+a <- set_units(1, 'month')
+units(a) <- units::make_units(days)
+a <- set_units(a, 'g/L')
 
 # Parsing ----------------------------------------------------------------
+
+## Unit conversion --------------------------------------------------------
 
 units <- tbl(eco_con, 'results') %>%
 	select(orig = conc1_unit, test_id) %>%
@@ -213,7 +245,8 @@ units <- tbl(eco_con, 'results') %>%
 		#	desc(ref_date)
 	) %>%
 	# ! NOTE: Removes infrequent units
-	filter(!is.na(orig) & n > 2 & ref_n > 2) %>%
+	filter(n <= 2 & ref_n <= 2) %>%
+	#filter(!is.na(orig) & n > 2 & ref_n > 2) %>%
 	collect() %>%
 	select(
 		-n,
@@ -397,10 +430,24 @@ units <- tbl(eco_con, 'results') %>%
 			TRUE ~ "Other Complex Unit"
 		)
 	)
-unit_conversion_tbl <- units %>%
-	select()
 
-# ! HERE
+
+## Duration conversion ----------------------------------------------------
+
+tbl(eco_con, 'results') %>% glimpse()
+
+tbl(eco_con, '') %>% glimpse()
+
+tbl(eco_con, '') %>% glimpse()
+
+duration_units <- tbl(eco_con, 'results') %>%
+	select(obs_duration_unit) %>%
+	count(obs_duration_unit) %>%
+	arrange(desc(n)) %>%
+	collect()
+
+
+## Endpoint conversion ----------------------------------------------------
 
 # testing + validation ---------------------------------------------------
 
