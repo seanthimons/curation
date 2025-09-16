@@ -447,3 +447,15 @@ units %>%
 	filter(part_counts == 1) %>%
 	count(num) %>%
 	arrange(desc(n))
+
+# Testing ----------------------------------------------------------------
+
+library(units)
+
+valid_units <- units::valid_udunits()
+
+install_unit("gal100", def = "100 gal")
+
+a <- set_units(1, 'month')
+units(a) <- units::make_units(days)
+a <- set_units(a, 'g/L')
