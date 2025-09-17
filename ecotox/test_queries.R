@@ -278,6 +278,7 @@ unit_symbols <-
 "bdwt","bodyweight",
 "blood","blood",
 "bt","bait",
+"body wt", "bodyweight",
 "bw","bodyweight",
 "bwt","bodyweight",
 "caliper","caliper",
@@ -306,8 +307,10 @@ unit_symbols <-
 "media","media",
 "om","organicmatter",
 #"org","organism",
+"pair", "pair",
 "pellet","pellet",
 "plt","pellet",
+'pro', 'protein',
 'protein', 'protein',
 #"sd","seed",
 #"seed","seed",
@@ -320,6 +323,7 @@ unit_symbols <-
 "wet wght", "wetweight",
 "wet_bdwt", "wetbodyweight",
 "wet","wet",
+"wet wt", "wetweight",
 "wt","wet",
 'wght', 'weight'
 ) %>%
@@ -415,8 +419,34 @@ units_intermediate <- tbl(eco_con, 'results') %>%
   ) %>%
   mutate(
     idx = 1:n(),
+		raw = # One-off injections
+      str_replace_all(
+        orig,
+        c(
+          "1k" = "1000",
+          'mgdrydiet' = 'mg dry_diet',
+          'gwetbdwt' = 'g wet_bdwt',
+					'6 in pots' = '6inpots',
+          'u-atoms' = 'u_atoms',
+          'ug-atoms' = 'ug_atoms',
+					"0/00" = "ppt",
+          '\\bppmw\\b' = 'ppm',
+          '\\bppmv\\b' = 'ppm',
+          '\\bppm w/w\\b' = 'ppm',
+          '\\bml\\b' = 'mL',
+          '\\bul\\b' = 'uL',
+          '\\bof\\b' = "",
+          '\\bmi\\b' = 'min',
+          ' for ' = "/",
+          'fl oz' = 'fl_oz',
+          "ppt v/v" = 'mL/L',
+          'ppm w/v' = 'mg/L',
+					"-" = "/"
+
+        )
+      ),
     raw = str_replace_all(
-      orig,
+      raw,
       {
         # Create a regex pattern for whole-word matching of symbols.
         # Symbols are sorted by length (desc) to prioritize longer matches
@@ -433,15 +463,6 @@ units_intermediate <- tbl(eco_con, 'results') %>%
       },
       replacement = ""
     ) %>%
-      # One-off injections
-      str_replace_all(
-        .,
-        c(
-          "1k" = "1000"
-          # 'mgdrydiet' = 'mg dry_diet',
-          # 'gwetbdwt' = 'g wet_bdwt'
-        )
-      ) %>%
       str_squish() %>%
       # NEW: Add a space between numbers and letters where it is missing.
       # e.g., "25kg" -> "25 kg"
@@ -453,24 +474,8 @@ units_intermediate <- tbl(eco_con, 'results') %>%
       str_replace_all(
         .,
         c(
-          '6 in pots' = '6inpots',
-          'u-atoms' = 'u_atoms',
-          'ug-atoms' = 'ug_atoms',
           "/ " = "/",
-          "-" = "/",
-          "0/00" = "ppt",
-          '\\bppmw\\b' = 'ppm',
-          '\\bppmv\\b' = 'ppm',
-          '\\bppm w/w\\b' = 'ppm',
-          '\\bml\\b' = 'mL',
-          '\\bul\\b' = 'uL',
-          '\\bof\\b' = "",
-          '\\bmi\\b' = 'min',
-          ' for ' = "/",
-          '% ' = '%_',
-          'fl oz' = 'fl_oz',
-          "ppt v/v" = 'mL/L',
-          'ppm w/v' = 'mg/L'
+					'% ' = '%_'
         )
       ) %>%
       # The regex replaces a space with an underscore if it is preceded by a number

@@ -2,7 +2,7 @@
 
 tbl(eco_con, 'results') %>%
   #filter(is.na(conc1_unit)) %>%
-  filter(conc1_unit == 'AI pph sd') %>%
+  filter(conc1_unit == 'no/g soil') %>%
   inner_join(., tbl(eco_con, 'tests'), join_by('test_id')) %>%
   add_count(test_cas, species_number) %>%
   inner_join(., tbl(eco_con, 'species')) %>%
