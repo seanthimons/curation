@@ -155,6 +155,9 @@
 
   setwd(here("ecotox"))
 
+
+# ! Deploy flag -------------------------------------------------------------
+
   deploy = FALSE
 }
 # Checkpoint -------------------------------------------------------------
@@ -209,6 +212,55 @@
       FALSE
     }
   }
+
+  # Checks for new updates -------------------------------------------------
+
+if(file.exists('installed_version.txt')){
+
+  updates <- GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
+    content(.) %>%
+    html_elements(., 'a') %>%
+    html_attr('href') %>%
+    .[str_detect(., pattern = 'zip')] %>%
+    data.frame(file = .) %>%
+    mutate(
+      date = str_remove_all(file, pattern = 'ecotox_ascii_'),
+      date = str_remove_all(date, pattern = '.zip'),
+      date = lubridate::as_date(date, format = "%m_%d_%Y")
+    ) %>%
+    arrange(desc(date)) %>%
+    mutate(
+      latest = case_when(
+        row_number() == 1 ~ TRUE,
+        .default = FALSE
+      )
+    ) %>%
+    filter(latest == TRUE) %>%
+    pull(date)
+
+  installed <- read.table('installed_version.txt', header = TRUE) %>%
+    filter(installed == TRUE) %>%
+    mutate(
+      date = lubridate::ymd(date)
+    ) %>%
+    pull(date)
+
+  if (as.integer(difftime(updates, installed, units = "days")) > 0) {
+    update_available <- TRUE
+  } else {
+    update_available <- FALSE
+  }
+
+  cli::cat_line()
+
+  if (update_available) {
+    rebuild_is_needed <- usethis::ui_yeah(
+      'Update available! Do you want to update?'
+    )
+  }
+
+  rm(installed, updates, update_available)
+	}
 }
 
 
@@ -216,6 +268,9 @@
 
 # If a rebuild is needed, run the data scraping and processing sections.
 if (rebuild_is_needed) {
+  unlink('ecotox.duckdb')
+  unlink('installed_version.txt')
+
   # download ----------------------------------------------------------------
   {
     cli::cli_alert_info('Downloading zip')
@@ -762,12 +817,19 @@ if (rebuild_is_needed) {
 
     dbListTables(eco_con)
 
+    # Export the in-memory database to a persistent file on disk.
+    # This command will create a directory named 'ecotox.duckdb' (if it doesn't exist)
+    # and save the database state, overwriting any previous content.
     dbExecute(
       eco_con,
-      "ATTACH 'ecotox.duckdb';
-			COPY FROM DATABASE memory TO ecotox;
-			DETACH ecotox;"
+      "EXPORT DATABASE 'ecotox.duckdb' (FORMAT DUCKDB);"
     )
+
+    tbl(eco_con, 'versions') %>%
+      collect() %>%
+      as_tibble() %>%
+      rename(installed = latest) %>%
+      write_tsv(file = 'installed_version.txt')
 
     dbDisconnect(eco_con)
     rm(eco_con)
