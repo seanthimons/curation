@@ -306,7 +306,7 @@ unit_symbols <-
 "mat","material",
 "media","media",
 "om","organicmatter",
-#"org","organism",
+"org","organism",
 "pair", "pair",
 "pellet","pellet",
 "plt","pellet",
@@ -330,7 +330,7 @@ unit_symbols <-
   bind_rows(mutate(., symbol = toupper(symbol)))
 
 
-duration_dict <- tbl(eco_con, 'duration_unit_codes') %>%
+duration_conversion <- tbl(eco_con, 'duration_unit_codes') %>%
   mutate(
     base_unit = case_when(
       str_detect(tolower(description), "minute") ~ "minutes",
@@ -343,7 +343,7 @@ duration_dict <- tbl(eco_con, 'duration_unit_codes') %>%
       .default = NA
     ),
     # Converts to hours
-    conversion = case_when(
+    conversion_factor_duration = case_when(
       str_detect(tolower(description), "minute") ~ 1 / 60,
       str_detect(tolower(description), "second") ~ 1 / 3600,
       str_detect(tolower(description), "hour") ~ 1,
@@ -353,7 +353,7 @@ duration_dict <- tbl(eco_con, 'duration_unit_codes') %>%
       str_detect(tolower(description), "month") ~ 24 * 30.43685,
       .default = 1
     ),
-    cur_duration = case_when(
+    cur_unit_duration = case_when(
       !is.na(base_unit) ~ 'h',
       .default = code
     )
@@ -407,7 +407,7 @@ units_intermediate <- tbl(eco_con, 'results') %>%
   ) %>%
   # ! NOTE: Removes infrequent units ----
   #filter(n <= 2 & ref_n <= 2) %>%
-  #filter(!is.na(orig) & n > 2 & ref_n > 2) %>%
+  filter(!is.na(orig) & n > 1 & ref_n > 1) %>%
   collect() %>%
   select(
     #	-n,
@@ -559,7 +559,7 @@ units_intermediate <- tbl(eco_con, 'results') %>%
     .,
     unit_result,
     join_by(value == unit)
-  ) #%>%
+  ) %>%
 pivot_wider(
   .,
   names_from = name,
@@ -570,11 +570,27 @@ pivot_wider(
   # Dynamically calculate the conversion factor
   rowwise() %>%
   mutate(
-    conversion = {
+    conversion_factor = {
+      # The `conversion` is calculated for each unit string (row). It assumes
+      # the unit is a ratio (e.g., mg/L, g/ha/day), where the first part is
+      # the numerator and subsequent parts form the denominator.
+
+      # Calculate the numerator's conversion value. This is the conversion
+      # multiplier of the first unit part (e.g., 'mg' in 'mg/L') adjusted
+      # by any numerical modifier extracted from the unit string (e.g., '10' in '10g').
       numer <- c_across(starts_with("multiplier_u_"))[1] *
         c_across(starts_with("num_mod_u_"))[1]
+
+      # Calculate the conversion values for all denominator parts. This includes
+      # all unit parts after the first one (e.g., 'L' in 'mg/L'), each also
+      # adjusted by any numerical modifiers.
       denoms <- c_across(starts_with("multiplier_u_"))[-1] *
         c_across(starts_with("num_mod_u_"))[-1]
+
+      # If the unit has denominator parts, divide the numerator's value by the
+      # product of all denominator values. 'purrr::reduce' is used to multiply
+      # all denominator components together. If there is no denominator, the
+      # final conversion factor is simply the numerator's value.
       if (length(denoms) > 0) numer / purrr::reduce(denoms, `*`) else numer
     }
   ) %>%
@@ -636,25 +652,15 @@ pivot_wider(
 unit_conversion <- units_intermediate %>%
   select(
     orig,
-    cur_unit,
+    cur_unit_result = cur_unit,
+		suffix, 
     cur_unit_type,
-    conversion,
+    conversion_factor_unit = conversion_factor,
     unit_domain
   )
 
 ## Duration conversion ----------------------------------------------------
 
-tbl(eco_con, 'results') %>% glimpse()
-
-tbl(eco_con, '') %>% glimpse()
-
-tbl(eco_con, '') %>% glimpse()
-
-duration_units <- tbl(eco_con, 'results') %>%
-  select(obs_duration_unit) %>%
-  count(obs_duration_unit) %>%
-  arrange(desc(n)) %>%
-  collect()
 
 
 ## Endpoint conversion ----------------------------------------------------
@@ -662,12 +668,39 @@ duration_units <- tbl(eco_con, 'results') %>%
 # app_endpoint_terms_and_definitions
 # endpoint_codes
 
-worms <- post_results(
-  casrn = '106-93-4',
-  eco_group = 'Worms'
-) %>%
+oppt <- post_results(
+	latin_name = 'Anastrepha obliqua',
+	casrn = '106-93-4',
+	all_endpoints = TRUE
+)
+
   left_join(
     .,
     unit_conversion,
     join_by(conc1_unit == orig)
-  )
+  ) %>% 
+	left_join(
+		., 
+		duration_conversion, 
+		join_by(obs_duration_unit == code)
+	) %>% 
+	filter(cur_unit_duration == 'h')
+
+	mutate(
+		#endpoint = str_remove_all(endpoint, pattern = '~|/'),
+		result = coalesce(conc1_mean, conc1_min, conc1_max),
+		final_result = result * conversion_factor_unit, 
+		duration = coalesce(obs_duration_mean, obs_duration_min, obs_duration_max) %>% as.numeric(),
+		final_duration = duration * conversion_factor_duration
+		#.keep = 'unused'
+	) 
+
+	group_by(
+		test_cas, effect, endpoint, cur_unit_result
+	) %>% 
+	summarize(
+		cur_unit_type,
+		unit_domain, 
+		final_duration,
+	)
+

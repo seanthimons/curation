@@ -155,8 +155,7 @@
 
   setwd(here("ecotox"))
 
-
-# ! Deploy flag -------------------------------------------------------------
+  # ! Deploy flag -------------------------------------------------------------
 
   deploy = FALSE
 }
@@ -215,52 +214,51 @@
 
   # Checks for new updates -------------------------------------------------
 
-if(file.exists('installed_version.txt')){
+  if (file.exists('installed_version.txt')) {
+    updates <- GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
+      content(.) %>%
+      html_elements(., 'a') %>%
+      html_attr('href') %>%
+      .[str_detect(., pattern = 'zip')] %>%
+      data.frame(file = .) %>%
+      mutate(
+        date = str_remove_all(file, pattern = 'ecotox_ascii_'),
+        date = str_remove_all(date, pattern = '.zip'),
+        date = lubridate::as_date(date, format = "%m_%d_%Y")
+      ) %>%
+      arrange(desc(date)) %>%
+      mutate(
+        latest = case_when(
+          row_number() == 1 ~ TRUE,
+          .default = FALSE
+        )
+      ) %>%
+      filter(latest == TRUE) %>%
+      pull(date)
 
-  updates <- GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
-    content(.) %>%
-    html_elements(., 'a') %>%
-    html_attr('href') %>%
-    .[str_detect(., pattern = 'zip')] %>%
-    data.frame(file = .) %>%
-    mutate(
-      date = str_remove_all(file, pattern = 'ecotox_ascii_'),
-      date = str_remove_all(date, pattern = '.zip'),
-      date = lubridate::as_date(date, format = "%m_%d_%Y")
-    ) %>%
-    arrange(desc(date)) %>%
-    mutate(
-      latest = case_when(
-        row_number() == 1 ~ TRUE,
-        .default = FALSE
+    installed <- read.table('installed_version.txt', header = TRUE) %>%
+      filter(installed == TRUE) %>%
+      mutate(
+        date = lubridate::ymd(date)
+      ) %>%
+      pull(date)
+
+    if (as.integer(difftime(updates, installed, units = "days")) > 0) {
+      update_available <- TRUE
+    } else {
+      update_available <- FALSE
+    }
+
+    cli::cat_line()
+
+    if (update_available) {
+      rebuild_is_needed <- usethis::ui_yeah(
+        'Update available! Do you want to update?'
       )
-    ) %>%
-    filter(latest == TRUE) %>%
-    pull(date)
+    }
 
-  installed <- read.table('installed_version.txt', header = TRUE) %>%
-    filter(installed == TRUE) %>%
-    mutate(
-      date = lubridate::ymd(date)
-    ) %>%
-    pull(date)
-
-  if (as.integer(difftime(updates, installed, units = "days")) > 0) {
-    update_available <- TRUE
-  } else {
-    update_available <- FALSE
+    rm(installed, updates, update_available)
   }
-
-  cli::cat_line()
-
-  if (update_available) {
-    rebuild_is_needed <- usethis::ui_yeah(
-      'Update available! Do you want to update?'
-    )
-  }
-
-  rm(installed, updates, update_available)
-	}
 }
 
 
@@ -268,7 +266,7 @@ if(file.exists('installed_version.txt')){
 
 # If a rebuild is needed, run the data scraping and processing sections.
 if (rebuild_is_needed) {
-  unlink('ecotox.duckdb')
+  unlink('ecotox.duckdb', recursive = TRUE, force = TRUE)
   unlink('installed_version.txt')
 
   # download ----------------------------------------------------------------
@@ -817,12 +815,14 @@ if (rebuild_is_needed) {
 
     dbListTables(eco_con)
 
-    # Export the in-memory database to a persistent file on disk.
-    # This command will create a directory named 'ecotox.duckdb' (if it doesn't exist)
-    # and save the database state, overwriting any previous content.
+    # Persist the in-memory database to a single file on disk.
+    # This is an efficient way to transfer the contents of the in-memory database
+    # (`:memory:`) to a persistent file (`ecotox.duckdb`).
     dbExecute(
       eco_con,
-      "EXPORT DATABASE 'ecotox.duckdb' (FORMAT DUCKDB);"
+      "ATTACH 'ecotox.duckdb' AS ecotox;
+       COPY FROM DATABASE memory TO ecotox;
+       DETACH ecotox;"
     )
 
     tbl(eco_con, 'versions') %>%
