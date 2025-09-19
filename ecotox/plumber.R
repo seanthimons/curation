@@ -422,6 +422,13 @@ post_results <- function(
     result_query <- result_query %>% filter(!!combined_expr)
   }
 
+  if (!is.null(eco_group) && length(eco_group) > 0) {
+    eg <- eco_group
+
+    result_query <- result_query %>%
+      filter(eco_group %in% eg)
+  }
+
   # Add species characteristic filters
   if (invasive) {
     result_query <- result_query %>% filter(invasive_species == TRUE)
@@ -433,44 +440,8 @@ post_results <- function(
     result_query <- result_query %>%
       filter(endangered_threatened_species == TRUE)
   }
-  if (!is.null(eco_group) && length(eco_group) > 0) {
-    result_query <- result_query %>%
-      filter(eco_group %in% eco_group)
-  }
 
-  # ! HERE
-  # Add endpoint filter, unless all_endpoints is TRUE
-  if (!all_endpoints) {
-    # Build endpoint regex for filtering
-    endpoint_regex <- if (!is.null(endpoint) && length(endpoint) > 0) {
-      # ensure endpoints are matched from the start of the string
-      paste0("^", endpoint, collapse = "|")
-    } else {
-      # default endpoints if none are provided
-      paste0(
-        "^",
-        c(
-          "EC50",
-          "LC50",
-          "LD50",
-          "LR50",
-          "LOEC",
-          "LOEL",
-          "NOEC",
-          "NOEL",
-          "NR-ZERO"
-        ),
-        collapse = "|"
-      )
-    }
-
-    result <- result %>%
-      filter(
-        str_detect(endpoint, endpoint_regex)
-      )
-  }
-
-  result <- result_query %>%
+  result_query <- result_query %>%
     inner_join(
       tbl(con, 'results') %>%
         select(
@@ -490,9 +461,29 @@ post_results <- function(
           'conc1_max'
         ),
       join_by('test_id')
-    ) %>%
-    filter(
-      str_detect(endpoint, endpoint_regex)
+    )
+
+  # Build endpoint regex for filtering
+  if (!is.null(endpoint) && length(endpoint) > 0) {
+    if (endpoint == 'default') {
+      cli::cli_alert('Default endpoints selected')
+
+      # NOTE Looks for a verified set of endpoints that are useful
+      endpoint_regex <- "^EC50|^LC50|^LD50|LR50|^LOEC|^LOEL|NOEC|NOEL$|NR-ZERO|NR-LETH|AC50|\\(log\\)EC50|\\(log\\)LC50|\\(log\\)LOEC"
+
+      result_query <- result_query %>%
+        filter(str_detect(endpoint, endpoint_regex))
+    } else {
+      cli::cli_alert('Custom endpoints selected')
+      endpoint_regex <- paste0(endpoint, collapse = "|")
+      result_query <- result_query %>%
+        filter(str_detect(endpoint, endpoint_regex))
+    }
+  }
+
+  result <- result_query %>%
+    mutate(
+      exposure_type = str_remove_all(exposure_type, pattern = "\\/")
     ) %>%
     left_join(
       tbl(con, 'app_exposure_types'),
@@ -506,12 +497,16 @@ post_results <- function(
       tbl(con, 'lifestage_dictionary'),
       by = join_by(org_lifestage == org_lifestage)
     ) %>%
-    select(
-      -test_id,
-      -species_number,
-      -exposure_type,
-      -result_id
-    ) %>%
+    # left_join(
+    # 	tbl(con, ''),
+    # 	by = join_by( == )
+    #) %>%
+    # select(
+    #   -test_id,
+    #   -species_number,
+    #   -exposure_type,
+    #   -result_id
+    # ) %>%
     mutate(
       #Plus means comment, asterisk mean converted value
       across(
