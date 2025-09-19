@@ -360,6 +360,27 @@ duration_conversion <- tbl(eco_con, 'duration_unit_codes') %>%
   ) %>%
   collect()
 
+effect_conversion <-
+  tbl(eco_con, 'app_effect_groups') %>%
+  mutate(
+    effect_group = str_sub(group_effect_term_s, 1, 3)
+  ) %>%
+  rename(
+    term = group_effect_term_s,
+    effect_description = description,
+    effect_definition = definition
+  ) %>%
+  collect() %>%
+  separate_longer_delim(cols = c(term, effect_description), delim = "/") %>%
+  separate_longer_delim(cols = c(term, effect_description), delim = ",") %>%
+  mutate(
+    across(
+      c(effect_description, term),
+      ~ str_squish(.x)
+    )
+  ) %>%
+  distinct() %>%
+  arrange(effect_group)
 
 # Parsing ----------------------------------------------------------------
 
@@ -407,7 +428,7 @@ units_intermediate <- tbl(eco_con, 'results') %>%
   ) %>%
   # ! NOTE: Removes infrequent units ----
   #filter(n <= 2 & ref_n <= 2) %>%
-  filter(!is.na(orig) & n > 1 & ref_n > 1) %>%
+  #filter(!is.na(orig) & n > 1 & ref_n > 1) %>%
   collect() %>%
   select(
     #	-n,
@@ -419,32 +440,32 @@ units_intermediate <- tbl(eco_con, 'results') %>%
   ) %>%
   mutate(
     idx = 1:n(),
-		raw = # One-off injections
-      str_replace_all(
-        orig,
-        c(
-          "1k" = "1000",
-          'mgdrydiet' = 'mg dry_diet',
-          'gwetbdwt' = 'g wet_bdwt',
-					'6 in pots' = '6inpots',
-          'u-atoms' = 'u_atoms',
-          'ug-atoms' = 'ug_atoms',
-					"0/00" = "ppt",
-          '\\bppmw\\b' = 'ppm',
-          '\\bppmv\\b' = 'ppm',
-          '\\bppm w/w\\b' = 'ppm',
-          '\\bml\\b' = 'mL',
-          '\\bul\\b' = 'uL',
-          '\\bof\\b' = "",
-          '\\bmi\\b' = 'min',
-          ' for ' = "/",
-          'fl oz' = 'fl_oz',
-          "ppt v/v" = 'mL/L',
-          'ppm w/v' = 'mg/L',
-					"-" = "/"
-
-        )
-      ),
+    # One-off injections
+    raw = str_replace_all(
+      orig,
+      c(
+        "1k" = "1000",
+        'mgdrydiet' = 'mg dry_diet',
+        'gwetbdwt' = 'g wet_bdwt',
+        '6 in pots' = '6inpots',
+        'u-atoms' = 'u_atoms',
+        'ug-atoms' = 'ug_atoms',
+        "0/00" = "ppt",
+        '\\bppmw\\b' = 'ppm',
+        '\\bppmv\\b' = 'ppm',
+        '\\bppm w/w\\b' = 'ppm',
+        '\\bml\\b' = 'mL',
+        '\\bul\\b' = 'uL',
+        '\\bof\\b' = "",
+        '\\bmi\\b' = 'min',
+        ' for ' = "/",
+        'fl oz' = 'fl_oz',
+        "ppt v/v" = 'mL/L',
+        'ppm w/v' = 'mg/L',
+        "-" = "/"
+      )
+    ) %>%
+      str_squish(),
     raw = str_replace_all(
       raw,
       {
@@ -475,7 +496,7 @@ units_intermediate <- tbl(eco_con, 'results') %>%
         .,
         c(
           "/ " = "/",
-					'% ' = '%_'
+          '% ' = '%_'
         )
       ) %>%
       # The regex replaces a space with an underscore if it is preceded by a number
@@ -560,38 +581,44 @@ units_intermediate <- tbl(eco_con, 'results') %>%
     unit_result,
     join_by(value == unit)
   ) %>%
-pivot_wider(
-  .,
-  names_from = name,
-  values_from = value:type
-) %>%
+  pivot_wider(
+    .,
+    names_from = name,
+    values_from = value:type
+  ) %>%
   # Replace NA with 1 in num_mod and multiplier columns
   mutate(across(matches("^(num_mod|mult)"), ~ if_else(is.na(.x), 1, .x))) %>%
   # Dynamically calculate the conversion factor
   rowwise() %>%
   mutate(
-    conversion_factor = {
-      # The `conversion` is calculated for each unit string (row). It assumes
-      # the unit is a ratio (e.g., mg/L, g/ha/day), where the first part is
-      # the numerator and subsequent parts form the denominator.
+    # The `conversion` is calculated for each unit string (row). It assumes
+    # the unit is a ratio (e.g., mg/L, g/ha/day), where the first part is
+    # the numerator and subsequent parts form the denominator.
 
-      # Calculate the numerator's conversion value. This is the conversion
-      # multiplier of the first unit part (e.g., 'mg' in 'mg/L') adjusted
-      # by any numerical modifier extracted from the unit string (e.g., '10' in '10g').
-      numer <- c_across(starts_with("multiplier_u_"))[1] *
-        c_across(starts_with("num_mod_u_"))[1]
+    # Calculate the numerator's conversion value. This is the conversion
+    # multiplier of the first unit part (e.g., 'mg' in 'mg/L') adjusted
+    # by any numerical modifier extracted from the unit string (e.g., '10' in '10g').
+    numer = c_across(starts_with("multiplier_u_"))[1] *
+      c_across(starts_with("num_mod_u_"))[1],
 
-      # Calculate the conversion values for all denominator parts. This includes
-      # all unit parts after the first one (e.g., 'L' in 'mg/L'), each also
-      # adjusted by any numerical modifiers.
-      denoms <- c_across(starts_with("multiplier_u_"))[-1] *
+    # Calculate the conversion values for all denominator parts. This includes
+    # all unit parts after the first one (e.g., 'L' in 'mg/L'), each also
+    # adjusted by any numerical modifiers.
+    denoms = list(
+      c_across(starts_with("multiplier_u_"))[-1] *
         c_across(starts_with("num_mod_u_"))[-1]
+    ),
 
-      # If the unit has denominator parts, divide the numerator's value by the
-      # product of all denominator values. 'purrr::reduce' is used to multiply
-      # all denominator components together. If there is no denominator, the
-      # final conversion factor is simply the numerator's value.
-      if (length(denoms) > 0) numer / purrr::reduce(denoms, `*`) else numer
+    conversion_factor = {
+      #   # If the unit has denominator parts, divide the numerator's value by the
+      #   # product of all denominator values. 'purrr::reduce' is used to multiply
+      #   # all denominator components together. If there is no denominator, the
+      #   # final conversion factor is simply the numerator's value.
+      if (length(denoms) > 0) {
+        numer / purrr::reduce(denoms, `*`)
+      } else {
+        numer
+      }
     }
   ) %>%
   ungroup() %>%
@@ -653,54 +680,74 @@ unit_conversion <- units_intermediate %>%
   select(
     orig,
     cur_unit_result = cur_unit,
-		suffix, 
+    suffix,
     cur_unit_type,
     conversion_factor_unit = conversion_factor,
     unit_domain
-  )
-
-## Duration conversion ----------------------------------------------------
-
+  ) %>%
+  distinct(orig, .keep_all = TRUE)
 
 
-## Endpoint conversion ----------------------------------------------------
-
-# app_endpoint_terms_and_definitions
-# endpoint_codes
+# Request ----------------------------------------------------------------
 
 oppt <- post_results(
-	latin_name = 'Anastrepha obliqua',
-	casrn = '106-93-4',
-	all_endpoints = TRUE
-)
+  #latin_name = 'Anastrepha obliqua',
+  #eco_group = 'Fish',
+  casrn = q1
+	#casrn = '106-93-4'
+  ,endpoint = 'default'
+) %>%
 
   left_join(
     .,
     unit_conversion,
     join_by(conc1_unit == orig)
+  ) %>%
+  left_join(
+    .,
+    duration_conversion,
+    join_by(obs_duration_unit == code)
+  ) %>%
+  left_join(
+    .,
+    effect_conversion,
+    join_by(effect == term)
+  ) %>%
+  select(-effect_definition) %>%
+  mutate(
+    #endpoint = str_remove_all(endpoint, pattern = '~|/'),
+    #coalesce(conc1_mean, conc1_min, conc1_max),
+    result = case_when(
+      is.na(conc1_mean) ~ geometric.mean(c(conc1_min, conc1_max), na.rm = TRUE),
+      .default = conc1_mean,
+    ),
+    final_result = result * conversion_factor_unit,
+    duration = coalesce(
+      obs_duration_mean,
+      obs_duration_min,
+      obs_duration_max
+    ) %>%
+      as.numeric(),
+    final_duration = duration * conversion_factor_duration
+    #.keep = 'unused'
   ) %>% 
-	left_join(
-		., 
-		duration_conversion, 
-		join_by(obs_duration_unit == code)
-	) %>% 
-	filter(cur_unit_duration == 'h')
+	# ! Filter here --------
+	filter(
+    cur_unit_duration == 'h',
+		,final_duration >= 24 & final_duration <= 96
+    #	,!is.na(conc1_mean)
+    ,effect_group == 'MOR'
+  )
 
-	mutate(
-		#endpoint = str_remove_all(endpoint, pattern = '~|/'),
-		result = coalesce(conc1_mean, conc1_min, conc1_max),
-		final_result = result * conversion_factor_unit, 
-		duration = coalesce(obs_duration_mean, obs_duration_min, obs_duration_max) %>% as.numeric(),
-		final_duration = duration * conversion_factor_duration
-		#.keep = 'unused'
-	) 
+group_by(
+  test_cas,
 
-	group_by(
-		test_cas, effect, endpoint, cur_unit_result
-	) %>% 
-	summarize(
-		cur_unit_type,
-		unit_domain, 
-		final_duration,
-	)
-
+  effect,
+  endpoint,
+  cur_unit_result
+) %>%
+  summarize(
+    cur_unit_type,
+    unit_domain,
+    final_duration,
+  )
