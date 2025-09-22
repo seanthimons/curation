@@ -1,0 +1,22 @@
+water_quality_criteria <- tribble(
+  ~Constituent, ~`Maximum Concentrations for Irrigation (mg/L)`, ~Remarks,
+  "Aluminum", 5.0, "Can cause nonproductiveness in acid soils, but soils at pH 5.5 to 8.0 will precipitate the ion and eliminate toxicity",
+  "Arsenic", 0.10, "Toxicity to plants varies widely, ranging from 12 mg/L for Sudan grass to less than 0.05 mg/L for rice",
+  "Beryllium", 0.10, "Toxicity to plants varies widely, ranging from 5 mg/L for kale to 0.5 mg/L for bush beans",
+  "Boron", 0.75, "Essential to plant growth; sufficient quantities in reclaimed water to correct soil deficiencies. Optimum yields obtained at few-tenths mg/L; toxic to sensitive plants (e.g., citrus) at 1 mg/L. Most grasses are tolerant at 2.0 - 10 mg/L",
+  "Cadmium", 0.01, "Toxic to beans, beets, and turnips at concentrations as low as 0.1 mg/L; conservative limits are recommended",
+  "Chromium", 0.1, "Not generally recognized as an essential element; due to lack of toxicity data, conservative limits are recommended",
+  "Cobalt", 0.05, "Toxic to tomatoes at 0.1 mg/L; tends to be inactivated by neutral and alkaline soils",
+  "Copper", 0.2, "Toxic to a number of plants at 0.1 to 1.0 mg/L",
+  "Fluoride", 1.0, "Inactivated by neutral and alkaline soils",
+  "Iron", 5.0, "Not toxic in aerated soils, but can contribute to soil acidification and loss of phosphorus and molybdenum",
+  "Lead", 5.0, "Can inhibit plant cell growth at very high concentrations",
+  "Lithium", 2.5, "Tolerated by most crops up to 5 mg/L; mobile in soil. Toxic to citrus at low doses—recommended limit is 0.075 mg/L",
+  "Manganese", 0.2, "Toxic to a number of crops at few-tenths to few mg/L in acidic soils",
+  "Molybdenum", 0.01, "Nontoxic to plants; can be toxic to livestock if forage is grown in soils with high molybdenum",
+  "Nickel", 0.2, "Toxic to a number of plants at 0.5 to 1.0 mg/L; reduced toxicity at neutral or alkaline pH",
+  "Selenium", 0.02, "Toxic to plants at low concentrations and to livestock if forage is grown in soils with low levels of selenium",
+  "Tin, Tungsten, and Titanium", NA, "Excluded by plants; specific tolerance levels unknown",
+  "Vanadium", 0.1, "Toxic to many plants at relatively low concentrations",
+  "Zinc", 2.0, "Toxic to many plants at widely varying concentrations; reduced toxicity at increased pH (6 or above) and in fine-textured or organic soils"
+)
