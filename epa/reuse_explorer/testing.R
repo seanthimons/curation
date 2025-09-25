@@ -1,22 +1,21 @@
-lf <- list(
-  State = "Alabama",
-  `Source of Water` = "Treated Municipal Wastewater",
-  `Reuse Application` = "Agriculture",
-  Url = "https://www.epa.gov/node/277235",
-  dat = NA,
-  head_url = NA
-)
+q1 <- lf[9]
 
-lf$head_url <-
-  httr2::request(lf$Url) %>%
+testing <- map(q1, ~{
+
+	.x$head_url <-
+  httr2::request(.x$Url) %>%
   httr2::req_method('HEAD') %>%
   httr2::req_perform() %>%
   pluck(., 'url')
 
-raw_tbl <- lf$head_url %>%
+	raw_tbl <- .x$head_url %>%
   bow(.) %>%
   scrape(content = "text/html; charset=UTF-8") %>%
   html_element(., xpath = '//*[@id="table1"]')
+
+
+
+
 
 
 # 1. Extract citation text from the page (usually in a list after the table).
@@ -42,6 +41,7 @@ citations_df <- citation_p_nodes %>%
       tibble(citation_marker = marker, citation_text = citation_text)
     }
   )
+})
 
 # 2. Process the main table row-by-row, handling rowspans correctly.
 table_rows <- rvest::html_elements(raw_tbl, "tbody tr")
@@ -129,3 +129,30 @@ if (!is.null(citations_df) && "citation_marker" %in% names(table_data)) {
 # } else {
 #   .x <- NULL
 # }
+
+
+library(rvest)
+
+# The URL from lf[9]
+url <- "https://www.epa.gov/node/288422"
+
+# Scrape the page and get just the table node
+raw_tbl <- read_html(url) %>%
+  html_element(xpath = '//*[@id="table1"]')
+
+header_cells <- html_elements(raw_tbl, "thead th")
+
+# This tells you the number of columns
+length(header_cells)
+#> [1] 4
+
+# This shows you their names
+html_text(header_cells, trim = TRUE)
+#> [1] "Recycled Water Class/Category (Approved Uses)"
+#> [2] "Source Water Type"                            
+#> [3] "Water Quality Parameter"                      
+#> [4] "Specification"
+
+        .x$dat <- html_table(.x$head_url) %>%
+          select(1:5) %>%
+          set_names()
