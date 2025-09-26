@@ -1,3 +1,5 @@
+# packages ----------------------------------------------------------------
+
 {
   library(rio)
   library(janitor)
@@ -34,18 +36,18 @@ lf <- jsonlite::read_json(
 
 # Hardcoded value for validation
 
-lf[10] %>% dput()
+# lf[10] %>% dput()
 
-list(list(
-  State = "Australia",
-  `Source of Water` = "Rainwater Collected Onsite",
-  `Reuse Application` = "Onsite Non-Potable Water Reuse",
-  Url = "https://www.epa.gov/node/288423",
-  dat = NA,
-  head_url = NA
-))
+# list(list(
+#   State = "Australia",
+#   `Source of Water` = "Rainwater Collected Onsite",
+#   `Reuse Application` = "Onsite Non-Potable Water Reuse",
+#   Url = "https://www.epa.gov/node/288423",
+#   dat = NA,
+#   head_url = NA
+# ))
 
-raw <- lf[9] %>%
+raw <- lf[1:20] %>%
   imap(
     .,
     ~ {
@@ -65,8 +67,8 @@ raw <- lf[9] %>%
         httr2::req_method('HEAD') %>%
         httr2::req_perform() %>%
         pluck(., 'url')
-
-     raw_tbl <- .x$head_url %>%
+			
+			raw_tbl <- .x$head_url %>%
         bow(.) %>%
         scrape(content = "text/html; charset=UTF-8") %>%
         html_element(., xpath = '//*[@id="table1"]')
