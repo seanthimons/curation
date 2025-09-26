@@ -47,7 +47,7 @@ lf <- jsonlite::read_json(
 #   head_url = NA
 # ))
 
-raw <- lf[1:20] %>%
+raw <- lf[61:72] %>%
   imap(
     .,
     ~ {
@@ -67,14 +67,14 @@ raw <- lf[1:20] %>%
         httr2::req_method('HEAD') %>%
         httr2::req_perform() %>%
         pluck(., 'url')
-			
+				
 			raw_tbl <- .x$head_url %>%
         bow(.) %>%
         scrape(content = "text/html; charset=UTF-8") %>%
         html_element(., xpath = '//*[@id="table1"]')
 
       if (!is.na(raw_tbl)) {
-        # 1. Extract citation text definitions (This logic is correct)
+        # 1. Extract citation text definitions (This logic remains correct and robust)
         citation_p_nodes <- raw_tbl %>%
           xml2::xml_parent() %>%
           rvest::html_elements(xpath = "following-sibling::p[sup]")
@@ -96,18 +96,18 @@ raw <- lf[1:20] %>%
             )
         }
 
-        # 2. Get header info
-        # CRITICAL FIX: Do NOT remove the superscripts from the headers.
-        # The original xml2::xml_remove() call has been deleted from here.
+        # 2. Get header info and create clean column names
         header_cells <- rvest::html_elements(raw_tbl, "thead th")
         n_cols <- length(header_cells)
-        col_names <- header_cells %>%
-          # Manually remove superscript text before cleaning names
-          rvest::html_text(trim = TRUE) %>% 
-          stringr::str_remove_all("\\[[a-zA-Z0-9]\\]|[a-zA-Z0-9]") %>%
+        
+        # To create clean names, we create a temporary version of the header nodes
+        # and remove the superscripts from that temporary version.
+        temp_header_for_names <- rvest::html_elements(raw_tbl, "thead th")
+        xml2::xml_remove(rvest::html_elements(temp_header_for_names, "sup"))
+        col_names <- rvest::html_text(temp_header_for_names, trim = TRUE) %>%
           janitor::make_clean_names()
 
-        # 3. Process table rows using a 'for' loop to handle rowspans correctly
+        # 3. Process table rows using a 'for' loop for rowspan safety
         table_rows <- rvest::html_elements(raw_tbl, "tbody tr")
         spanned_cell_memory <- list()
         all_rows_list <- list()
@@ -115,6 +115,20 @@ raw <- lf[1:20] %>%
         for (current_row_node in table_rows) {
           current_cells <- rvest::html_elements(current_row_node, "td")
           if (length(current_cells) == 0) next
+
+          # --- FIX APPLIED HERE ---
+          # This is a safe, in-place modification within the loop.
+          # It finds all 'sup' tags in the current row's cells and wraps their content.
+          sup_nodes_in_cells <- rvest::html_elements(current_cells, "sup")
+          if (length(sup_nodes_in_cells) > 0) {
+            for (node in sup_nodes_in_cells) {
+              current_text <- rvest::html_text(node)
+              if (!stringr::str_starts(current_text, "\\^")) {
+                xml2::xml_set_text(node, paste0("^", current_text, "^"))
+              }
+            }
+          }
+          # --- END OF FIX ---
 
           full_row_values <- vector("character", n_cols)
           cell_idx <- 1
@@ -129,7 +143,9 @@ raw <- lf[1:20] %>%
             } else {
               if (cell_idx <= length(current_cells)) {
                 target_cell <- current_cells[[cell_idx]]
+                # Extract the text, which now includes the '^' characters
                 cell_text <- rvest::html_text(target_cell, trim = TRUE)
+                
                 full_row_values[col_idx] <- cell_text
                 rowspan <- rvest::html_attr(target_cell, "rowspan")
                 if (!is.na(rowspan) && as.numeric(rowspan) > 1) {
@@ -148,12 +164,9 @@ raw <- lf[1:20] %>%
 
         # 4. Find all markers for each row and join the citation text
         if (!is.null(citations_df) && nrow(citations_df) > 0) {
-            
-            # Find which columns have header citations and map them
             header_sup_nodes <- rvest::html_elements(header_cells, "sup")
             header_markers_map <- map(header_sup_nodes, ~{
                 marker_text <- rvest::html_text(.x)
-                # Find the column index of this header marker
                 col_index <- which(map_lgl(header_cells, ~!is.na(rvest::html_element(.x, "sup")) && rvest::html_text(rvest::html_element(.x, "sup")) == marker_text))
                 list(marker = marker_text, col = col_index)
             })
@@ -162,23 +175,26 @@ raw <- lf[1:20] %>%
                 row_index <- .x
                 current_html_row <- table_rows[[row_index]]
                 
-                # Get markers from the data cells of this specific row
-                cell_markers <- rvest::html_elements(current_html_row, "td sup") %>% rvest::html_text(trim = TRUE)
+                # Get markers from cells; remove the '^' wrappers before lookup
+                cell_markers <- rvest::html_elements(current_html_row, "td sup") %>% rvest::html_text(trim = TRUE) %>% str_remove_all(., "\\^")
                 
-                # Get markers from the headers of columns that have data in this row
                 active_cols <- which(!is.na(table_data[row_index,]))
                 header_markers_for_row <- keep(header_markers_map, ~ .x$col %in% active_cols) %>% map_chr("marker")
-
-                # Combine, find unique markers, and look up their text
                 all_markers <- unique(c(cell_markers, header_markers_for_row))
                 
                 if (length(all_markers) == 0) return(NA_character_)
                 
                 marker_tbl <- tibble(citation_marker = all_markers)
                 joined <- left_join(marker_tbl, citations_df, by = "citation_marker")
-                paste(na.omit(joined$citation_text), collapse = "; ")
+                
+                valid_texts <- na.omit(joined$citation_text)
+                if (length(valid_texts) == 0) return("")
+                
+                paste(valid_texts, collapse = "; ")
             })
-            table_data$citation_text <- citation_texts
+            if(length(citation_texts) == nrow(table_data)){
+              table_data$citation_text <- citation_texts
+            }
         }
 
         # 5. Final cleanup and assignment
@@ -196,9 +212,29 @@ raw <- lf[1:20] %>%
   )  %>% compact() %>%
 list_rbind()
 
-dput(raw)
+saveRDS(raw, here("epa", "reuse_explorer","reuse_raw.RDS"))
 
-# TODO Explore fuzzy matches for params from TADA and SSWQS
+# clean -------------------------------------------------------------------
+cur <- raw %>% 
+	mutate(
+		area = State, 
+		source_water_super = `Source of Water`,
+		source_water_type = source_water_type, 
+		reuse_application = `Reuse Application`,
+		application_class = coalesce(recycled_water_class_category_approved_uses, recycled_water_class_category),
+		specification = coalesce(specification, specifications) %>% str_replace_all("\\R+", "\\|") %>% str_remove_all("\\t+"),
+		sampling_requirements = sampling_monitoring_requirements_frequency_of_monitoring_site_location_of_sample_quantification_methods,
+		water_quality_parameter = str_remove_all(water_quality_parameter, "\\^.*?\\^"),
+		citation_text = na_if(citation_text, ""),
+		.keep = 'unused'
+	) %>% 
+	select(area, source_water_super, source_water_type, reuse_application, application_class,water_quality_parameter, specification, sampling_requirements, citation_text) %>% 
+	separate_longer_delim(cols = specification, delim = "\\|")
+
+cur %>%
+	filter(str_detect(specification, "\\|")) %>% 
+	pull(specification) %>%
+	stringi::stri_escape_unicode()
 
 compounds <- raw %>%
   count(param) %>%
