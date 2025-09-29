@@ -1,21 +1,21 @@
 # packages ----------------------------------------------------------------
+{
+  library(mirai)
+  library(rio)
+  library(janitor)
+  library(tidyverse)
+  library(here)
+  library(httr2)
+  library(rvest)
+  library(xml2)
+  library(jsonlite)
+  library(stringdist)
+  library(fuzzyjoin)
 
-library(mirai)
-library(rio)
-library(janitor)
-library(tidyverse)
-library(here)
-library(httr2)
-library(rvest)
-library(xml2)
-library(jsonlite)
-library(stringdist)
-library(fuzzyjoin)
-
-# NOTE: The working directory is set based on the original script's structure.
-# Ensure your project has the 'epa/reuse_explorer' subdirectories.
-setwd(here("epa", "reuse_explorer"))
-
+  # NOTE: The working directory is set based on the original script's structure.
+  # Ensure your project has the 'epa/reuse_explorer' subdirectories.
+  setwd(here("epa", "reuse_explorer"))
+}
 
 # functions for parallel processing ---------------------------------------
 
@@ -25,13 +25,7 @@ setwd(here("epa", "reuse_explorer"))
 download_file_safely <- function(doc_meta) {
   tryCatch(
     {
-      # --- Determine final URL by following redirects ---
-      head_response <- httr2::request(doc_meta$Url) %>%
-        httr2::req_method('HEAD') %>%
-        httr2::req_perform()
-
-      doc_meta$head_url <- head_response$url
-
+      # Builds a safe filename based on metadata
       safe_filename_base <- paste(
         doc_meta$State,
         doc_meta$`Source of Water`,
@@ -45,12 +39,22 @@ download_file_safely <- function(doc_meta) {
         paste0(safe_filename_base, ".html")
       )
 
-      # --- Download and write file to disk ---
-      page_response <- httr2::request(doc_meta$head_url) %>%
-        httr2::req_perform()
+      # If the file already exists, skip downloading it again
+      if (!file.exists(doc_meta$filepath)) {
+        #  Determine final URL by following redirects
+        head_response <- httr2::request(doc_meta$Url) %>%
+          httr2::req_method('HEAD') %>%
+          httr2::req_perform()
 
-      writeBin(httr2::resp_body_raw(page_response), doc_meta$filepath)
+        doc_meta$head_url <- head_response$url
 
+        # Download and write file to disk
+        page_response <- httr2::request(doc_meta$head_url) %>%
+          httr2::req_perform()
+
+        writeBin(httr2::resp_body_raw(page_response), doc_meta$filepath)
+      } # else {cli::cli_alert_info("File already exists for {doc_meta$filepath}, skipping download.")}
+      # Return the updated metadata object
       return(doc_meta)
     },
     error = function(e) {
@@ -75,7 +79,7 @@ parse_html_file <- function(doc_meta) {
     {
       # Pre-check: Ensure the file was actually downloaded before proceeding
       if (is.na(doc_meta$filepath) || !file.exists(doc_meta$filepath)) {
-        message("File not found for ", doc_meta$State, ", skipping.")
+        message("File not found for ", doc_meta$filepath, ", skipping.")
         return(NULL)
       }
 
@@ -127,12 +131,21 @@ parse_html_file <- function(doc_meta) {
       walk(
         sup_nodes,
         ~ {
-          node_text <- xml2::xml_text(.x)
-          if (node_text %in% true_citation_markers) {
-            xml2::xml_replace(
-              .x,
-              xml2::xml_cdata(paste0("__", node_text, "__"))
-            )
+          # Get the text from the <sup> node and clean it
+          node_text <- xml2::xml_text(.x) %>% stringr::str_squish()
+
+          # Split the text by commas to handle cases like "a,c"
+          markers <- stringr::str_split(node_text, pattern = ",")[[1]] %>%
+            stringr::str_trim()
+
+          # Check if ALL of the identified markers are valid
+          if (all(markers %in% true_citation_markers)) {
+            # Construct a replacement string where each marker is individually delimited
+            # e.g., c("a", "c") becomes "__a____c__"
+            replacement_text <- paste0("__", markers, "__", collapse = "")
+
+            # Replace the original <sup> node with the new text
+            xml2::xml_replace(.x, xml2::xml_cdata(replacement_text))
           }
         }
       )
@@ -180,6 +193,7 @@ parse_html_file <- function(doc_meta) {
           everything(),
           ~ str_replace_all(., "\\__.*?\\__", "")
         )) %>%
+        # ! Does this remove the internal line breaks?
         mutate(across(everything(), str_squish))
 
       final_df <- clean_df
@@ -197,7 +211,6 @@ parse_html_file <- function(doc_meta) {
           .before = 1
         ) %>%
         select(-row_id)
-      # --- End of original parsing logic ---
 
       return(final_df)
     },
@@ -218,9 +231,7 @@ parse_html_file <- function(doc_meta) {
 # setup mirai daemons -----------------------------------------------------
 
 # Use n-1 cores to leave one free for system processes
-n_workers <- parallel::detectCores() - 1
-message("Starting ", n_workers, " mirai daemons...")
-mirai::daemons(n = n_workers)
+mirai::daemons(n = parallel::detectCores() - 1)
 
 
 # download ----------------------------------------------------------------
@@ -239,34 +250,37 @@ lf <- jsonlite::read_json(
     }
   )
 
-# --- Parallel Download ---
-message("Dispatching ", length(lf), " download tasks to workers...")
-download_tasks <- lf %>%
+# Parallel Download -----
+
+lf_downloaded <- lf %>%
   map(
-    ~ in_parallel(
-      {
-        download_file_safely(doc)
+    in_parallel(
+      \(doc_meta) {
+        library(rio)
+        library(janitor)
+        library(tidyverse)
+        library(here)
+        library(httr2)
+        library(rvest)
+        library(xml2)
+        library(jsonlite)
+        download_file_safely(doc_meta)
       },
-      doc = .x
-    )
+      download_file_safely = download_file_safely
+    ),
+    .progress = TRUE
   )
 
-# CORRECTED: Collect results using purrr::map with the identity function ~.x
-lf_downloaded <- purrr::map(download_tasks, ~.x)
-message("All download tasks complete.")
 
+# Parallel Parse ------------------------------------------------------------
+lf_names <- lf_downloaded %>%
+  map(., ~ pluck(.x, "filepath") %>% basename() %>% tools::file_path_sans_ext())
 
-# raw (Parse Files) -------------------------------------------------------
-
-# --- Parallel Parsing ---
-message("Dispatching parsing tasks to workers...")
-
-# First, remove any NULLs from failed downloads, then dispatch parsing tasks.
-parse_tasks <- lf_downloaded %>%
+raw <- lf_downloaded %>%
   purrr::compact() %>%
   map(
     in_parallel(
-      ~ {
+      \(doc_meta) {
         library(rio)
         library(janitor)
         library(tidyverse)
@@ -276,14 +290,133 @@ parse_tasks <- lf_downloaded %>%
         library(xml2)
         library(jsonlite)
 
-        parse_html_file(doc)
+        parse_html_file(doc_meta)
       },
-      doc = .x
-    )
-  )
+      parse_html_file = parse_html_file
+    ),
+    .progress = TRUE
+  ) %>%
+  purrr::set_names(lf_names) %>%
+  compact() %>%
+  list_rbind()
 
-raw <- purrr::map(parse_tasks, unname) %>%
-  purrr::list_rbind()
+rm(lf_names, lf_downloaded, lf)
 
 # Stop daemons when finished to clean up background processes
 mirai::daemons(n = 0)
+
+#Cleaning ------------------------------------------------------
+
+cur <- raw %>%
+  mutate(
+    idx = 1:n(),
+    area = State,
+    source_water_super = `Source of Water`,
+    source_water_type = purrr::reduce(
+      pick(starts_with("source_water_type")),
+      coalesce
+    ),
+    reuse_application = `Reuse Application`,
+    application_class = purrr::reduce(
+      pick(starts_with("recycled_water_")),
+      coalesce
+    ),
+    specification = purrr::reduce(
+      pick(starts_with("specification")),
+      coalesce
+    ), #%>% str_replace_all("\\R+", "\\__") %>% str_remove_all("\\t+"),
+    sampling_requirements = purrr::reduce(
+      pick(starts_with("sampling_")),
+      coalesce
+    ), #%>% str_replace_all("\\R+", "\\__") %>% str_remove_all("\\t+"),
+    water_quality_parameter = purrr::reduce(
+      pick(starts_with("water_quality_parameter")),
+      coalesce
+    ),
+    citation_text = na_if(citation_text, ""),
+    .keep = 'unused'
+  ) %>%
+  select(
+    idx,
+    area,
+    source_water_super,
+    source_water_type,
+    reuse_application,
+    application_class,
+    specification,
+    water_quality_parameter,
+    sampling_requirements,
+    citation_text
+  ) %>%
+  mutate(
+    raw_specification = specification,
+    specification = str_replace_all(
+      specification,
+      pattern = c(
+        "\\u00a0" = " ", # non-breaking space
+        "\\u2013" = "-", # en dash
+        "\\u2014" = "-", # em dash
+        "\\u2015" = "-", # horizontal bar
+        "\\u00ad" = "-", # soft hyphen
+        "\\u2018" = "'", # left single quotation mark
+        "\\u2019" = "'", # right single quotation mark
+        "\\u201c" = '"', # left double quotation mark
+        "\\u201d" = '"', # right double quotation mark
+        "\\u2026" = "...", # ellipsis
+        "\\u00b0" = " degrees ", # degree symbol
+        "\\u03bc" = "u", # Greek letter mu
+        "\\u00b5" = "u", # micro sign
+        "\\u00b3" = "", #Removes superscripted numbers; not sure why this wasn't caught earlier
+        "\\u2264" = "<=", # less than or equal to
+        "\\u2265" = ">=", # greater than or equal to
+        "\\u00a7" = "section" # section sign (looks like a double S
+      )
+    ),
+    unicode_count = stringi::stri_count(
+      specification,
+      regex = "[^\\x00-\\x7F]|\\>|\\<"
+    )
+  ) %>%
+  rowwise() %>%
+  mutate(
+    specification = case_when(
+      unicode_count >= 2 ~
+        gsub(
+          pattern = "(^(?:[^<>\\(\\)]+|\\([^)]*\\))*(?:<=|>=|<|>)(?:[^<>\\(\\)]+|\\([^)]*\\))*?)((?:<=|>=|<|>))",
+          replacement = "\\1__\\2",
+          specification,
+          perl = TRUE
+        ),
+      .default = specification
+    ),
+    #specification_annotatation = str_extract(specification, "\\(.*\\)"),
+  ) %>%
+  separate_longer_delim(cols = specification, delim = "__") %>%
+  #separate_longer_delim(cols = sampling_requirements, delim = "__") %>%
+  filter(specification != "")
+
+
+# NOTE: To inspect specifications with multiple entries, uncomment below:
+cur %>%
+  slice_sample(n = 20) %>%
+  filter(str_detect(specification, "\\|")) %>%
+  select(specification) %>%
+  mutate(unicode = stringi::stri_escape_unicode(specification)) %>%
+  print(n = Inf, width = Inf)
+
+compounds <- cur %>%
+  count(water_quality_parameter) %>%
+  arrange(desc(n))
+
+mutate(
+  idx_n = 1:n(),
+  #orig_param = param,
+  param = str_replace_all(param, pattern = '\\u00a0', replacement = " ") %>%
+    str_squish(),
+  #uni = stringi::stri_escape_unicode(param),
+  #len = str_length(uni)
+) %>%
+  select(-n) %>%
+  #arrange(param) %>%
+  #mutate(idx_alp = 1:n()) %>% #%>% mutate(across(where(is.numeric), as.character))
+  distinct(param, .keep_all = TRUE)
