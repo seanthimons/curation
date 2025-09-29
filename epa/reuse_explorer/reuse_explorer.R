@@ -37,7 +37,7 @@ lf <- jsonlite::read_json(
     .progress = TRUE
   )
 
-lf <- lf[65:66] %>%
+lf <- lf %>%
   imap(
     .,
     ~ {
@@ -81,7 +81,7 @@ lf <- lf[65:66] %>%
       return(.x)
     },
     .progress = TRUE
-  )
+)
 
 
 # raw ---------------------------------------------------------------------
