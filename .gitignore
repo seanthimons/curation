@@ -28,4 +28,7 @@ ecotox/temp.R
 *.xltm
 *.txt
 *.parquet
+*.docx
 /ecotox/rsconnect
+dict/All_CSV.zip
+dict/All_Domains_CSV.zip
