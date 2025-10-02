@@ -1,18 +1,162 @@
 # Packages -------------------------------------------------------------
+
 {
-	library(here)
-	library(cli)
-	library(janitor)
-	library(rvest)
-	library(httr)
-	library(tidyverse)
-	library(rio)
-	library(ComptoxR)
+  install_booster_pack <- function(package, load = TRUE) {
+    # Loop through each package
+    for (pkg in package) {
+      # Check if the package is installed
+      if (!requireNamespace(pkg, quietly = TRUE)) {
+        # If not installed, install the package
+        install.packages(pkg)
+      }
+      # Load the package
+      if (load) {
+        library(pkg, character.only = TRUE)
+      }
+    }
+  }
+
+  if (file.exists('packages.txt')) {
+    packages <- read.table('packages.txt')
+
+    install_booster_pack(package = packages$Package, load = FALSE)
+
+    rm(packages)
+  } else {
+    # Packages ----
+
+    booster_pack <- c(
+      ## IO ----
+      'fs',
+      'here',
+      'janitor',
+      'rio',
+      'tidyverse',
+      #	'data.table',
+      'mirai',
+      # 'targets',
+      # 'crew',
+
+      ## DB ----
+      #  'arrow',
+      'nanoparquet',
+      #  'duckdb',
+      #  'duckplyr',
+      #  'dbplyr',
+
+      ## EDA ----
+      'skimr',
+
+      ## Web ----
+      'rvest',
+      'polite',
+      #	'plumber',
+      # 'plumber2', #Still experimental
+      'httr2',
+
+      ## Plot ----
+      # 'paletteer',
+      # 'ragg',
+      # 'camcorder',
+      # 'esquisse',
+      # 'geofacet',
+      # 'patchwork',
+      # 'marquee',
+      # 'ggiraph',
+      # 'geomtextpath',
+      # 'ggpattern',
+      # 'ggbump',
+      # 'gghighlight',
+      # 'ggdist',
+      # 'ggforce',
+      # 'gghalves',
+      # 'ggtext',
+      # 'ggrepel', # Suggested for non-overlapping labels
+      # 'gganimate', # Suggested for animations
+      # 'ggsignif',
+      # 'ggTimeSeries',
+      # 'tidyheatmaps',
+
+      ## Modeling ----
+      # 'tidymodels',
+
+      ## Shiny ----
+      # 'shiny',
+      # 'bslib',
+      # 'DT',
+      # 'plotly',
+
+      ## Reporting ----
+      # 'quarto',
+      # 'gt',
+
+      ## Spatial ----
+      # 'sf',
+      # 'geoarrow',
+      # 'duckdbfs',
+      # 'duckspatial',
+      # 'ducksf',
+      # 'tidycensus', # Needs API
+      # 'mapgl',
+      # 'dataRetrieval', # Needs API
+      # 'StreamCatTools',
+
+      ## Misc ----
+      # 'devtools',
+      # 'usethis',
+      # 'pak',
+      'remotes'
+    )
+
+    # ! Change load flag to load packages
+    install_booster_pack(package = booster_pack, load = TRUE)
+    rm(install_booster_pack, booster_pack)
+  }
+
+  # Custom Functions ----
+
+  `%ni%` <- Negate(`%in%`)
+
+  # skim_count <- skim_with(
+  # 	numeric = sfl(
+  # 		n = length,
+  # 		min = ~ min(.x, na.rm = T),
+  # 		median = ~ median(.x, na.rm = T),
+  # 		max = ~ max(.x, na.rm = T)
+  # 	)
+  # )
+
+  # Camcorder ----
+
+  # if(!dir.exists(here::here('output'))) {
+  #   dir.create(here::here('output'))
+  # }
+
+  # gg_record(
+  # 	here::here('output'),
+  # 	device = "png",
+  # 	width = 10,
+  # 	height = 7,
+  # 	units = "in",
+  # 	dpi = 320
+  # )
+
+  # Theme ----
+
+  # theme_custom <- function() {
+  # 	theme_minimal() +
+  # 		theme(
+  # 			plot.background = element_rect(colour = "white"),
+  # 			panel.grid.major = element_blank(),
+  # 			panel.grid.minor = element_blank(),
+  # 			strip.background = element_rect(colour = "white"),
+  # 			axis.text.x = element_text(angle = 90L)
+  # 		)
+  # }
+	
 
 	setwd(here('rais'))
 }
-
-# ! TODO Add logic that checks against the files to selectively redownload the files instead of all of them
 
 # Checkpoint -------------------------------------------------------------
 

@@ -19,6 +19,8 @@
 
 # functions for parallel processing ---------------------------------------
 
+`%ni%` <- Negate(`%in%`)
+
 #' A safe function to download a single file.
 #' It takes one element of the lf list, performs the download, and returns
 #' the updated list element. Includes robust error handling.
@@ -189,11 +191,13 @@ parse_html_file <- function(doc_meta) {
       }
 
       clean_df <- dirty_df %>%
-        mutate(across(
-          everything(),
-          ~ str_replace_all(., "\\__.*?\\__", "")
-        )) %>%
-        # ! Does this remove the internal line breaks?
+        mutate(
+          across(
+            everything(),
+            ~ str_replace_all(., "\\__.*?\\__", "")
+          )
+          # ! Does this remove the internal line breaks?
+        ) %>%
         mutate(across(everything(), str_squish))
 
       final_df <- clean_df
@@ -225,6 +229,63 @@ parse_html_file <- function(doc_meta) {
       return(NULL)
     }
   )
+}
+
+inject <- function(input_string) {
+  # Step 1: Find all valid symbols not inside parentheses (same as before)
+  symbol_locs <- gregexpr("(?:<=|>=|<|>)", input_string, perl = TRUE)[[1]]
+
+  if (symbol_locs[1] == -1) {
+    return(input_string) # No symbols, nothing to do
+  }
+
+  paren_locs <- gregexpr("\\([^)]*\\)", input_string, perl = TRUE)[[1]]
+
+  if (paren_locs[1] != -1) {
+    paren_ends <- paren_locs + attr(paren_locs, "match.length") - 1
+  } else {
+    paren_ends <- c()
+  }
+
+  valid_symbol_locs <- c()
+  for (sl in symbol_locs) {
+    is_inside_paren <- FALSE
+    if (length(paren_locs) > 0 && paren_locs[1] != -1) {
+      if (any(sl > paren_locs & sl < paren_ends)) {
+        is_inside_paren <- TRUE
+      }
+    }
+    if (!is_inside_paren) {
+      valid_symbol_locs <- c(valid_symbol_locs, sl)
+    }
+  }
+
+  # Step 2: Implement the new unified logic
+
+  # Check if the string starts with descriptive text.
+  # The regex checks for a start that is NOT whitespace, a digit, <, >, or =.
+  starts_with_text <- grepl("^\\s*[^\\d<>=]", input_string)
+
+  # THE EXEMPTION RULE:
+  # If it starts with text AND has 2 or fewer symbols, do nothing.
+  if (starts_with_text && length(valid_symbol_locs) <= 2) {
+    return(input_string)
+  }
+
+  # FOR ALL OTHER CASES:
+  # Modify the 2nd, 3rd, 4th, etc. valid symbol.
+  if (length(valid_symbol_locs) > 1) {
+    for (i in length(valid_symbol_locs):2) {
+      loc <- valid_symbol_locs[i]
+      input_string <- paste0(
+        substr(input_string, 1, loc - 1),
+        "__",
+        substr(input_string, loc, nchar(input_string))
+      )
+    }
+  }
+
+  return(input_string)
 }
 
 
@@ -305,6 +366,8 @@ rm(lf_names, lf_downloaded, lf)
 # Stop daemons when finished to clean up background processes
 mirai::daemons(n = 0)
 
+saveRDS(raw, 'reuse_raw.RDS')
+
 #Cleaning ------------------------------------------------------
 
 cur <- raw %>%
@@ -369,41 +432,66 @@ cur <- raw %>%
         "\\u00b3" = "", #Removes superscripted numbers; not sure why this wasn't caught earlier
         "\\u2264" = "<=", # less than or equal to
         "\\u2265" = ">=", # greater than or equal to
-        "\\u00a7" = "section" # section sign (looks like a double S
+        "\\u00a7" = "section", # section sign (looks like a double S
+        "(?<=\\d)\\s+(?=mL)" = "_" # replaces space between number and text with underscore, like 100 mg/L -> 100_mg/L
       )
     ),
+    specification = str_remove_all(specification, pattern = "(?<=\\d),(?=\\d)"), # removes commas in numbers
     unicode_count = stringi::stri_count(
       specification,
       regex = "[^\\x00-\\x7F]|\\>|\\<"
     )
   ) %>%
+  filter(!is.na(unicode_count)) %>%
   rowwise() %>%
   mutate(
-    specification = case_when(
-      unicode_count >= 2 ~
-        gsub(
-          pattern = "(^(?:[^<>\\(\\)]+|\\([^)]*\\))*(?:<=|>=|<|>)(?:[^<>\\(\\)]+|\\([^)]*\\))*?)((?:<=|>=|<|>))",
-          replacement = "\\1__\\2",
-          specification,
-          perl = TRUE
-        ),
-      .default = specification
-    ),
-    #specification_annotatation = str_extract(specification, "\\(.*\\)"),
+    # intermediate_specification = specification,
+    specification = inject(specification),
+    # unicode = stringi::stri_escape_unicode(raw_specification),
+    # specification_annotatation = str_extract(specification, "\\(.*\\)"),
   ) %>%
+  # select(
+  # 	idx,
+  #   unicode_count,
+  #   raw_specification,
+  # 	intermediate_specification,
+  #   specification
+  #   #unicode
+  # ) %>%
   separate_longer_delim(cols = specification, delim = "__") %>%
-  #separate_longer_delim(cols = sampling_requirements, delim = "__") %>%
-  filter(specification != "")
+  mutate(
+    water_quality_parameter_note = str_extract(
+      water_quality_parameter,
+      "\\(.*\\)"
+    ), #extracts anything in parentheses
+    water_quality_parameter = str_remove_all(
+      water_quality_parameter,
+      "\\(.*\\)"
+    ) %>%
+      str_squish(), #removes anything in parentheses)
+    spec_note = str_extract(specification, "\\(.*\\)"), #extracts anything in parentheses
+    operator = str_extract(specification, "^(<=|>=|<|>)"), #extracts operator if at start of string
+    specification = str_squish(specification) %>%
+      str_remove_all("\\(.*\\)") %>%
+      str_remove_all("^(<=|>=|<|>)") %>%
+      str_squish(), #removes anything in parentheses from main specification and operators
+  )
 
+## Duplicate checks ------------------------------------------------------
+dupes <-
+  cur %>%
+  get_dupes(idx)
 
-# NOTE: To inspect specifications with multiple entries, uncomment below:
+dupes %>%
+  filter(dupe_count != unicode_count) %>%
+  View()
+
 cur %>%
-  slice_sample(n = 20) %>%
-  filter(str_detect(specification, "\\|")) %>%
-  select(specification) %>%
-  mutate(unicode = stringi::stri_escape_unicode(specification)) %>%
-  print(n = Inf, width = Inf)
+  filter(idx %ni% dupes$idx) %>%
+  filter(unicode_count > 1) %>%
+  View()
 
+## Compound cleaning ------------------------------------------------------
 compounds <- cur %>%
   count(water_quality_parameter) %>%
   arrange(desc(n))

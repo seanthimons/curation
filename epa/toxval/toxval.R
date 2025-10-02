@@ -1,20 +1,162 @@
 # Packages ----------------------------------------------------------------
 
 {
-  library(here)
-  library(rio)
-  library(janitor)
-  library(tidyverse)
-  library(httr2)
-  #library(rvest)
-  #library(ComptoxR)
-  #library(jsonlite)
-  library(arrow)
+  install_booster_pack <- function(package, load = TRUE) {
+    # Loop through each package
+    for (pkg in package) {
+      # Check if the package is installed
+      if (!requireNamespace(pkg, quietly = TRUE)) {
+        # If not installed, install the package
+        install.packages(pkg)
+      }
+      # Load the package
+      if (load) {
+        library(pkg, character.only = TRUE)
+      }
+    }
+  }
 
-  setwd(here('epa'))
-  #load('epa.Rdata')
+  if (file.exists('packages.txt')) {
+    packages <- read.table('packages.txt')
+
+    install_booster_pack(package = packages$Package, load = FALSE)
+
+    rm(packages)
+  } else {
+    # Packages ----
+
+    booster_pack <- c(
+      ## IO ----
+      'fs',
+      'here',
+      'janitor',
+      'rio',
+      'tidyverse',
+      #	'data.table',
+      'mirai',
+      # 'targets',
+      # 'crew',
+
+      ## DB ----
+      #  'arrow',
+      'nanoparquet',
+      #  'duckdb',
+      #  'duckplyr',
+      #  'dbplyr',
+
+      ## EDA ----
+      'skimr',
+
+      ## Web ----
+      'rvest',
+      'polite',
+      #	'plumber',
+      # 'plumber2', #Still experimental
+      'httr2',
+
+      ## Plot ----
+      # 'paletteer',
+      # 'ragg',
+      # 'camcorder',
+      # 'esquisse',
+      # 'geofacet',
+      # 'patchwork',
+      # 'marquee',
+      # 'ggiraph',
+      # 'geomtextpath',
+      # 'ggpattern',
+      # 'ggbump',
+      # 'gghighlight',
+      # 'ggdist',
+      # 'ggforce',
+      # 'gghalves',
+      # 'ggtext',
+      # 'ggrepel', # Suggested for non-overlapping labels
+      # 'gganimate', # Suggested for animations
+      # 'ggsignif',
+      # 'ggTimeSeries',
+      # 'tidyheatmaps',
+
+      ## Modeling ----
+      # 'tidymodels',
+
+      ## Shiny ----
+      # 'shiny',
+      # 'bslib',
+      # 'DT',
+      # 'plotly',
+
+      ## Reporting ----
+      # 'quarto',
+      # 'gt',
+
+      ## Spatial ----
+      # 'sf',
+      # 'geoarrow',
+      # 'duckdbfs',
+      # 'duckspatial',
+      # 'ducksf',
+      # 'tidycensus', # Needs API
+      # 'mapgl',
+      # 'dataRetrieval', # Needs API
+      # 'StreamCatTools',
+
+      ## Misc ----
+      # 'devtools',
+      # 'usethis',
+      # 'pak',
+      'remotes'
+    )
+
+    # ! Change load flag to load packages
+    install_booster_pack(package = booster_pack, load = TRUE)
+    rm(install_booster_pack, booster_pack)
+  }
+
+  # Custom Functions ----
+
+  `%ni%` <- Negate(`%in%`)
+
+  # skim_count <- skim_with(
+  # 	numeric = sfl(
+  # 		n = length,
+  # 		min = ~ min(.x, na.rm = T),
+  # 		median = ~ median(.x, na.rm = T),
+  # 		max = ~ max(.x, na.rm = T)
+  # 	)
+  # )
+
+  # Camcorder ----
+
+  # if(!dir.exists(here::here('output'))) {
+  #   dir.create(here::here('output'))
+  # }
+
+  # gg_record(
+  # 	here::here('output'),
+  # 	device = "png",
+  # 	width = 10,
+  # 	height = 7,
+  # 	units = "in",
+  # 	dpi = 320
+  # )
+
+  # Theme ----
+
+  # theme_custom <- function() {
+  # 	theme_minimal() +
+  # 		theme(
+  # 			plot.background = element_rect(colour = "white"),
+  # 			panel.grid.major = element_blank(),
+  # 			panel.grid.minor = element_blank(),
+  # 			strip.background = element_rect(colour = "white"),
+  # 			axis.text.x = element_text(angle = 90L)
+  # 		)
+  # }
+
+	setwd(here('epa', 'toxval'))
+	
 }
-
 
 # Clowder files -----------------------------------------------------------
 
@@ -50,21 +192,38 @@ rm(tv_list, clowder_list)
 
 # raw ---------------------------------------------------------------------
 
-map(
+# Map over each version and creates a directory if it doesn't exist
+new_ver <- map(
   names(tv_grp),
-  ~ dir.create(here('epa', 'toxval_raw', .x))
-)
+	~{
+		if(!fs::dir_exists(here('epa','toxval', 'toxval_raw', .x))) {
+			cli::cli_alert_info(paste('Creating directory for', .x))
+			fs::dir_create(here('epa','toxval', 'toxval_raw', .x))
+			.x <- .x
+		} else{
+			NULL
+		}
+	}
+) %>% 
+	compact()
 
-# temp <- tv_grp %>%
-#   keep_at(., 'v92')
+# Keeps only new versions to download, presumes that older versions are already downloaded 
+tv_grp <- tv_grp %>%
+  keep_at(., names(tv_grp) %in% new_ver)
+
+tv_ver <- tv_ver %>% 
+	keep(., . %in% new_ver)
+
+
+# Download ---------------------------------------------------------------
+
 
 tv_grp %>%
-  #temp %>%
-  imap(
+  iwalk(
     .,
     ~ {
-      setwd(here('epa', 'toxval_raw', .y))
-      map(
+      setwd(here('epa', 'toxval','toxval_raw', .y))
+      walk(
         .,
         ~ {
           cli::cli_alert(.x$filename)
@@ -86,12 +245,12 @@ tv_grp %>%
 #lof <- list.files(here('epa', 'toxval_raw'), recursive = TRUE)
 
 tv_ver %>%
-  imap(
+  iwalk(
     .,
     ~ {
-      cli::cli_alert(.x)
+      cli::cli_alert(paste0("Building: ",.x))
 
-      setwd(here('epa', 'toxval_raw', .x))
+      setwd(here('epa','toxval', 'toxval_raw', .x))
 
       raw <- list.files(getwd()) %>%
         map(
@@ -109,9 +268,10 @@ tv_ver %>%
         ) %>%
         list_rbind()
 
-      write_parquet(
+			cli::cli_alert_success(paste0('Dumping: toxval_', .x, '.parquet'))
+      nanoparquet::write_parquet(
         raw,
-        sink = here('final', paste0('toxval_', .x, '.parquet'))
+        file = here('final', paste0('toxval_', .x, '.parquet'))
       )
     }
   )
