@@ -1,6 +1,7 @@
 # Packages ----------------------------------------------------------------
 
 {
+  # CRAN Packages ----
   install_booster_pack <- function(package, load = TRUE) {
     # Loop through each package
     for (pkg in package) {
@@ -102,7 +103,7 @@
       # 'StreamCatTools',
 
       ## Misc ----
-      # 'devtools',
+      'devtools',
       # 'usethis',
       # 'pak',
       'remotes'
@@ -112,6 +113,33 @@
     install_booster_pack(package = booster_pack, load = TRUE)
     rm(install_booster_pack, booster_pack)
   }
+
+  # GitHub Packages ----
+  github_packages <- c(
+    "seanthimons/ComptoxR"
+  )
+
+  # Ensure remotes is installed
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
+
+  # Loop through each GitHub package
+  for (pkg in github_packages) {
+    # Extract package name from the "user/repo" string
+    pkg_name <- sub(".*/", "", pkg)
+    
+    # Check if the package is installed
+    if (!requireNamespace(pkg_name, quietly = TRUE)) {
+      # If not installed, install the latest release from GitHub
+      remotes::install_github(paste0(pkg, "@*release"))
+    }
+    # Load the package
+    library(pkg_name, character.only = TRUE)
+  }
+  
+  rm(github_packages, pkg, pkg_name)
+
 
   # Custom Functions ----
 
@@ -153,10 +181,10 @@
   # 			axis.text.x = element_text(angle = 90L)
   # 		)
   # }
-
-  setwd(here('epa'))
-  #load('epa.Rdata')
+	
 }
+
+setwd(here::here('epa', 'nwqs'))
 
 #' SRS search
 #'
@@ -588,14 +616,13 @@ final_dictionary <- bind_rows(wq, dss) %>%
         .default = unit
       ),
       value = case_when(
-        preferredName == 'Perfluorooctanoic acid' ~
+        preferredName == 'Perfluorooctanoic acid' | preferredName == 'Perfluorooctanesulfonate' ~
           orig_value %>%
             str_replace_all("\\R+", "\\__") %>%
             str_remove_all("\\t+"),
-        preferredName == 'Perfluorooctanesulfonate' ~
-          orig_value %>%
-            str_replace_all("\\R+", "\\__") %>%
-            str_remove_all("\\t+"),
+				preferredName == 'pH' | preferredName == 'Benzene' ~  
+					
+
         .default = value
       )
     ) %>%
