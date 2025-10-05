@@ -1,5 +1,5 @@
-water_quality_criteria <- tribble(
-  ~Constituent, ~`Maximum Concentrations for Irrigation (mg/L)`, ~Remarks,
+reuse_water_criteria <- tribble(
+  ~Constituent, ~value, ~Remarks,
   "Aluminum", 5.0, "Can cause nonproductiveness in acid soils, but soils at pH 5.5 to 8.0 will precipitate the ion and eliminate toxicity",
   "Arsenic", 0.10, "Toxicity to plants varies widely, ranging from 12 mg/L for Sudan grass to less than 0.05 mg/L for rice",
   "Beryllium", 0.10, "Toxicity to plants varies widely, ranging from 5 mg/L for kale to 0.5 mg/L for bush beans",
@@ -19,4 +19,13 @@ water_quality_criteria <- tribble(
   "Tin, Tungsten, and Titanium", NA, "Excluded by plants; specific tolerance levels unknown",
   "Vanadium", 0.1, "Toxic to many plants at relatively low concentrations",
   "Zinc", 2.0, "Toxic to many plants at widely varying concentrations; reduced toxicity at increased pH (6 or above) and in fine-textured or organic soils"
-)
+) %>% 
+	mutate(
+		name = Constituent,
+		value = value, 
+		units = 'mg/L',
+		source = 'EPA Guidelines for Water Reuse (2012)',
+		toxval_type = 'Media Exposure Guidelines',
+		.keep = 'unused'
+	) %>% 
+	filter(!is.na(value))

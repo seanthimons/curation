@@ -156,7 +156,7 @@
 
   setwd(here::here('threat_build'))
 
-	library(ComptoxR)
+  library(ComptoxR)
 }
 
 
@@ -245,7 +245,6 @@ pull_table <- function(...) {
 }
 
 
-
 # init --------------------------------------------------------------------
 
 if (file.exists('threat.duckdb')) {
@@ -265,7 +264,7 @@ if (file.exists('threat.duckdb')) {
     # Arrange by version number descending to get the latest version first
     arrange(desc(version_num)) %>%
     # Select the filename with the highest version
-    slice_head(n = 3) %>%
+    slice_head(n = 1) %>%
     # Pull the filename as a character vector
     pull(filename)
 
@@ -304,5 +303,6 @@ if (file.exists('threat.duckdb')) {
     )
 
   rm(final_lof)
+
   dbListTables(threat_db)
 }

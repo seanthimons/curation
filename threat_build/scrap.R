@@ -1,8 +1,6 @@
 dbListTables(threat_db)
 
 tbl(threat_db, "toxval_v97_0") %>%
-  #filter(DTXSID == 'DTXSID2021238') %>%
-  #filter()
   glimpse()
 
 cwa <- ct_list('PRODWATER') %>%
@@ -97,3 +95,16 @@ sources <- tbl(threat_db, "toxval_v97_0") %>%
 	select(SOURCE, SUB_SOURCE, TOXVAL_TYPE, RISK_ASSESSMENT_CLASS) %>%
 	distinct() %>% 
 	collect() #%>% View()
+
+cols <- tbl(threat_db, "toxval_v97_0") %>%
+  semi_join(elements, join_by('DTXSID' == 'dtxsids')) %>%
+  filter(
+    (str_detect(SOURCE, 'EPA') || str_detect(SUB_SOURCE, 'EPA')),
+    TOXVAL_TYPE == 'MCL',
+    #SPECIES_COMMON == 'Human',
+    #EXPOSURE_ROUTE == "oral",
+    RISK_ASSESSMENT_CLASS == 'Water',
+    TOXVAL_UNITS == "mg/L",
+  ) %>%
+	collect() %>% 
+	janitor::remove_empty(., which = c("rows", "cols"))

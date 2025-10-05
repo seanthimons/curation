@@ -448,7 +448,7 @@ raw_cur <- bind_rows(list(good_dat, bad_dat)) %>%
       #unname() %>%
       print()
 
-    #NOTE Manual process here!
+    # ! NOTE Manual process here!
     missing <- missing %>%
       mutate(
         itn = case_when(
@@ -540,7 +540,7 @@ final_dictionary <- bind_rows(wq, dss) %>%
 # Final pairing -----------------------------------------------------------
 {
   ndwqs <- raw %>%
-    select(-casrn) %>%
+    #select(-casrn) %>%
 
     # NOTE debugging
     # anti_join(., final_dictionary, join_by(analyte)) %>%
@@ -549,7 +549,7 @@ final_dictionary <- bind_rows(wq, dss) %>%
     select(-year) %>%
     mutate(
       idx = 1:n(),
-      source = if_else(is.na(source), 'ND', source),
+      #source = if_else(is.na(source), 'ND', source),
       notes = case_when(
         notes == '' ~ NA,
         .default = notes
@@ -567,17 +567,14 @@ final_dictionary <- bind_rows(wq, dss) %>%
     ) %>%
     filter(!is.na(value))
 
+  # Simple value parsing ----
   n_1 <- ndwqs %>%
     mutate(value = as.numeric(value)) %>%
     filter(!is.na(value))
 
+  # More complex value parsing ----
   n_2 <- ndwqs %>%
     filter(idx %ni% n_1$idx) %>%
-    filter(
-      source != 'Disinfectants',
-      source != 'Selected Per- and poly-fluoroalkyl substances (PFAS)'
-    ) %>%
-    arrange(preferredName) %>%
     mutate(
       unit = case_when(
         preferredName == 'Alpha particle' ~ 'pCi/L',
@@ -591,6 +588,20 @@ final_dictionary <- bind_rows(wq, dss) %>%
         .default = unit
       ),
       value = case_when(
+        preferredName == 'Perfluorooctanoic acid' ~
+          orig_value %>%
+            str_replace_all("\\R+", "\\__") %>%
+            str_remove_all("\\t+"),
+        preferredName == 'Perfluorooctanesulfonate' ~
+          orig_value %>%
+            str_replace_all("\\R+", "\\__") %>%
+            str_remove_all("\\t+"),
+        .default = value
+      )
+    ) %>%
+    separate_longer_delim(., value, delim = '__') %>%
+    mutate(
+      value = case_when(
         preferredName == 'Alpha particle' ~ '15',
         preferredName == 'Asbestos' ~ '7',
         preferredName == 'Arsenic' ~ '0.01',
@@ -600,27 +611,15 @@ final_dictionary <- bind_rows(wq, dss) %>%
           'Radium, isotope of mass 226 and/or radium, isotope of mass 228' ~
           '5',
         preferredName == 'Total coliforms' ~ '5',
-        preferredName == 'Perfluorooctanesulfonic acid' ~ '0.25',
-        preferredName == 'Perfluorooctanoic acid' ~ '100',
         preferredName == 'Uranium' ~ '30',
         value == 'Total' ~ NA,
         .default = value
       ),
-      value = str_squish(value),
-      value = str_remove_all(value, pattern = '[[:SPACE:]]')
-    ) %>%
-    filter(!is.na(value))
+      #value = str_squish(value),
+      #value = str_remove_all(value, pattern = '[[:SPACE:]]')
+    ) #%>% filter(!is.na(value))
 
   {
-		library(magrittr)
-    n_3 <- n_2 %>%
-      #HACK experimental function
-      #group_split(., str_detect(value, '-'))
-      split(., ~ str_detect(.$value, pattern = '-'))
-
-    n_3$`FALSE` %<>%
-      mutate(value = as.numeric(value))
-
     n_3$`TRUE` %<>%
       mutate(
         idx_r = 1:n()
@@ -646,13 +645,8 @@ final_dictionary <- bind_rows(wq, dss) %>%
     n_3 <- list_rbind(n_3)
   }
 
-  # n_2 %<>%
-  #   mutate(value = as.numeric(value)) %>%
-  #   filter(!is.na(value))
-
   ndwqs_final <- bind_rows(
-    n_3,
-    #n_2,
+    n_2,
     n_1
   ) %>%
     ungroup() %>%
@@ -691,11 +685,6 @@ final_dictionary <- bind_rows(wq, dss) %>%
         frame != 'dw' ~
           'Clean Water Act 304 (a): National Recommended Water Quality Criteria'
       ),
-      origin_category = 'Federal',
-      priority_id = case_when(
-        frame == 'dw' ~ 1,
-        frame != 'dw' ~ 2
-      ),
     ) %>%
     arrange(idx) %>%
     mutate(
@@ -709,20 +698,44 @@ final_dictionary <- bind_rows(wq, dss) %>%
         unit == "ug/l" ~ "mg/L",
         .default = unit
       ),
-      across(
-        .cols = everything(),
-        .fns = ~ if_else(is.na(.), "ND", as.character(.))
-      ),
+      # across(
+      #   .cols = everything(),
+      #   .fns = ~ if_else(is.na(.), "ND", as.character(.))
+      # ),
       value = as.numeric(value)
     ) %>%
     select(
       -source,
       -frame,
       -name,
-      -analyte
+      -analyte,
+      is_range,
+      'DTXSID' = dtxsid,
+      'CASRN' = casrn,
+      'NAME' = preferredName,
+      'SOURCE' = cit,
+      'TOXVAL_TYPE' = endpoint,
+      'TOXVAL_NUMERIC' = value,
+      'TOXVAL_UNITS' = unit
+    ) %>%
+    mutate(
+      'SUB_SOURCE' = 'EPA OW',
+      'TOXVAL_TYPE_SUPERCATEGORY' = 'Media Exposure Guidelines',
+      'QUALIFIER' = case_when(
+        is_range == TRUE ~ '~',
+        .default = '='
+      ),
+      'RISK_ASSESSMENT_CLASS' = 'Water',
+      'STUDY_TYPE' = 'Media Exposure Guidelines',
+      'STUDY_DURATION_VALUE' = "-999",
+      'SPECIES_COMMON' = 'Human',
+      'LATIN_NAME' = 'Homo sapiens',
+      'SPECIES_SUPERCATEGORY' = 'Mammals',
+      'EXPOSURE_ROUTE' = 'oral',
+      .keep = 'unused'
     )
 }
 
-write_parquet(ndwqs_final, sink = here('final', 'nwqs.parquet'))
-
 #write_rds(ndwqs_final, here('final', 'nwqs.RDS'))
+
+#write_parquet(ndwqs_final, sink = here('final', 'nwqs.parquet'))
