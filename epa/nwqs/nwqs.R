@@ -128,7 +128,7 @@
   for (pkg in github_packages) {
     # Extract package name from the "user/repo" string
     pkg_name <- sub(".*/", "", pkg)
-    
+
     # Check if the package is installed
     if (!requireNamespace(pkg_name, quietly = TRUE)) {
       # If not installed, install the latest release from GitHub
@@ -137,9 +137,8 @@
     # Load the package
     library(pkg_name, character.only = TRUE)
   }
-  
-  rm(github_packages, pkg, pkg_name)
 
+  rm(github_packages, pkg, pkg_name)
 
   # Custom Functions ----
 
@@ -181,78 +180,117 @@
   # 			axis.text.x = element_text(angle = 90L)
   # 		)
   # }
-	
-}
 
-setwd(here::here('epa', 'nwqs'))
+  setwd(here::here('epa', 'nwqs'))
 
-#' SRS search
-#'
-#' @param query
-#' @param method
-#'
-#' @returns
-#' @export
+  #' SRS search
+  #'
+  #' @param query
+  #' @param method
+  #'
+  #' @returns
+  #' @export
 
-srs_search <- function(query, method) {
-  request(
-    "https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch"
-  ) |>
-    req_url_query(
-      #begins, contains, exact
-      term = query,
-      qualifier = method
+  srs_search <- function(query, method) {
+    request(
+      "https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/autoComplete/nameSearch"
     ) |>
-    req_headers(
-      accept = "*/*"
+      req_url_query(
+        #begins, contains, exact
+        term = query,
+        qualifier = method
+      ) |>
+      req_headers(
+        accept = "*/*"
+      ) |>
+      #req_dry_run()
+      req_perform() %>%
+      resp_body_json() %>%
+      map(., as_tibble) %>%
+      list_rbind()
+  }
+
+  #' SRS details
+  #'
+  #' @param query
+  #'
+  #' @returns
+  #' @export
+
+  srs_details <- function(query) {
+    request(
+      "https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/substance/itn/"
     ) |>
-    #req_dry_run()
-    req_perform() %>%
-    resp_body_json() %>%
-    map(., as_tibble) %>%
-    list_rbind()
+      req_url_path_append(query) %>%
+      # req_url_query(
+      #   excludeSynonyms = "true"
+      # ) |>
+      req_headers(
+        accept = "application/json"
+      ) |>
+      #req_dry_run()
+      req_perform() %>%
+      resp_body_json() %>%
+      pluck(., 1) %>%
+      modify_at(
+        "synonyms",
+        ~ length(.x)
+      ) %>%
+      flatten() %>%
+      compact() %>%
+      map(
+        .,
+        ~ if (is.null(.x)) {
+          NA
+        } else {
+          .x
+        }
+      ) %>%
+      as_tibble()
+  }
 }
-
-#' SRS details
-#'
-#' @param query
-#'
-#' @returns
-#' @export
-
-srs_details <- function(query) {
-  request(
-    "https://cdxapps.epa.gov/oms-substance-registry-services/rest-api/substance/itn/"
-  ) |>
-    req_url_path_append(query) %>%
-    # req_url_query(
-    #   excludeSynonyms = "true"
-    # ) |>
-    req_headers(
-      accept = "application/json"
-    ) |>
-    #req_dry_run()
-    req_perform() %>%
-    resp_body_json() %>%
-    pluck(., 1) %>%
-    modify_at(
-      "synonyms",
-      ~ length(.x)
-    ) %>%
-    flatten() %>%
-    compact() %>%
-    map(
-      .,
-      ~ if (is.null(.x)) {
-        NA
-      } else {
-        .x
-      }
-    ) %>%
-    as_tibble()
-}
-
 # Raw --------------------------------------------------------------------
+
+# 403 error
+# download.file(
+# 	destfile = here::here("epa", "nwqs", "mn-npdws.xlsx"),
+# 	url = 'https://www.web.health.state.mn.us/communities/environment/risk/docs/guidance/waterguidance.xlsx',
+# 	mode = 'wb'
+# )
+
+request(
+  'https://www.web.health.state.mn.us/communities/environment/risk/docs/guidance/waterguidance.xlsx'
+) %>%
+  # Add user agent to mimic a browser
+  req_headers(
+    'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.11'
+  ) %>%
+  req_perform(
+    path = here::here("epa", "nwqs", "mn-npdws.xlsx")
+  )
+
+raw <- rio::import(here::here("epa", "nwqs", "mn-npdws.xlsx")) %>%
+  janitor::row_to_names(1) %>%
+  janitor::clean_names()
+
+request(
+  "https://www.web.health.state.mn.us/communities/environment/risk/docs/guidance/gw/guidance.xlsx"
+) %>%
+  # Add user agent to mimic a browser
+  req_headers(
+    'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.11'
+  ) %>%
+  req_perform(
+    path = here::here("epa", "nwqs", "mn-guidance.xlsx")
+  )
+
+guidance <- rio::import(
+  here::here("epa", "nwqs", "mn-guidance.xlsx"),
+  sheet = 'AllGuidance'
+) %>%
+  janitor::row_to_names(2) %>%
+  janitor::clean_names()
+
 
 # National Primary Drinking Water Regulations -----------------------------
 
@@ -287,7 +325,7 @@ dw <- read_html(
   ) %>%
   mutate(
     unit = 'mg/L',
-    analyte = str_remove_all(analyte, pattern = "\n.*")
+    analyte = str_remove_all(analyte, pattern = "\n.*") #
     # orig_value = value,
     # value = as.numeric(value),
     # value = case_when(
@@ -519,6 +557,8 @@ raw_cur <- bind_rows(list(good_dat, bad_dat)) %>%
 
     missing <- params %>%
       anti_join(., params_cur, join_by(raw_search))
+
+    print(missing)
   }
 }
 
@@ -616,13 +656,17 @@ final_dictionary <- bind_rows(wq, dss) %>%
         .default = unit
       ),
       value = case_when(
-        preferredName == 'Perfluorooctanoic acid' | preferredName == 'Perfluorooctanesulfonate' ~
+        preferredName == 'Perfluorooctanoic acid' |
+          preferredName == 'Perfluorooctanesulfonate' ~
           orig_value %>%
             str_replace_all("\\R+", "\\__") %>%
             str_remove_all("\\t+"),
-				preferredName == 'pH' | preferredName == 'Benzene' ~  
-					
-
+        preferredName == 'pH' | preferredName == 'Benzene' ~
+          str_replace_all(
+            value,
+            pattern = '(?<=\\d)\\s*-\\s*(?=\\d)',
+            replacement = "-"
+          ),
         .default = value
       )
     ) %>%
@@ -646,31 +690,32 @@ final_dictionary <- bind_rows(wq, dss) %>%
       #value = str_remove_all(value, pattern = '[[:SPACE:]]')
     ) #%>% filter(!is.na(value))
 
-  {
-    n_3$`TRUE` %<>%
-      mutate(
-        idx_r = 1:n()
-      ) %>%
-      separate_longer_delim(., value, delim = '-') %>%
-      mutate(
-        value = as.numeric(value),
-        is_range = TRUE,
-        n_r = NA
-      ) %>%
-      filter(!is.na(value)) %>%
-      group_by(idx) %>%
-      mutate(
-        n_r = case_when(
-          min(value) == value ~ 'Lower range',
-          max(value) == value ~ 'Upper range'
-        )
-      ) %>%
-      unite(., col = 'notes', n_r, notes, sep = '; ', remove = T, na.rm = T) %>%
-      select(-idx_r) %>%
-      ungroup()
+  # ! NOTE May not be neded if ranges are handled properly.
+  # {
+  #   n_3$`TRUE` %<>%
+  #     mutate(
+  #       idx_r = 1:n()
+  #     ) %>%
+  #     separate_longer_delim(., value, delim = '-') %>%
+  #     mutate(
+  #       value = as.numeric(value),
+  #       is_range = TRUE,
+  #       n_r = NA
+  #     ) %>%
+  #     filter(!is.na(value)) %>%
+  #     group_by(idx) %>%
+  #     mutate(
+  #       n_r = case_when(
+  #         min(value) == value ~ 'Lower range',
+  #         max(value) == value ~ 'Upper range'
+  #       )
+  #     ) %>%
+  #     unite(., col = 'notes', n_r, notes, sep = '; ', remove = T, na.rm = T) %>%
+  #     select(-idx_r) %>%
+  #     ungroup()
 
-    n_3 <- list_rbind(n_3)
-  }
+  #   n_3 <- list_rbind(n_3)
+  # }
 
   ndwqs_final <- bind_rows(
     n_2,
