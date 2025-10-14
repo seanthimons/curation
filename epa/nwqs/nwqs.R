@@ -294,46 +294,8 @@ guidance <- rio::import(
 
 # National Primary Drinking Water Regulations -----------------------------
 
-dw_headers <- read_html(
-  'https://www.epa.gov/ground-water-and-drinking-water/national-primary-drinking-water-regulations'
-) %>%
-  html_elements(., 'h3') %>%
-  html_text()
 
-dw <- read_html(
-  'https://www.epa.gov/ground-water-and-drinking-water/national-primary-drinking-water-regulations'
-) %>%
-  html_elements(., 'table') %>%
-  html_table() %>%
-  set_names(., dw_headers) %>%
-  map(
-    .,
-    ~ {
-      as_tibble(.x) %>%
-        select(1:3) %>%
-        `colnames<-`(., c('analyte', 'mclg', 'mcl')) %>%
-        mutate(across(everything(), as.character))
-    },
-    .progress = TRUE
-  ) %>%
-  list_rbind(names_to = 'source') %>%
-  pivot_longer(
-    .,
-    cols = c(mclg, mcl),
-    names_to = 'name',
-    values_to = 'value'
-  ) %>%
-  mutate(
-    unit = 'mg/L',
-    analyte = str_remove_all(analyte, pattern = "\n.*") #
-    # orig_value = value,
-    # value = as.numeric(value),
-    # value = case_when(
-    #   orig_value == 'zero' ~ 0,
-    #   .default = value)
-  )
 
-rm(dw_headers)
 
 # Aquatic -----------------------------------------------------------------
 
@@ -348,20 +310,6 @@ alc <- read_html(
     c('analyte', 'casrn', 'fw_ac', 'fw_chr', 'sw_ac', 'sw_chr', 'year', 'notes')
   ) %>%
   pivot_longer(., cols = fw_ac:sw_chr) %>%
-  mutate(
-    unit = 'ug/l'
-  )
-
-# Human -------------------------------------------------------------------
-
-hhc <- read_html(
-  'https://www.epa.gov/wqc/national-recommended-water-quality-criteria-human-health-criteria-table'
-) %>%
-  html_elements(., xpath = '//*[@id="datatable"]') %>%
-  html_table() %>%
-  pluck(., 1) %>%
-  `colnames<-`(., c('analyte', 'casrn', 'hh_wo', 'hh_o', 'year', 'notes')) %>%
-  pivot_longer(., cols = c('hh_wo', 'hh_o')) %>%
   mutate(
     unit = 'ug/l'
   )

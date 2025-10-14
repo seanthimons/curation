@@ -57,3 +57,14 @@ nanoparquet::write_parquet(
 					x = raw,
 					file = here("final", "dsstox_Feb_2024.parquet")
 				)
+
+q1 <- dss_query('Arsenic')
+
+q2 <- dss_synonyms('DTXSID4023886')
+
+q3 <- dss_query('[As+3]')
+
+dss_query('[Cr++]')
+
+ox_state <- ComptoxR::pt %>% pluck('oxidation_state')
+

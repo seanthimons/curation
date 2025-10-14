@@ -60,6 +60,57 @@
 
 		rm(db_file, parquet_files_glob)
 	}
+
+	#' Query the DSSTox database
+#'
+#' This function queries the 'dsstox' table in the DuckDB database for one or
+#' more values. It performs an exact match for each query term against the
+#' 'values' column.
+#'
+#' @param query A character vector of values to search for. This can be a
+#'   single value (e.g., a DTXSID) or multiple values (e.g., a list of CASRNs).
+#'
+#' @return A tibble containing all rows from the 'dsstox' table where the
+#'   'values' column matches the provided query. Returns an empty tibble if
+#'   no match is found.
+#' @export
+#' @examples
+#' \dontrun{
+#' # Find all records for "Arsenic"
+#' dss_query("Arsenic")
+#'
+#' # Find all records for multiple chemicals by name
+#' dss_query(c("Formaldehyde", "Benzene"))
+#' }
+dss_query <- function(query) {
+  tbl(dsstox_db, 'dsstox') %>%
+    filter(values %in% query) %>%
+    collect()
+}
+
+#' Get all synonyms for a DTXSID
+#'
+#' This function queries the 'dsstox' table for all records associated with a
+#' specific DTXSID. It is useful for retrieving all known identifiers, names,
+#' and other values linked to a single chemical substance.
+#'
+#' @param query A character string representing the DTXSID to search for.
+#'
+#' @return A tibble containing all rows from the 'dsstox' table that match the
+#'   provided DTXSID. This includes preferred names, CASRNs, SMILES, InChIKeys,
+#'   and other identifiers. Returns an empty tibble if no match is found.
+#' @export
+#' @examples
+#' \dontrun{
+#' # Get all synonyms and related info for Formaldehyde
+#' dss_synonyms("DTXSID7020637")
+#' }
+dss_synonyms <- function(query) {
+  tbl(dsstox_db, 'dsstox') %>%
+    filter(DTXSID == query) %>%
+    collect()
+}
+
 }
 
 # PT list  ---------------------------------------------------------------
@@ -96,33 +147,37 @@ pt$oxidation_state <- ind_html[[3]] %>%
 	select(-name) %>%
 	setNames(., c('number', 'element', 'symbol', 'group', 'oxs')) %>%
 	mutate(
-		ox = case_when(
+		# charge symbol
+		ox_symbol = case_when(
 			stringr::str_detect(oxs, "\\+") ~ "+",
 			stringr::str_detect(oxs, "\\u2212") ~ "-",
 			.default = " "
 		),
-		oxs = stringr::str_remove_all(oxs, "[[:symbol:]]"),
-		oxidation_state = paste0(oxs, ox) %>% str_trim(),
-		search = case_when(
-			# TODO Add proper parsing for "2+" -> "++"", "2-" -> "--"
-			oxidation_state == '0' ~ symbol,
-			oxidation_state == '1-' ~ paste0(symbol, ox),
-			oxidation_state == '1+' ~ paste0(symbol, ox),
-			.default = paste0(symbol, oxidation_state)
-		)
-	) %>%
-	select(!c(oxs:ox))
+		# charge number
+		charge_number = stringr::str_remove_all(oxs, "[[:symbol:]]"),
+		# unified symbol
+		oxidation_state = paste0(ox_symbol, charge_number) %>% str_trim(),
+		# harmonized symbol
+		smiles = case_when(
+			
+			# ! Added proper parsing for "+2" -> "++"", "-2" -> "--"
+			# ! Changed search -> smiles
 
-# ? NOTE Holding off on this for now, little to no benefit.
-# pt_elements <- pt$oxidation_state %>%
-# 	select(symbol) %>%
-# 	distinct()
+			oxidation_state == '0' ~ paste0("[",symbol, "]"),
+			oxidation_state == '-1' | oxidation_state == '+1' ~ paste0("[", symbol, ox_symbol, "]"),
+			oxidation_state == '+2' | oxidation_state == '-2' ~ paste0("[", symbol, ox_symbol, ox_symbol,"]"),
+			.default = paste0("[", symbol, oxidation_state, "]")
+		),
+	) %>% select(!c(oxs, ox_symbol, charge_number))
 
-# ox_dsstox <- tbl(dsstox_db, 'dsstox') %>%
-# 	select(DTXSID, MOLECULAR_FORMULA, SMILES, CASRN) %>%
-# 	collect() %>%
-# 	inner_join(., pt_elements, join_by(MOLECULAR_FORMULA == symbol))
-# 	filter(!str_detect(SMILES, pattern = "\\+|\\-"))
+ox_dsstox <- dss_query(query = pt$oxidation_state$smiles) %>% 
+	select(dtxsid = DTXSID, values)
+
+pt$oxidation_state <- left_join(
+	pt$oxidation_state,
+	ox_dsstox,
+	join_by(smiles == values)
+	)
 
 rm(ind_html)
 
@@ -150,9 +205,20 @@ pt$elements <- bow(
 	mutate(Number = as.integer(Number))
 
 
-element_list <- ct_list('ELEMENTS') %>%
-	ct_details(., projection = 'all') %>%
-	select(dtxsid, molFormula, inchikey, smiles)
+element_list <- ct_list('ELEMENTS') %>% 
+	ct_details(., projection = 'all') %>% 
+	select(
+		dtxsid, 
+		#molFormula, 
+		inchikey, 
+		inchiString, 
+		smiles
+	) %>% 
+	mutate(
+		molFormula = 
+			str_remove_all(inchiString, pattern = "InChI=1S/") %>% 
+				str_remove_all(., pattern = '\\n|.\\d+H|.H|\\/i1\\+0')
+	)
 
 pt$elements <-
 	left_join(
@@ -161,6 +227,8 @@ pt$elements <-
 		join_by(Symbol == molFormula)
 	) %>%
 	mutate(Number = as.character(Number))
+
+rm(element_list)
 
 # pt$elements %>%
 # 	filter(is.na(dtxsid)) %>%
