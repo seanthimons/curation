@@ -182,32 +182,32 @@ tbl(eco_con, 'tests') %>%
 		# 			(new_unit == 'mg/kg/d' | new_unit == 'mg/kg bdwt/d') ~
 		# 			'chronic',
 
-				# Fish --------------------------------------------------------------------
-				## Acute -------------------------------------------------------------------
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur == 96) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
-					'acute',
+				# # Fish --------------------------------------------------------------------
+				# ## Acute -------------------------------------------------------------------
+				# (eco_group == 'Fish') &
+				# 	(effect == 'MOR') &
+				# 	#(life_stage == 'Adult') &
+				# 	(new_dur == 96) &
+				# 	(new_unit == 'mg/L') &
+				# 	(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
+				# 	'acute',
 
-				## Chronic -----------------------------------------------------------------
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur >= 144) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
-					'chronic',
+				# ## Chronic -----------------------------------------------------------------
+				# (eco_group == 'Fish') &
+				# 	(effect == 'MOR') &
+				# 	#(life_stage == 'Adult') &
+				# 	(new_dur >= 144) &
+				# 	(new_unit == 'mg/L') &
+				# 	(endpoint == 'LD50' | endpoint == 'EC50' | endpoint == 'LC50') ~
+				# 	'chronic',
 
-				(eco_group == 'Fish') &
-					(effect == 'MOR') &
-					#(life_stage == 'Adult') &
-					(new_dur == 504) &
-					(new_unit == 'mg/L') &
-					(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
-					'chronic',
+				# (eco_group == 'Fish') &
+				# 	(effect == 'MOR') &
+				# 	#(life_stage == 'Adult') &
+				# 	(new_dur == 504) &
+				# 	(new_unit == 'mg/L') &
+				# 	(endpoint == 'NOEC' | endpoint == 'NOEL' | endpoint == 'NR-ZERO') ~
+				# 	'chronic',
 
 		# 		# Bees --------------------------------------------------------------------
 		# 		## Acute -------------------------------------------------------------------

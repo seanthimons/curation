@@ -258,6 +258,8 @@
 # 	mode = 'wb'
 # )
 
+## National Primary Drinking Water Regulations -----------------------------
+
 request(
   'https://www.web.health.state.mn.us/communities/environment/risk/docs/guidance/waterguidance.xlsx'
 ) %>%
@@ -271,7 +273,19 @@ request(
 
 raw <- rio::import(here::here("epa", "nwqs", "mn-npdws.xlsx")) %>%
   janitor::row_to_names(1) %>%
-  janitor::clean_names()
+  janitor::clean_names(
+    replace = janitor:::mu_to_u
+  )
+
+npdw <- raw %>%
+  select(
+    chemical,
+    cas_number,
+    epa_mcl = epa_mcl_ug_l,
+    epa_mclg = epa_mclg_ug_l,
+    lowest_epa_ha = lowest_epa_health_advisory_ug_l,
+    ha_type = type_of_ha_value
+  )
 
 request(
   "https://www.web.health.state.mn.us/communities/environment/risk/docs/guidance/gw/guidance.xlsx"
@@ -291,43 +305,6 @@ guidance <- rio::import(
   janitor::row_to_names(2) %>%
   janitor::clean_names()
 
-
-# National Primary Drinking Water Regulations -----------------------------
-
-
-
-
-# Aquatic -----------------------------------------------------------------
-
-alc <- read_html(
-  'https://www.epa.gov/wqc/national-recommended-water-quality-criteria-aquatic-life-criteria-table'
-) %>%
-  html_elements(., xpath = '//*[@id="datatable"]') %>%
-  html_table() %>%
-  pluck(., 1) %>%
-  `colnames<-`(
-    .,
-    c('analyte', 'casrn', 'fw_ac', 'fw_chr', 'sw_ac', 'sw_chr', 'year', 'notes')
-  ) %>%
-  pivot_longer(., cols = fw_ac:sw_chr) %>%
-  mutate(
-    unit = 'ug/l'
-  )
-
-
-# Taste -------------------------------------------------------------------
-
-oe <- read_html(
-  'https://www.epa.gov/wqc/national-recommended-water-quality-criteria-organoleptic-effects'
-) %>%
-  html_table() %>%
-  pluck(., 1) %>%
-  `colnames<-`(., c('analyte', 'casrn', 'result')) %>%
-  mutate(
-    unit = 'ug/l'
-  ) %>%
-  filter(analyte != '1Non-Priority pollutant.') %>%
-  rename(value = result)
 
 # cleaning ----------------------------------------------------------------
 

@@ -154,8 +154,7 @@
   # 		)
   # }
 
-	setwd(here('epa', 'toxval'))
-	
+  setwd(here('epa', 'toxval'))
 }
 
 # Clowder files -----------------------------------------------------------
@@ -166,10 +165,15 @@ clowder_list <- request(
   req_perform() %>%
   resp_body_json()
 
+folder_list <- clowder_list %>%
+  map(~ .x[c("id", "filename", "folders")]) %>%
+  keep(~ !is.null(.$folders) && length(.$folders) > 0)
+
 tv_list <- clowder_list %>%
   map(~ .x[c("id", "filename")]) %>%
   keep(~ str_detect(.x$filename, "toxval_v9")) %>%
-  discard(~ str_detect(.x$filename, '.sql|README|qc_status|gz|with')) #%>%
+  discard(~ str_detect(.x$filename, '.sql|README|gz|with'))
+#discard(~ str_detect(.x$filename, '.sql|README|qc_status|gz|with')) #%>%
 # map(., ~pluck(., 'filename')) %>%
 # unlist()
 
@@ -187,6 +191,16 @@ tv_grp <- tv_ver %>%
   }) %>%
   set_names(tv_ver)
 
+tv_source_ver <- tv_ver %>%
+  str_replace(., "^(v)(\\d)(\\d)", "\\1\\2_\\3") %>%
+  set_names(tv_ver)
+
+tv_source_list <- clowder_list %>%
+  map(~ .x[c("id", "filename", 'contentType')]) %>%
+  keep(~ str_detect(.x$contentType, "sheet")) %>%
+  keep(~ str_detect(.x$filename, "source_info")) %>%
+  keep(~ str_detect(.x$filename, paste(tv_source_ver, collapse = "|")))
+
 rm(tv_list, clowder_list)
 
 
@@ -195,34 +209,36 @@ rm(tv_list, clowder_list)
 # Map over each version and creates a directory if it doesn't exist
 new_ver <- map(
   names(tv_grp),
-	~{
-		if(!fs::dir_exists(here('epa','toxval', 'toxval_raw', .x))) {
-			cli::cli_alert_info(paste('Creating directory for', .x))
-			fs::dir_create(here('epa','toxval', 'toxval_raw', .x))
-			.x <- .x
-		} else{
-			NULL
-		}
-	}
-) %>% 
-	compact()
+  ~ {
+    if (!fs::dir_exists(here('epa', 'toxval', 'toxval_raw', .x))) {
+      cli::cli_alert_info(paste('Creating directory for', .x))
+      fs::dir_create(here('epa', 'toxval', 'toxval_raw', .x))
+      .x <- .x
+    } else {
+      NULL
+    }
+  }
+) %>%
+  compact()
 
-# Keeps only new versions to download, presumes that older versions are already downloaded 
+# Keeps only new versions to download, presumes that older versions are already downloaded
 tv_grp <- tv_grp %>%
   keep_at(., names(tv_grp) %in% new_ver)
 
-tv_ver <- tv_ver %>% 
-	keep(., . %in% new_ver)
+tv_ver <- tv_ver %>%
+  keep(., . %in% new_ver)
 
+if (length(new_ver) == 0) {
+  cli::cli_abort('No new versions to download')
+}
 
 # Download ---------------------------------------------------------------
-
 
 tv_grp %>%
   iwalk(
     .,
     ~ {
-      setwd(here('epa', 'toxval','toxval_raw', .y))
+      setwd(here('epa', 'toxval', 'toxval_raw', .y))
       walk(
         .,
         ~ {
@@ -248,9 +264,9 @@ tv_ver %>%
   iwalk(
     .,
     ~ {
-      cli::cli_alert(paste0("Building: ",.x))
+      cli::cli_alert(paste0("Building: ", .x))
 
-      setwd(here('epa','toxval', 'toxval_raw', .x))
+      setwd(here('epa', 'toxval', 'toxval_raw', .x))
 
       raw <- list.files(getwd()) %>%
         map(
@@ -262,16 +278,40 @@ tv_ver %>%
                 "text"
               ),
               na = c("-", "")
-            )
+            ) %>%
+              janitor::clean_names()
           },
           .progress = TRUE
         ) %>%
         list_rbind()
 
-			cli::cli_alert_success(paste0('Dumping: toxval_', .x, '.parquet'))
+      cli::cli_alert_success(paste0('Dumping: toxval_', .x, '.parquet'))
       nanoparquet::write_parquet(
         raw,
         file = here('final', paste0('toxval_', .x, '.parquet'))
+      )
+    },
+    .progress = TRUE
+  )
+
+
+# Source info ------------------------------------------------------------
+
+tv_source_list %>%
+  walk(
+    .,
+    ~ {
+      setwd(here('epa', 'toxval', 'source_info'))
+
+      cli::cli_alert(.x$filename)
+      download.file(
+        url = paste0(
+          'https://clowder.edap-cluster.com/api/files/',
+          .x$id,
+          '/blob'
+        ),
+        destfile = .x$filename,
+        mode = 'wb'
       )
     }
   )
