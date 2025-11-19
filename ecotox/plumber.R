@@ -338,7 +338,9 @@ post_results <- function(
   eco_group = NULL,
   invasive = FALSE,
   standard = FALSE,
-  threatened = FALSE
+  threatened = FALSE,
+  test_cols = NULL,
+  results_cols = NULL
 ) {
   con <- dbConnect(duckdb::duckdb(), dbdir = "ecotox.duckdb", read_only = TRUE)
   on.exit(dbDisconnect(con))
@@ -359,18 +361,42 @@ post_results <- function(
     )
   }
 
-  # Base tables
+  # Base tables ----
   tests_tbl <- tbl(con, "tests")
   species_tbl <- tbl(con, "species")
 
+  base_test_cols <- c(
+    'test_id',
+    'test_cas',
+    'species_number',
+    'exposure_type',
+    'test_type',
+    'organism_lifestage'
+  )
+
+  base_result_cols <- c(
+    'result_id',
+    'test_id',
+    'obs_duration_mean',
+    'obs_duration_min',
+    'obs_duration_max',
+    'obs_duration_unit',
+    'endpoint',
+    'effect',
+    'measurement',
+    'conc1_type',
+    'conc1_mean_op', # ! op denotes operator for QA/QC purposes
+    'conc1_unit',
+    'conc1_mean',
+    'conc1_min',
+    'conc1_max'
+  )
+
+  # Filtering for test columns + addtional special columns ----
   result_query <- tests_tbl %>%
     select(
-      'test_id',
-      'test_cas',
-      'species_number',
-      'exposure_type',
-      'test_type',
-      'organism_lifestage'
+      all_of(base_test_cols), # Strict: these MUST exist
+      any_of(test_cols) # Flexible: adds user columns if valid
     ) %>%
     inner_join(
       species_tbl %>%
@@ -389,16 +415,29 @@ post_results <- function(
       join_by('species_number')
     )
 
-  # Apply filters to the joined table
+  # Chemical filtering ----
   if (!is.null(casrn) && length(casrn) > 0) {
     # Cleans casrns to format expected by database
     casrn_cleaned <- unique(casrn) %>%
       str_remove_all(., pattern = '-')
 
-    result_query <- result_query %>% filter(test_cas %in% casrn_cleaned)
+    result_query <- result_query %>%
+      filter(test_cas %in% casrn_cleaned)
   }
 
-  # Filter by species using common and/or latin names.
+  result_query <- result_query %>%
+    left_join(
+      tbl(con, 'chemicals') %>%
+        select(
+          cas_number,
+          chemical_name,
+          dtxsid,
+          chemical_group = ecotox_group
+        ),
+      by = join_by(test_cas == cas_number)
+    )
+
+  # Filter by species using common and/or latin names ----
   # If both are provided, records matching either will be returned (OR condition).
   if (
     (!is.null(common_name) && length(common_name) > 0) ||
@@ -421,7 +460,7 @@ post_results <- function(
     combined_expr <- Reduce(function(a, b) expr(!!a | !!b), species_filter_expr)
     result_query <- result_query %>% filter(!!combined_expr)
   }
-
+  # Filter for eco_group ----
   if (!is.null(eco_group) && length(eco_group) > 0) {
     eg <- eco_group
 
@@ -429,7 +468,7 @@ post_results <- function(
       filter(eco_group %in% eg)
   }
 
-  # Add species characteristic filters
+  # Add species characteristic filters ----
   if (invasive) {
     result_query <- result_query %>% filter(invasive_species == TRUE)
   }
@@ -441,54 +480,92 @@ post_results <- function(
       filter(endangered_threatened_species == TRUE)
   }
 
+  # Filters for additonal results columns ----
   result_query <- result_query %>%
     inner_join(
       tbl(con, 'results') %>%
         select(
-          'result_id',
-          'test_id',
-          'obs_duration_mean',
-          'obs_duration_min',
-          'obs_duration_max',
-          'obs_duration_unit',
-          'endpoint',
-          'effect',
-          'conc1_type',
-          'conc1_mean_op',
-          'conc1_unit',
-          'conc1_mean',
-          'conc1_min',
-          'conc1_max'
+          all_of(base_result_cols),
+          any_of(results_cols) # ! Adds 'bcf' or others here
         ),
       join_by('test_id')
     )
 
-  # Build endpoint regex for filtering
+  # Endpoint regex ----
   if (!is.null(endpoint) && length(endpoint) > 0) {
-    if (endpoint == 'default') {
-      cli::cli_alert('Default endpoints selected')
+    switch(
+      paste(endpoint, collapse = " "),
+      "all" = {
+        # cli::cli_alert('All endpoints selected')
+        # No filtering needed, so skip the filter step
+      },
+      "default" = {
+        # cli::cli_alert('Default endpoints selected')
 
-      # NOTE Looks for a verified set of endpoints that are useful
-      endpoint_regex <- "^EC50|^LC50|^LD50|LR50|^LOEC|^LOEL|NOEC|NOEL$|NR-ZERO|NR-LETH|AC50|\\(log\\)EC50|\\(log\\)LC50|\\(log\\)LOEC"
+        # NOTE Looks for a verified set of endpoints that are useful
+        endpoint_regex <- "^EC50|^LC50|^LD50|LR50|^LOEC|^LOEL|NOEC|NOEL$|NR-ZERO|NR-LETH|AC50|\\(log\\)EC50|\\(log\\)LC50|\\(log\\)LOEC"
 
-      result_query <- result_query %>%
-        filter(str_detect(endpoint, endpoint_regex))
-    } else {
-      cli::cli_alert('Custom endpoints selected')
-      endpoint_regex <- paste0(endpoint, collapse = "|")
-      result_query <- result_query %>%
-        filter(str_detect(endpoint, endpoint_regex))
-    }
+        result_query <- result_query %>%
+          filter(str_detect(endpoint, endpoint_regex))
+      },
+      {
+        # cli::cli_alert('Custom endpoints selected')
+        endpoint_regex <- paste(endpoint, collapse = "|")
+        result_query <- result_query %>%
+          filter(str_detect(endpoint, endpoint_regex))
+      }
+    )
   }
 
+  # Final cleaning + coercion ----
   result <- result_query %>%
     mutate(
-      exposure_type = str_remove_all(exposure_type, pattern = "\\/")
+      common_name = str_squish(common_name),
+      exposure_type = str_remove_all(exposure_type, pattern = "\\/"),
+      measurement = str_remove_all(measurement, pattern = "\\/"),
+      endpoint = str_remove_all(endpoint, pattern = "\\*|\\/"),
+      effect = str_remove_all(effect, pattern = '~|/')
     ) %>%
     left_join(
-      tbl(con, 'app_exposure_types'),
+      tbl(con, 'app_exposure_types') %>%
+        select(
+          exposure_group,
+          term,
+          exposure_description = description,
+          exposure_definition = definition
+        ),
       by = join_by('exposure_type' == 'term')
     ) %>%
+    left_join(
+      tbl(con, 'app_exposure_type_groups') %>%
+        select(
+          term,
+          exposure_name = description
+        ),
+      by = join_by(
+        'exposure_group' == 'term'
+      )
+    ) %>%
+    left_join(
+      tbl(con, 'app_effect_groups_and_measurements') %>%
+        select(
+          measurement_term = measurement_term,
+          measurement_name = measurement_name,
+          effect_code = effect_code,
+          effect_name = effect
+        ),
+      by = join_by(
+        'effect' == 'effect_code',
+        'measurement' == 'measurement_term'
+      )
+    ) %>%
+		left_join(
+			tbl(con, 'effect_groups_dictionary') %>% 
+				select(
+					term,
+					effect_group
+				)
+		) %>% 
     left_join(
       tbl(con, 'lifestage_codes') %>% rename(org_lifestage = description),
       by = join_by(organism_lifestage == code)
@@ -508,14 +585,21 @@ post_results <- function(
     #   -result_id
     # ) %>%
     mutate(
-      #Plus means comment, asterisk mean converted value
+      # + = comment
+      # `*` = converted value
+      # ~ =
+      # / =
+      across(
+        c(obs_duration_mean, obs_duration_min, obs_duration_max),
+        ~ sql(sprintf("TRY_CAST(REGEXP_REPLACE(%s, '[\\*\\+]|\\s', '', 'g') AS DOUBLE)", cur_column()))
+      ),
+      # Explicitly cast concentration columns to DOUBLE to handle scientific notation
       across(
         c(conc1_mean, conc1_min, conc1_max),
-        ~ as.numeric(str_remove_all(.x, pattern = "\\*|\\+"))
-      ),
-      endpoint = str_remove_all(endpoint, pattern = "\\*|\\/"),
-      effect = str_remove_all(effect, pattern = '~|/'),
+        ~ sql(sprintf("TRY_CAST(REGEXP_REPLACE(%s, '[\\*\\+]|\\s', '', 'g') AS DOUBLE)", cur_column()))
+      )
     ) %>%
+    select(-test_id, -result_id, -species_number) %>%
     collect()
 
   return(result)
