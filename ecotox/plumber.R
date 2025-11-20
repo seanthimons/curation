@@ -518,7 +518,7 @@ post_results <- function(
   }
 
   # Final cleaning + coercion ----
-  result <- result_query %>%
+  result_query <- result_query %>%
     mutate(
       common_name = str_squish(common_name),
       exposure_type = str_remove_all(exposure_type, pattern = "\\/"),
@@ -559,13 +559,10 @@ post_results <- function(
         'measurement' == 'measurement_term'
       )
     ) %>%
-		left_join(
-			tbl(con, 'effect_groups_dictionary') %>% 
-				select(
-					term,
-					effect_group
-				)
-		) %>% 
+    left_join(
+      tbl(con, 'effect_groups_dictionary'),
+				by = join_by(measurement == term)
+    ) %>%
     left_join(
       tbl(con, 'lifestage_codes') %>% rename(org_lifestage = description),
       by = join_by(organism_lifestage == code)
@@ -599,7 +596,44 @@ post_results <- function(
         ~ sql(sprintf("TRY_CAST(REGEXP_REPLACE(%s, '[\\*\\+]|\\s', '', 'g') AS DOUBLE)", cur_column()))
       )
     ) %>%
-    select(-test_id, -result_id, -species_number) %>%
+    select(-test_id, -result_id, -species_number)
+
+  # Adding conversion dictionaries -----------------------------------------
+
+  result <- result_query %>%
+    left_join(
+      .,
+      tbl(eco_con, 'unit_conversion'),
+      join_by(conc1_unit == orig)
+    ) %>%
+    left_join(
+      .,
+      tbl(eco_con, 'duration_conversion'),
+      join_by(obs_duration_unit == code)
+    ) %>%
+    left_join(
+      .,
+      tbl(eco_con, 'effect_conversion'),
+      join_by(effect == term)
+    ) %>%
+    select(-effect_definition) %>%
+    mutate(
+      #endpoint = str_remove_all(endpoint, pattern = '~|/'),
+      #coalesce(conc1_mean, conc1_min, conc1_max),
+      result = case_when(
+        is.na(conc1_mean) ~ geometric.mean(c(conc1_min, conc1_max), na.rm = TRUE),
+        .default = conc1_mean,
+      ),
+      final_result = result * conversion_factor_unit,
+      duration = coalesce(
+        obs_duration_mean,
+        obs_duration_min,
+        obs_duration_max
+      ) %>%
+        as.numeric(),
+      final_duration = duration * conversion_factor_duration
+      #.keep = 'unused'
+    ) %>%
     collect()
 
   return(result)

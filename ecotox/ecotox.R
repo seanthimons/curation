@@ -719,7 +719,7 @@ if (rebuild_is_needed) {
 
     dbWriteTable(eco_con, 'app_unit_conversion', unit_result, overwrite = TRUE)
 
-		rm(unit_result)
+    rm(unit_result)
   }
 
   ## Unit symbol ------------------------------------------------------------
@@ -791,7 +791,7 @@ if (rebuild_is_needed) {
 
     dbWriteTable(eco_con, 'unit_symbols', unit_symbols, overwrite = TRUE)
 
-		rm(unit_symbols)
+    rm(unit_symbols)
   }
 
   ## Duration conversion ----------------------------------------------------
@@ -828,322 +828,320 @@ if (rebuild_is_needed) {
 
     dbWriteTable(eco_con, 'duration_conversion', duration_conversion, overwrite = TRUE)
 
-		rm(duration_conversion)
+    rm(duration_conversion)
   }
 
+  # Full Unit conversion tables --------------------------------------------
 
-# Full Unit conversion tables --------------------------------------------
-
-{
-
-	units_intermediate <- tbl(eco_con, 'results') %>%
-  select(orig = conc1_unit, test_id) %>%
-  inner_join(
-    .,
-    tbl(eco_con, 'tests') %>%
+  {
+    units_intermediate <- tbl(eco_con, 'results') %>%
+      select(orig = conc1_unit, test_id) %>%
+      inner_join(
+        .,
+        tbl(eco_con, 'tests') %>%
+          select(
+            test_id,
+            test_cas,
+            species_number,
+            reference_number,
+            organism_habitat
+          ),
+        join_by('test_id')
+      ) %>%
+      inner_join(
+        .,
+        tbl(eco_con, 'references') %>%
+          select(reference_number, publication_year),
+        join_by('reference_number')
+      ) %>%
+      group_by(orig, organism_habitat) %>%
+      summarize(
+        n = n(),
+        cas_n = n_distinct(test_cas),
+        species_n = n_distinct(species_number),
+        ref_n = n_distinct(reference_number),
+        date_n = n_distinct(publication_year),
+        ref_date = max(
+          sql("TRY_CAST(REPLACE(publication_year, 'xx', '15') AS NUMERIC)"),
+          na.rm = TRUE
+        )
+      ) %>%
+      ungroup() %>%
+      arrange(
+        desc(n),
+        desc(cas_n),
+        desc(species_n),
+        desc(ref_n),
+        #	desc(ref_date)
+      ) %>%
+      # ! NOTE: Removes infrequent units ----
+      #filter(n <= 2 & ref_n <= 2) %>%
+      #filter(!is.na(orig) & n > 1 & ref_n > 1) %>%
+      collect() %>%
       select(
-        test_id,
-        test_cas,
-        species_number,
-        reference_number,
-        organism_habitat
-      ),
-    join_by('test_id')
-  ) %>%
-  inner_join(
-    .,
-    tbl(eco_con, 'references') %>%
-      select(reference_number, publication_year),
-    join_by('reference_number')
-  ) %>%
-  group_by(orig, organism_habitat) %>%
-  summarize(
-    n = n(),
-    cas_n = n_distinct(test_cas),
-    species_n = n_distinct(species_number),
-    ref_n = n_distinct(reference_number),
-    date_n = n_distinct(publication_year),
-    ref_date = max(
-      sql("TRY_CAST(REPLACE(publication_year, 'xx', '15') AS NUMERIC)"),
-      na.rm = TRUE
-    )
-  ) %>%
-  ungroup() %>%
-  arrange(
-    desc(n),
-    desc(cas_n),
-    desc(species_n),
-    desc(ref_n),
-    #	desc(ref_date)
-  ) %>%
-  # ! NOTE: Removes infrequent units ----
-  #filter(n <= 2 & ref_n <= 2) %>%
-  #filter(!is.na(orig) & n > 1 & ref_n > 1) %>%
-  collect() %>%
-  select(
-    #	-n,
-    -cas_n,
-    species_n,
-    ref_n,
-    -date_n,
-    -ref_date,
-  ) %>%
-  mutate(
-    idx = 1:n(),
-    # One-off injections
-    raw = str_replace_all(
-      orig,
-      c(
-        "1k" = "1000",
-        'mgdrydiet' = 'mg dry_diet',
-        'gwetbdwt' = 'g wet_bdwt',
-        '6 in pots' = '6inpots',
-        'u-atoms' = 'u_atoms',
-        'ug-atoms' = 'ug_atoms',
-        "0/00" = "ppt",
-        '\\bppmw\\b' = 'ppm',
-        '\\bppmv\\b' = 'ppm',
-        '\\bppm w/w\\b' = 'ppm',
-        '\\bml\\b' = 'mL',
-        '\\bul\\b' = 'uL',
-        '\\bof\\b' = "",
-        '\\bmi\\b' = 'min',
-        ' for ' = "/",
-        'fl oz' = 'fl_oz',
-        "ppt v/v" = 'mL/L',
-        'ppm w/v' = 'mg/L',
-        "-" = "/"
+        #	-n,
+        -cas_n,
+        species_n,
+        ref_n,
+        -date_n,
+        -ref_date,
+      ) %>%
+      mutate(
+        idx = 1:n(),
+        # One-off injections
+        raw = str_replace_all(
+          orig,
+          c(
+            "1k" = "1000",
+            'mgdrydiet' = 'mg dry_diet',
+            'gwetbdwt' = 'g wet_bdwt',
+            '6 in pots' = '6inpots',
+            'u-atoms' = 'u_atoms',
+            'ug-atoms' = 'ug_atoms',
+            "0/00" = "ppt",
+            '\\bppmw\\b' = 'ppm',
+            '\\bppmv\\b' = 'ppm',
+            '\\bppm w/w\\b' = 'ppm',
+            '\\bml\\b' = 'mL',
+            '\\bul\\b' = 'uL',
+            '\\bof\\b' = "",
+            '\\bmi\\b' = 'min',
+            ' for ' = "/",
+            'fl oz' = 'fl_oz',
+            "ppt v/v" = 'mL/L',
+            'ppm w/v' = 'mg/L',
+            "-" = "/"
+          )
+        ) %>%
+          str_squish(),
+        raw = str_replace_all(
+          raw,
+          {
+            # Create a regex pattern for whole-word matching of symbols.
+            # Symbols are sorted by length (desc) to prioritize longer matches
+            # (e.g., 'mg/L' over 'g').
+            # Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not
+            # part of other words.
+            # 'str_escape' is used to handle special characters in symbols.
+            tbl(eco_con, 'unit_symbols') %>%
+              collect() %>%
+              arrange(-stringr::str_length(symbol)) %>%
+              pull(symbol) %>%
+              stringr::str_escape() %>%
+              paste0("(?<!\\w)", ., "(?!\\w)") %>%
+              stringr::str_flatten(., "|")
+          },
+          replacement = ""
+        ) %>%
+          str_squish() %>%
+          # NEW: Add a space between numbers and letters where it is missing.
+          # e.g., "25kg" -> "25 kg"
+          str_replace_all(
+            .,
+            pattern = "(?<=\\d)(?=[a-zA-Z])",
+            replacement = " "
+          ) %>%
+          str_replace_all(
+            .,
+            c(
+              "/ " = "/",
+              '% ' = '%_'
+            )
+          ) %>%
+          # The regex replaces a space with an underscore if it is preceded by a number
+          # and followed by either a letter or another number.
+          # e.g., "100 g" -> "100_g"
+          # e.g., "100 2" -> "100_2"
+          str_replace_all(
+            .,
+            pattern = "(\\b\\d*\\.?\\d+) (?=[[:alpha:]]|\\d)",
+            replacement = "\\1_"
+          ) %>%
+          str_replace_all(
+            .,
+            c(
+              " in " = "",
+              " in" = "",
+              ' ' = "/",
+              "//" = "/",
+              "%_v/v" = "%_v_v",
+              "%_w/v" = "%_w_v",
+              "%_w/w" = "%_w_w",
+              "%_g/g" = "%_w_w",
+              '6inpots' = '6 in pots'
+            )
+          ) %>%
+          str_squish() %>%
+          str_remove(., "/$"),
+
+        has_number = str_detect(raw, pattern = '/\\d+'),
+        suffix = str_extract_all(
+          orig,
+          {
+            # Create a regex pattern for whole-word matching of symbols.
+            # This is the same robust pattern generation used for the `raw` column
+            # to ensure only full symbols are matched.
+            tbl(eco_con, 'unit_symbols') %>%
+              collect() %>%
+              arrange(-stringr::str_length(symbol)) %>%
+              pull(symbol) %>%
+              stringr::str_escape() %>%
+              paste0("(?<!\\w)", ., "(?!\\w)") %>%
+              stringr::str_flatten(., "|")
+          }
+        ),
+        suffix = map_chr(suffix, ~ paste(.x, collapse = " ")),
+        u = raw
+      ) %>%
+      separate_wider_delim(
+        u,
+        delim = "/",
+        names_sep = "_",
+        too_few = 'align_start'
+      ) %>%
+      mutate(
+        across(dplyr::starts_with('u'), ~ na_if(.x, "")),
+        part_counts = rowSums(!is.na(select(., dplyr::starts_with('u'))))
+      ) %>%
+      relocate(part_counts, .after = has_number) %>%
+      pivot_longer(
+        .,
+        cols = dplyr::starts_with('u'),
+        names_to = 'name'
+      ) %>%
+      mutate(
+        value = case_when(
+          value == "%_" ~ "%",
+          value == "%_v_v" ~ "% v/v",
+          value == "%_w_v" ~ "% w/v",
+          value == "%_w_w" ~ "% w/v",
+          value == 'u_atoms' ~ 'u-atoms',
+          value == 'ug_atoms' ~ 'ug-atoms',
+          .default = value
+        ),
+        num_mod = str_extract(value, pattern = "\\b\\d*\\.?\\d+_") %>%
+          str_remove_all(., pattern = "_") %>%
+          as.numeric(),
+        value = str_remove_all(value, pattern = "\\b\\d*\\.?\\d+_"),
+        value = str_squish(value)
+      ) %>%
+      # ! Join against dictionary, update here----
+      left_join(
+        .,
+        unit_result,
+        join_by(value == unit)
+      ) %>%
+      pivot_wider(
+        .,
+        names_from = name,
+        values_from = value:type
+      ) %>%
+      # Replace NA with 1 in num_mod and multiplier columns
+      mutate(across(matches("^(num_mod|mult)"), ~ if_else(is.na(.x), 1, .x))) %>%
+      # Dynamically calculate the conversion factor
+      rowwise() %>%
+      mutate(
+        # The `conversion` is calculated for each unit string (row). It assumes
+        # the unit is a ratio (e.g., mg/L, g/ha/day), where the first part is
+        # the numerator and subsequent parts form the denominator.
+
+        # Calculate the numerator's conversion value. This is the conversion
+        # multiplier of the first unit part (e.g., 'mg' in 'mg/L') adjusted
+        # by any numerical modifier extracted from the unit string (e.g., '10' in '10g').
+        numer = c_across(starts_with("multiplier_u_"))[1] *
+          c_across(starts_with("num_mod_u_"))[1],
+
+        # Calculate the conversion values for all denominator parts. This includes
+        # all unit parts after the first one (e.g., 'L' in 'mg/L'), each also
+        # adjusted by any numerical modifiers.
+        denoms = list(
+          c_across(starts_with("multiplier_u_"))[-1] *
+            c_across(starts_with("num_mod_u_"))[-1]
+        ),
+
+        conversion_factor = {
+          #   # If the unit has denominator parts, divide the numerator's value by the
+          #   # product of all denominator values. 'purrr::reduce' is used to multiply
+          #   # all denominator components together. If there is no denominator, the
+          #   # final conversion factor is simply the numerator's value.
+          if (length(denoms) > 0) {
+            numer / purrr::reduce(denoms, `*`)
+          } else {
+            numer
+          }
+        }
+      ) %>%
+      ungroup() %>%
+      # Dynamically create cur_unit and cur_unit_type
+      unite("cur_unit", starts_with("unit_conv_u_"), sep = "/", na.rm = TRUE) %>%
+      unite("cur_unit_type", starts_with("type_u_"), sep = "/", na.rm = TRUE) %>%
+      mutate(
+        unit_domain = case_when(
+          # --- Rule 1: Invalid or Uncategorized Units (Highest Priority) ---
+          # Catch anything with "noscience" or empty strings first.
+          str_detect(cur_unit_type, "noscience") | cur_unit_type == "" ~
+            "Invalid / Uncategorized",
+
+          # --- Rule 2: Dosing Rates (Amount / Normalization / Time) ---
+          # These are the most specific, so they must come before simpler rates or concentrations.
+          str_ends(cur_unit_type, "/time") & str_count(cur_unit_type, "/") == 2 ~
+            "Dosing Rate",
+
+          # --- Rule 3: Application Rates (Amount / Area) ---
+          cur_unit_type %in% c("mass/area", "volume/area", "mol/area") ~
+            "Application Rate",
+
+          # --- Rule 4: Concentrations (Amount / Volume or Amount / Mass) ---
+          # Liquid-based concentrations
+          cur_unit_type %in% c("mass/volume", "mol/volume", "fraction/volume") ~
+            "Concentration (Liquid)",
+          # Matrix-based concentrations (e.g., in soil, tissue)
+          cur_unit_type %in% c("mass/mass", "mol/mass", "volume/mass") ~
+            "Concentration (Matrix)",
+
+          # --- Rule 5: Simple Rates (Amount / Time) ---
+          cur_unit_type %in% c("mass/time", "volume/time", "fraction/time") ~
+            "Rate",
+
+          # --- Rule 6: Dimensionless Ratios ---
+          cur_unit_type %in% c("fraction", "volume/volume") ~ "Ratio / Fraction",
+
+          # --- Rule 7: Radioactivity ---
+          # Catches all variations like "radioactivity/volume", "radioactivity/mass", etc.
+          str_starts(cur_unit_type, "radioactivity") ~ "Radioactivity",
+
+          # --- Rule 8: Linear Density (Amount / Length) ---
+          cur_unit_type %in% c("mass/length", "volume/length") ~ "Linear Density",
+
+          # --- Rule 9: Simple Fundamental Quantities ---
+          cur_unit_type == "mass" ~ "Mass",
+          cur_unit_type == "volume" ~ "Volume",
+          cur_unit_type == "mol" ~ "Amount (molar)",
+          cur_unit_type == "length" ~ "Length",
+          cur_unit_type == "time" ~ "Time",
+
+          # --- Rule 10: Catch-all for Other Valid but Complex Types ---
+          # This will group any remaining complex but valid units.
+          TRUE ~ "Other Complex Unit"
+        )
       )
-    ) %>%
-      str_squish(),
-    raw = str_replace_all(
-      raw,
-      {
-        # Create a regex pattern for whole-word matching of symbols.
-        # Symbols are sorted by length (desc) to prioritize longer matches
-        # (e.g., 'mg/L' over 'g').
-        # Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not
-        # part of other words.
-        # 'str_escape' is used to handle special characters in symbols.
-        tbl(eco_con, 'unit_symbols') %>%
-					collect() %>% 
-          arrange(-stringr::str_length(symbol)) %>%
-          pull(symbol) %>%
-          stringr::str_escape() %>%
-          paste0("(?<!\\w)", ., "(?!\\w)") %>%
-          stringr::str_flatten(., "|")
-      },
-      replacement = ""
-    ) %>%
-      str_squish() %>%
-      # NEW: Add a space between numbers and letters where it is missing.
-      # e.g., "25kg" -> "25 kg"
-      str_replace_all(
-        .,
-        pattern = "(?<=\\d)(?=[a-zA-Z])",
-        replacement = " "
+
+    unit_conversion <- units_intermediate %>%
+      select(
+        orig,
+        cur_unit_result = cur_unit,
+        suffix,
+        cur_unit_type,
+        conversion_factor_unit = conversion_factor,
+        unit_domain
       ) %>%
-      str_replace_all(
-        .,
-        c(
-          "/ " = "/",
-          '% ' = '%_'
-        )
-      ) %>%
-      # The regex replaces a space with an underscore if it is preceded by a number
-      # and followed by either a letter or another number.
-      # e.g., "100 g" -> "100_g"
-      # e.g., "100 2" -> "100_2"
-      str_replace_all(
-        .,
-        pattern = "(\\b\\d*\\.?\\d+) (?=[[:alpha:]]|\\d)",
-        replacement = "\\1_"
-      ) %>%
-      str_replace_all(
-        .,
-        c(
-          " in " = "",
-          " in" = "",
-          ' ' = "/",
-          "//" = "/",
-          "%_v/v" = "%_v_v",
-          "%_w/v" = "%_w_v",
-          "%_w/w" = "%_w_w",
-          "%_g/g" = "%_w_w",
-          '6inpots' = '6 in pots'
-        )
-      ) %>%
-      str_squish() %>%
-      str_remove(., "/$"),
+      distinct(orig, .keep_all = TRUE)
 
-    has_number = str_detect(raw, pattern = '/\\d+'),
-    suffix = str_extract_all(
-      orig,
-      {
-        # Create a regex pattern for whole-word matching of symbols.
-        # This is the same robust pattern generation used for the `raw` column
-        # to ensure only full symbols are matched.
-        tbl(eco_con, 'unit_symbols') %>%
-					collect() %>% 
-          arrange(-stringr::str_length(symbol)) %>%
-          pull(symbol) %>%
-          stringr::str_escape() %>%
-          paste0("(?<!\\w)", ., "(?!\\w)") %>%
-          stringr::str_flatten(., "|")
-      }
-    ),
-    suffix = map_chr(suffix, ~ paste(.x, collapse = " ")),
-    u = raw
-  ) %>%
-  separate_wider_delim(
-    u,
-    delim = "/",
-    names_sep = "_",
-    too_few = 'align_start'
-  ) %>%
-  mutate(
-    across(dplyr::starts_with('u'), ~ na_if(.x, "")),
-    part_counts = rowSums(!is.na(select(., dplyr::starts_with('u'))))
-  ) %>%
-  relocate(part_counts, .after = has_number) %>%
-  pivot_longer(
-    .,
-    cols = dplyr::starts_with('u'),
-    names_to = 'name'
-  ) %>%
-  mutate(
-    value = case_when(
-      value == "%_" ~ "%",
-      value == "%_v_v" ~ "% v/v",
-      value == "%_w_v" ~ "% w/v",
-      value == "%_w_w" ~ "% w/v",
-      value == 'u_atoms' ~ 'u-atoms',
-      value == 'ug_atoms' ~ 'ug-atoms',
-      .default = value
-    ),
-    num_mod = str_extract(value, pattern = "\\b\\d*\\.?\\d+_") %>%
-      str_remove_all(., pattern = "_") %>%
-      as.numeric(),
-    value = str_remove_all(value, pattern = "\\b\\d*\\.?\\d+_"),
-    value = str_squish(value)
-  ) %>%
-  # ! Join against dictionary, update here----
-  left_join(
-    .,
-    unit_result,
-    join_by(value == unit)
-  ) %>%
-  pivot_wider(
-    .,
-    names_from = name,
-    values_from = value:type
-  ) %>%
-  # Replace NA with 1 in num_mod and multiplier columns
-  mutate(across(matches("^(num_mod|mult)"), ~ if_else(is.na(.x), 1, .x))) %>%
-  # Dynamically calculate the conversion factor
-  rowwise() %>%
-  mutate(
-    # The `conversion` is calculated for each unit string (row). It assumes
-    # the unit is a ratio (e.g., mg/L, g/ha/day), where the first part is
-    # the numerator and subsequent parts form the denominator.
+    dbWriteTable(eco_con, 'z_unit_intermediate', units_intermediate, overwrite = TRUE)
+    dbWriteTable(eco_con, 'unit_conversion', unit_conversion, overwrite = TRUE)
 
-    # Calculate the numerator's conversion value. This is the conversion
-    # multiplier of the first unit part (e.g., 'mg' in 'mg/L') adjusted
-    # by any numerical modifier extracted from the unit string (e.g., '10' in '10g').
-    numer = c_across(starts_with("multiplier_u_"))[1] *
-      c_across(starts_with("num_mod_u_"))[1],
-
-    # Calculate the conversion values for all denominator parts. This includes
-    # all unit parts after the first one (e.g., 'L' in 'mg/L'), each also
-    # adjusted by any numerical modifiers.
-    denoms = list(
-      c_across(starts_with("multiplier_u_"))[-1] *
-        c_across(starts_with("num_mod_u_"))[-1]
-    ),
-
-    conversion_factor = {
-      #   # If the unit has denominator parts, divide the numerator's value by the
-      #   # product of all denominator values. 'purrr::reduce' is used to multiply
-      #   # all denominator components together. If there is no denominator, the
-      #   # final conversion factor is simply the numerator's value.
-      if (length(denoms) > 0) {
-        numer / purrr::reduce(denoms, `*`)
-      } else {
-        numer
-      }
-    }
-  ) %>%
-  ungroup() %>%
-  # Dynamically create cur_unit and cur_unit_type
-  unite("cur_unit", starts_with("unit_conv_u_"), sep = "/", na.rm = TRUE) %>%
-  unite("cur_unit_type", starts_with("type_u_"), sep = "/", na.rm = TRUE) %>%
-  mutate(
-    unit_domain = case_when(
-      # --- Rule 1: Invalid or Uncategorized Units (Highest Priority) ---
-      # Catch anything with "noscience" or empty strings first.
-      str_detect(cur_unit_type, "noscience") | cur_unit_type == "" ~
-        "Invalid / Uncategorized",
-
-      # --- Rule 2: Dosing Rates (Amount / Normalization / Time) ---
-      # These are the most specific, so they must come before simpler rates or concentrations.
-      str_ends(cur_unit_type, "/time") & str_count(cur_unit_type, "/") == 2 ~
-        "Dosing Rate",
-
-      # --- Rule 3: Application Rates (Amount / Area) ---
-      cur_unit_type %in% c("mass/area", "volume/area", "mol/area") ~
-        "Application Rate",
-
-      # --- Rule 4: Concentrations (Amount / Volume or Amount / Mass) ---
-      # Liquid-based concentrations
-      cur_unit_type %in% c("mass/volume", "mol/volume", "fraction/volume") ~
-        "Concentration (Liquid)",
-      # Matrix-based concentrations (e.g., in soil, tissue)
-      cur_unit_type %in% c("mass/mass", "mol/mass", "volume/mass") ~
-        "Concentration (Matrix)",
-
-      # --- Rule 5: Simple Rates (Amount / Time) ---
-      cur_unit_type %in% c("mass/time", "volume/time", "fraction/time") ~
-        "Rate",
-
-      # --- Rule 6: Dimensionless Ratios ---
-      cur_unit_type %in% c("fraction", "volume/volume") ~ "Ratio / Fraction",
-
-      # --- Rule 7: Radioactivity ---
-      # Catches all variations like "radioactivity/volume", "radioactivity/mass", etc.
-      str_starts(cur_unit_type, "radioactivity") ~ "Radioactivity",
-
-      # --- Rule 8: Linear Density (Amount / Length) ---
-      cur_unit_type %in% c("mass/length", "volume/length") ~ "Linear Density",
-
-      # --- Rule 9: Simple Fundamental Quantities ---
-      cur_unit_type == "mass" ~ "Mass",
-      cur_unit_type == "volume" ~ "Volume",
-      cur_unit_type == "mol" ~ "Amount (molar)",
-      cur_unit_type == "length" ~ "Length",
-      cur_unit_type == "time" ~ "Time",
-
-      # --- Rule 10: Catch-all for Other Valid but Complex Types ---
-      # This will group any remaining complex but valid units.
-      TRUE ~ "Other Complex Unit"
-    )
-  )
-
-	unit_conversion <- units_intermediate %>%
-  select(
-    orig,
-    cur_unit_result = cur_unit,
-    suffix,
-    cur_unit_type,
-    conversion_factor_unit = conversion_factor,
-    unit_domain
-  ) %>%
-  distinct(orig, .keep_all = TRUE)
-
-	dbWriteTable(eco_con, 'z_unit_intermediate', units_intermediate, overwrite = TRUE)
-  dbWriteTable(eco_con, 'unit_conversion', unit_conversion, overwrite = TRUE)
-
-	rm(units_intermediate, unit_conversion)
-}
+    rm(units_intermediate, unit_conversion)
+  }
 
   ## Life stage harmonization -----------------------------------------------
   # fmt: table
@@ -1317,20 +1315,20 @@ if (rebuild_is_needed) {
       distinct() %>%
       arrange(effect_group)
 
-		effect_conversion <- effect_conversion %>%
-			inner_join(
-				effect_conversion %>% select(term, super_effect_description = effect_description) %>% distinct(term, .keep_all = TRUE),
-				by = join_by(
-					effect_group == term
-				)
-			)
+    effect_conversion <- effect_conversion %>%
+      inner_join(
+        effect_conversion %>%
+          select(term, super_effect_description = effect_description) %>%
+          distinct(term, .keep_all = TRUE),
+        by = join_by(
+          effect_group == term
+        )
+      )
 
     dbWriteTable(eco_con, 'effect_groups_dictionary', effect_conversion, overwrite = TRUE)
 
-		rm(effect_conversion)
+    rm(effect_conversion)
   }
-
-
 
   # clean up ----------------------------------------------------------------
   {
