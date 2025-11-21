@@ -371,21 +371,24 @@ post_results <- function(
     'species_number',
     'exposure_type',
     'test_type',
-    'organism_lifestage'
+    'organism_lifestage',
+    'num_doses_mean_op',
+    'num_doses_mean'
   )
 
   base_result_cols <- c(
+    # ! _op denotes operator for QA/QC purposes
     'result_id',
     'test_id',
+    'endpoint',
+    'effect',
+    'measurement',
     'obs_duration_mean',
     'obs_duration_min',
     'obs_duration_max',
     'obs_duration_unit',
-    'endpoint',
-    'effect',
-    'measurement',
     'conc1_type',
-    'conc1_mean_op', # ! op denotes operator for QA/QC purposes
+    'conc1_mean_op',
     'conc1_unit',
     'conc1_mean',
     'conc1_min',
@@ -435,6 +438,12 @@ post_results <- function(
           chemical_group = ecotox_group
         ),
       by = join_by(test_cas == cas_number)
+    ) %>%
+    relocate(
+      .after = test_cas,
+      chemical_name,
+      dtxsid,
+      chemical_group
     )
 
   # Filter by species using common and/or latin names ----
@@ -517,75 +526,15 @@ post_results <- function(
     )
   }
 
-  # Final cleaning + coercion ----
+  # Additional metadata
   result_query <- result_query %>%
     mutate(
+      # ! + = comment
+      # ! `*` = converted value
+      # ! ~ =
+      # ! / = comment
       common_name = str_squish(common_name),
-      exposure_type = str_remove_all(exposure_type, pattern = "\\/"),
-      measurement = str_remove_all(measurement, pattern = "\\/"),
-      endpoint = str_remove_all(endpoint, pattern = "\\*|\\/"),
-      effect = str_remove_all(effect, pattern = '~|/')
-    ) %>%
-    left_join(
-      tbl(con, 'app_exposure_types') %>%
-        select(
-          exposure_group,
-          term,
-          exposure_description = description,
-          exposure_definition = definition
-        ),
-      by = join_by('exposure_type' == 'term')
-    ) %>%
-    left_join(
-      tbl(con, 'app_exposure_type_groups') %>%
-        select(
-          term,
-          exposure_name = description
-        ),
-      by = join_by(
-        'exposure_group' == 'term'
-      )
-    ) %>%
-    left_join(
-      tbl(con, 'app_effect_groups_and_measurements') %>%
-        select(
-          measurement_term = measurement_term,
-          measurement_name = measurement_name,
-          effect_code = effect_code,
-          effect_name = effect
-        ),
-      by = join_by(
-        'effect' == 'effect_code',
-        'measurement' == 'measurement_term'
-      )
-    ) %>%
-    left_join(
-      tbl(con, 'effect_groups_dictionary'),
-				by = join_by(measurement == term)
-    ) %>%
-    left_join(
-      tbl(con, 'lifestage_codes') %>% rename(org_lifestage = description),
-      by = join_by(organism_lifestage == code)
-    ) %>%
-    left_join(
-      tbl(con, 'lifestage_dictionary'),
-      by = join_by(org_lifestage == org_lifestage)
-    ) %>%
-    # left_join(
-    # 	tbl(con, ''),
-    # 	by = join_by( == )
-    #) %>%
-    # select(
-    #   -test_id,
-    #   -species_number,
-    #   -exposure_type,
-    #   -result_id
-    # ) %>%
-    mutate(
-      # + = comment
-      # `*` = converted value
-      # ~ =
-      # / =
+      across(c(exposure_type, measurement, endpoint, effect), ~ str_remove_all(., pattern = "\\/|\\*|\\~")),
       across(
         c(obs_duration_mean, obs_duration_min, obs_duration_max),
         ~ sql(sprintf("TRY_CAST(REGEXP_REPLACE(%s, '[\\*\\+]|\\s', '', 'g') AS DOUBLE)", cur_column()))
@@ -596,6 +545,83 @@ post_results <- function(
         ~ sql(sprintf("TRY_CAST(REGEXP_REPLACE(%s, '[\\*\\+]|\\s', '', 'g') AS DOUBLE)", cur_column()))
       )
     ) %>%
+    left_join(
+      ## exposure types ----
+      tbl(con, 'app_exposure_types') %>%
+        select(
+          exposure_group,
+          term,
+          exposure_description = description,
+        ),
+      by = join_by('exposure_type' == 'term')
+    ) %>%
+    left_join(
+      ## exposure groups ----
+      tbl(con, 'app_exposure_type_groups') %>%
+        select(
+          term,
+          exposure_name = description
+        ),
+      by = join_by(
+        'exposure_group' == 'term'
+      )
+    ) %>%
+    relocate(
+      .after = exposure_type,
+      exposure_group,
+      exposure_description,
+      exposure_name
+    ) %>%
+    left_join(
+      .,
+      tbl(con, 'app_effect_groups_and_measurements') %>%
+        select(
+          measurement_term,
+          measurement_name,
+          effect_code,
+          effect_name = effect,
+          -measurement_definition
+        ),
+      by = join_by(
+        effect == effect_code,
+        measurement == measurement_term
+      )
+    ) %>%
+    left_join(
+      .,
+      tbl(con, 'effect_groups_dictionary') %>%
+        select(
+          effect = term,
+          effect_group,
+          super_effect_description
+        ),
+      by = join_by(effect == effect)
+    ) %>%
+    rename(effect_group_name = super_effect_description) %>%
+    relocate(
+      .after = endpoint,
+      effect_group,
+      effect_group_name,
+      effect,
+      effect_name,
+      measurement,
+      measurement_name
+    ) %>%
+    left_join(
+      ## lifestage code ----
+      tbl(con, 'lifestage_codes') %>% rename(org_lifestage = description),
+      by = join_by(organism_lifestage == code)
+    ) %>%
+    left_join(
+      ## lifestage dictionary ----
+      tbl(con, 'lifestage_dictionary'),
+      by = join_by(org_lifestage == org_lifestage)
+    ) %>%
+    relocate(
+      .after = organism_lifestage,
+      org_lifestage,
+      harmonized_life_stage
+    ) %>%
     select(-test_id, -result_id, -species_number)
 
   # Adding conversion dictionaries -----------------------------------------
@@ -603,25 +629,20 @@ post_results <- function(
   result <- result_query %>%
     left_join(
       .,
-      tbl(eco_con, 'unit_conversion'),
+      ## unit conversion dictionary ----
+      tbl(con, 'unit_conversion'),
       join_by(conc1_unit == orig)
     ) %>%
     left_join(
       .,
-      tbl(eco_con, 'duration_conversion'),
+      ## duration conversion dictionary ----
+      tbl(con, 'duration_conversion'),
       join_by(obs_duration_unit == code)
     ) %>%
-    left_join(
-      .,
-      tbl(eco_con, 'effect_conversion'),
-      join_by(effect == term)
-    ) %>%
-    select(-effect_definition) %>%
+    collect() %>%
     mutate(
-      #endpoint = str_remove_all(endpoint, pattern = '~|/'),
-      #coalesce(conc1_mean, conc1_min, conc1_max),
       result = case_when(
-        is.na(conc1_mean) ~ geometric.mean(c(conc1_min, conc1_max), na.rm = TRUE),
+        is.na(conc1_mean) ~ geometric_mean(c(conc1_min, conc1_max), na.rm = TRUE),
         .default = conc1_mean,
       ),
       final_result = result * conversion_factor_unit,
@@ -632,9 +653,7 @@ post_results <- function(
       ) %>%
         as.numeric(),
       final_duration = duration * conversion_factor_duration
-      #.keep = 'unused'
-    ) %>%
-    collect()
+    )
 
   return(result)
 }
