@@ -835,6 +835,152 @@ if (rebuild_is_needed) {
     rm(duration_conversion)
   }
 
+  ## Test-Result Duration dictionary  ------------------------------------------------------------------
+  {
+    #fmt: table
+    test_result_duration_dictionary <- tribble(
+      # ! table returns test type based upon eco_group, effect, exposure_group, unit, endpoint and duration in hours
+      ~eco_group                             , ~test_type , ~effect               , ~exposure_group , ~unit                        , ~endpoint                    , ~duration                            ,
+      # Mammals
+      "Mammals"                              , "acute"    , "MOR"                 , c("ORAL", NA)   , c("mg/kg", "mg/kg bdwt")     , "LD50"                       , NULL                                 ,
+      "Mammals"                              , "chronic"  , "MOR"                 , c("ORAL", NA)   , "mg/kg/d"                    , c("NOEL", "NR-ZERO")         , NULL                                 ,
+      # Birds, Amphibians, Reptiles
+      c("Birds", "Amphibians", "Reptiles")   , "acute"    , "MOR"                 , c("ORAL", NA)   , "mg/kg"                      , "LD50"                       , NULL                                 ,
+      c("Birds", "Amphibians", "Reptiles")   , "chronic"  , "MOR"                 , c("ORAL", NA)   , c("mg/kg/d", "mg/kg bdwt/d") , c("NOEL", "NR-ZERO")         , NULL                                 ,
+      # Fish
+      "Fish"                                 , "acute"    , "MOR"                 , NULL            , "mg/L"                       , c("LD50", "EC50", "LC50")    , expr(new_dur == 96)                  ,
+      "Fish"                                 , "chronic"  , "MOR"                 , NULL            , "mg/L"                       , c("LD50", "EC50", "LC50")    , expr(new_dur >= 144)                 ,
+      "Fish"                                 , "chronic"  , "MOR"                 , NULL            , "mg/L"                       , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 504)                 ,
+      # Bees
+      "Bees"                                 , "acute"    , "MOR"                 , NULL            , "ug/bee"                     , c("LD50", "LC50")            , expr(new_dur %in% c(24, 28, 72))     ,
+      "Bees"                                 , "chronic"  , "MOR"                 , NULL            , "ug/bee"                     , c("LD50", "LC50")            , expr(new_dur == 240)                 ,
+      # Insects/Spiders
+      "Insects/Spiders"                      , "acute"    , "MOR"                 , NULL            , c("mg/L", "mg/kg")           , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72))     ,
+      "Insects/Spiders"                      , "chronic"  , "MOR"                 , NULL            , c("mg/L", "mg/kg")           , c("NOEL", "NOEC", "NR-ZERO") , expr(new_dur %in% c(504, 672))       ,
+      # Invertebrates, Molluscs
+      c("Invertebrates", "Molluscs")         , "acute"    , "MOR"                 , NULL            , c("mg/L", "mg/kg")           , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72, 96)) ,
+      c("Invertebrates", "Molluscs")         , "chronic"  , "MOR"                 , NULL            , c("mg/L", "mg/kg")           , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(504, 672))       ,
+      # Worms
+      "Worms"                                , "acute"    , "MOR"                 , NULL            , "mg/kg"                      , c("LD50", "LC50", "EC50")    , expr(new_dur == 336)                 ,
+      "Worms"                                , "chronic"  , "MOR"                 , NULL            , "mg/kg"                      , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur <= 336)                 ,
+      # Crustaceans
+      "Crustaceans"                          , "acute"    , "MOR"                 , NULL            , "mg/L"                       , c("LD50", "LC50", "EC50")    , expr(new_dur <= 96)                  ,
+      "Crustaceans"                          , "chronic"  , "MOR"                 , NULL            , "mg/L"                       , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur >= 672)                 ,
+      # Algae, Fungi, Moss, Hornworts
+      c("Algae", "Fungi", "Moss, Hornworts") , "acute"    , NULL                  , NULL            , "mg/L"                       , c("LD50", "LC50", "EC50")    , expr(new_dur <= 24 * 7)              ,
+      c("Algae", "Fungi", "Moss, Hornworts") , "chronic"  , NULL                  , NULL            , "mg/L"                       , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 96)                  ,
+      # Flowers, Trees, Shrubs, Ferns
+      "Flowers, Trees, Shrubs, Ferns"        , "acute"    , NULL                  , NULL            , "mg/L"                       , c("LD50", "LC50", "EC50")    , expr(new_dur <= 7 * 24)              ,
+      "Flowers, Trees, Shrubs, Ferns"        , "chronic"  , expr(effect != "MOR") , NULL            , NULL                         , c("NOEC", "NOEL", "NR-ZERO") , NULL
+    ) %>%
+      unnest(cols = c(eco_group))
+
+    dbWriteTable(eco_con, 'dict_test_result_duration', test_result_duration_dictionary, overwrite = TRUE)
+
+    rm(test_result_duration_dictionary)
+  }
+
+  ## Risk-Score dictionary ----------------------------------------------------------------------
+
+  {
+    #fmt: table
+    risk_binning_rules <- tribble(
+      ~eco_group      , ~test_type , ~bin , ~lower_bound , ~upper_bound ,
+      # Mammals
+      "Mammals"       , "acute"    , "VH" , -Inf         ,   10         ,
+      "Mammals"       , "acute"    , "H"  ,   10         ,   50         ,
+      "Mammals"       , "acute"    , "M"  ,   50         ,  500         ,
+      "Mammals"       , "acute"    , "L"  ,  500         , 2000         ,
+      "Mammals"       , "acute"    , "XL" , 2000         , Inf          ,
+      "Mammals"       , "chronic"  , "VH" , -Inf         ,    1         ,
+      "Mammals"       , "chronic"  , "H"  ,    1         ,   10         ,
+      "Mammals"       , "chronic"  , "M"  ,   10         ,  200         ,
+      "Mammals"       , "chronic"  , "L"  ,  200         , 1000         ,
+      "Mammals"       , "chronic"  , "XL" , 1000         , Inf          ,
+      # Birds
+      "Birds"         , "acute"    , "VH" , -Inf         ,   10         ,
+      "Birds"         , "acute"    , "H"  ,   10         ,   50         ,
+      "Birds"         , "acute"    , "M"  ,   50         ,  500         ,
+      "Birds"         , "acute"    , "L"  ,  500         , 2000         ,
+      "Birds"         , "acute"    , "XL" , 2000         , Inf          ,
+      "Birds"         , "chronic"  , "VH" , -Inf         ,    1         ,
+      "Birds"         , "chronic"  , "H"  ,    1         ,   10         ,
+      "Birds"         , "chronic"  , "M"  ,   10         ,  200         ,
+      "Birds"         , "chronic"  , "L"  ,  200         , 1000         ,
+      "Birds"         , "chronic"  , "XL" , 1000         , Inf          ,
+      # Fish
+      "Fish"          , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Fish"          , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Fish"          , "acute"    , "M"  ,    1         ,   10         ,
+      "Fish"          , "acute"    , "L"  ,   10         ,  100         ,
+      "Fish"          , "acute"    , "XL" ,  100         , Inf          ,
+      "Fish"          , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Fish"          , "chronic"  , "H"  ,    1         ,   10         ,
+      "Fish"          , "chronic"  , "M"  ,   10         ,  200         ,
+      "Fish"          , "chronic"  , "L"  ,  200         , 1000         ,
+      "Fish"          , "chronic"  , "XL" , 1000         , Inf          ,
+      # Bees
+      "Bees"          , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Bees"          , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Bees"          , "acute"    , "M"  ,    1         ,   10         ,
+      "Bees"          , "acute"    , "L"  ,   10         ,  100         ,
+      "Bees"          , "acute"    , "XL" ,  100         , Inf          ,
+      "Bees"          , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Bees"          , "chronic"  , "H"  ,    1         ,   10         ,
+      "Bees"          , "chronic"  , "M"  ,   10         ,  200         ,
+      "Bees"          , "chronic"  , "L"  ,  200         , 1000         ,
+      "Bees"          , "chronic"  , "XL" , 1000         , Inf          ,
+      # Insects
+      "Insects"       , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Insects"       , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Insects"       , "acute"    , "M"  ,    1         ,   10         ,
+      "Insects"       , "acute"    , "L"  ,   10         ,  100         ,
+      "Insects"       , "acute"    , "XL" ,  100         , Inf          ,
+      "Insects"       , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Insects"       , "chronic"  , "H"  ,    1         ,   10         ,
+      "Insects"       , "chronic"  , "M"  ,   10         ,  200         ,
+      "Insects"       , "chronic"  , "L"  ,  200         , 1000         ,
+      "Insects"       , "chronic"  , "XL" , 1000         , Inf          ,
+      # Invertebrates
+      "Invertebrates" , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Invertebrates" , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Invertebrates" , "acute"    , "M"  ,    1         ,   10         ,
+      "Invertebrates" , "acute"    , "L"  ,   10         ,  100         ,
+      "Invertebrates" , "acute"    , "XL" ,  100         , Inf          ,
+      "Invertebrates" , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Invertebrates" , "chronic"  , "H"  ,    1         ,   10         ,
+      "Invertebrates" , "chronic"  , "M"  ,   10         ,  200         ,
+      "Invertebrates" , "chronic"  , "L"  ,  200         , 1000         ,
+      "Invertebrates" , "chronic"  , "XL" , 1000         , Inf          ,
+      # Worms
+      "Worms"         , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Worms"         , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Worms"         , "acute"    , "M"  ,    1         ,   10         ,
+      "Worms"         , "acute"    , "L"  ,   10         ,  100         ,
+      "Worms"         , "acute"    , "XL" ,  100         , Inf          ,
+      "Worms"         , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Worms"         , "chronic"  , "H"  ,    1         ,   10         ,
+      "Worms"         , "chronic"  , "M"  ,   10         ,  200         ,
+      "Worms"         , "chronic"  , "L"  ,  200         , 1000         ,
+      "Worms"         , "chronic"  , "XL" , 1000         , Inf          ,
+      # Crustaceans
+      "Crustaceans"   , "acute"    , "VH" , -Inf         ,    0.1       ,
+      "Crustaceans"   , "acute"    , "H"  ,    0.1       ,    1         ,
+      "Crustaceans"   , "acute"    , "M"  ,    1         ,   10         ,
+      "Crustaceans"   , "acute"    , "L"  ,   10         ,  100         ,
+      "Crustaceans"   , "acute"    , "XL" ,  100         , Inf          ,
+      "Crustaceans"   , "chronic"  , "VH" , -Inf         ,    0.01      ,
+      "Crustaceans"   , "chronic"  , "H"  ,    1         ,   10         ,
+      "Crustaceans"   , "chronic"  , "M"  ,   10         ,  200         ,
+      "Crustaceans"   , "chronic"  , "L"  ,  200         , 1000         ,
+      "Crustaceans"   , "chronic"  , "XL" , 1000         , Inf
+    )
+
+    dbWriteTable(eco_con, 'dict_risk_binning', risk_binning_rules, overwrite = TRUE)
+
+    rm(risk_binning_rules)
+  }
+
   # Full Unit conversion tables --------------------------------------------
 
   {
