@@ -872,8 +872,21 @@ if (rebuild_is_needed) {
       # Flowers, Trees, Shrubs, Ferns
       "Flowers, Trees, Shrubs, Ferns"        , "acute"    , NULL                  , NULL            , "mg/L"                       , c("LD50", "LC50", "EC50")    , expr(new_dur <= 7 * 24)              ,
       "Flowers, Trees, Shrubs, Ferns"        , "chronic"  , expr(effect != "MOR") , NULL            , NULL                         , c("NOEC", "NOEL", "NR-ZERO") , NULL
-    ) %>%
-      unnest(cols = c(eco_group))
+    ) %>% 
+      # Serialize list and expression columns to character strings for DB storage
+      # First, explicitly deparse any calls or expressions into character strings
+      mutate(across(
+      where(is.list),
+      ~ map_chr(.x, function(item) {
+        if (is.null(item)) {
+          NA_character_
+        } else if (is.call(item) || is.expression(item) || is.symbol(item)) {
+          deparse(item)
+        } else {
+          paste(na.omit(item), collapse = "|")
+        }
+      })
+    ))
 
     dbWriteTable(eco_con, 'dict_test_result_duration', test_result_duration_dictionary, overwrite = TRUE)
 
