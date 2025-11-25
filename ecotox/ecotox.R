@@ -1,119 +1,165 @@
-# packages ----------------------------------------------------------------
+# Packages ----------------------------------------------------------------
+
 {
-  {
-    install_booster_pack <- function(package, load = TRUE) {
-      # Loop through each package
-      for (pkg in package) {
-        # Check if the package is installed
-        if (!requireNamespace(pkg, quietly = TRUE)) {
-          # If not installed, install the package
-          install.packages(pkg)
-        }
-        # Load the package
-        if (load) {
-          library(pkg, character.only = TRUE)
-        }
+  # Install pak if it's not already installed
+  if (!requireNamespace("pak", quietly = TRUE)) {
+    install.packages(
+      "pak",
+      repos = sprintf(
+        "https://r-lib.github.io/p/pak/stable/%s/%s/%s",
+        .Platform$pkgType,
+        R.Version()$os,
+        R.Version()$arch
+      )
+    )
+  }
+
+  linux_binary_repo <- function(universe) {
+    sprintf('https://%s.r-universe.dev/bin/linux/noble-%s/%s/', universe, R.version$arch, substr(getRversion(), 1, 3))
+  }
+
+  options(repos = linux_binary_repo(c('ropensci', 'cran')))
+  rm(linux_binary_repo)
+
+  # CRAN Packages ----
+  install_booster_pack <- function(package, load = TRUE) {
+    # Loop through each package
+    for (pkg in package) {
+      # Check if the package is installed
+      if (!requireNamespace(pkg, quietly = TRUE)) {
+        # If not installed, install the package
+        pak::pkg_install(pkg)
+      }
+      # Load the package
+      if (load) {
+        library(pkg, character.only = TRUE)
       }
     }
-
-    if (file.exists('packages.txt')) {
-      packages <- read.table('packages.txt')
-
-      install_booster_pack(package = packages$Package, load = FALSE)
-
-      rm(packages)
-    } else {
-      # Packages ----
-
-      booster_pack <- c(
-        ## IO ----
-        'fs',
-        'here',
-        'janitor',
-        'rio',
-        'tidyverse',
-        # 'data.table',
-        #'mirai',
-        #'targets',
-        #'crew',
-
-        ## DB ----
-        'arrow',
-        # 'nanoparquet',
-        'duckdb',
-        'duckplyr',
-        'dbplyr',
-
-        ## EDA ----
-        'skimr',
-
-        ## Web ----
-        'rvest',
-        'polite',
-        'plumber',
-        #	'plumber2', #Still experimental
-        'httr',
-        'httr2',
-
-        ## Plot ----
-        # 'paletteer',
-        # 'ragg',
-        # 'camcorder',
-        # 'esquisse',
-        # 'geofacet',
-        # 'patchwork',
-        # 'marquee',
-        # 'ggiraph',
-        # 'geomtextpath',
-        # 'ggpattern',
-        # 'ggbump',
-        # 'gghighlight',
-        # 'ggdist',
-        # 'ggforce',
-        # 'gghalves',
-        # 'ggtext',
-        # 'ggrepel',   # Suggested for non-overlapping labels
-        # 'gganimate', # Suggested for animations
-        # 'ggsignif',
-        # 'ggTimeSeries',
-
-        ## Modeling ----
-        # 'tidymodels',
-
-        ## Shiny ----
-        # 'shiny',
-        # 'bslib',
-        # 'DT',
-        # 'plotly',
-
-        ## Reporting ----
-        # 'quarto',
-        # 'gt',
-
-        ## Spatial ----
-        # 'sf',
-        # 'geoarrow',
-        # 'duckdbfs',
-        # 'duckspatial',
-        # 'ducksf',
-        # 'tidycensus', # Needs API
-        # 'mapgl',
-        # 'dataRetrieval', # Needs API
-        # 'StreamCatTools',
-
-        ## Misc ----
-        # 'devtools',
-        # 'usethis',
-        # 'pak',
-        'usethis',
-        'remotes'
-      )
-
-      # ! Change load flag to load packages
-      install_booster_pack(package = booster_pack, load = TRUE)
-      rm(install_booster_pack, booster_pack)
-    }
   }
+
+  if (file.exists('packages.txt')) {
+    packages <- read.table('packages.txt')
+
+    install_booster_pack(package = packages$Package, load = FALSE)
+
+    rm(packages)
+  } else {
+    ## Packages ----
+
+    booster_pack <- c(
+      ## IO ----
+      'fs',
+      'here',
+      'janitor',
+      'rio',
+      'tidyverse',
+      # 'data.table',
+      #'mirai',
+      #'targets',
+      #'crew',
+
+      ## DB ----
+      'arrow',
+      # 'nanoparquet',
+      'duckdb',
+      'duckplyr',
+      'dbplyr',
+
+      ## EDA ----
+      'skimr',
+
+      ## Web ----
+      'rvest',
+      'polite',
+      'plumber',
+      #	'plumber2', #Still experimental
+      'httr',
+      'httr2',
+
+      ## Plot ----
+      # 'paletteer',
+      # 'ragg',
+      # 'camcorder',
+      # 'esquisse',
+      # 'geofacet',
+      # 'patchwork',
+      # 'marquee',
+      # 'ggiraph',
+      # 'geomtextpath',
+      # 'ggpattern',
+      # 'ggbump',
+      # 'gghighlight',
+      # 'ggdist',
+      # 'ggforce',
+      # 'gghalves',
+      # 'ggtext',
+      # 'ggrepel',   # Suggested for non-overlapping labels
+      # 'gganimate', # Suggested for animations
+      # 'ggsignif',
+      # 'ggTimeSeries',
+
+      ## Modeling ----
+      # 'tidymodels',
+
+      ## Shiny ----
+      # 'shiny',
+      # 'bslib',
+      # 'DT',
+      # 'plotly',
+
+      ## Reporting ----
+      # 'quarto',
+      # 'gt',
+
+      ## Spatial ----
+      # 'sf',
+      # 'geoarrow',
+      # 'duckdbfs',
+      # 'duckspatial',
+      # 'ducksf',
+      # 'tidycensus', # Needs API
+      # 'mapgl',
+      # 'dataRetrieval', # Needs API
+      # 'StreamCatTools',
+
+      ## Misc ----
+      # 'devtools',
+      # 'usethis',
+      # 'pak',
+      'usethis',
+      'remotes'
+    )
+
+    # ! Change load flag to load packages
+    install_booster_pack(package = booster_pack, load = TRUE)
+    rm(install_booster_pack, booster_pack)
+  }
+
+  # GitHub Packages ----
+  # github_packages <- c(
+  # 	"seanthimons/ComptoxR"
+  # )
+
+  # # Ensure remotes is installed
+  # if (!requireNamespace("remotes", quietly = TRUE)) {
+  # 	install.packages("remotes")
+  # }
+
+  # # Loop through each GitHub package
+  # for (pkg in github_packages) {
+  # 	# Extract package name from the "user/repo" string
+  # 	pkg_name <- sub(".*/", "", pkg)
+
+  # 	# Check if the package is installed
+  # 	if (!requireNamespace(pkg_name, quietly = TRUE)) {
+  # 		# If not installed, install the latest release from GitHub
+  # 		remotes::install_github(paste0(pkg, "@*release"))
+  # 	}
+  # 	# Load the package
+  # 	library(pkg_name, character.only = TRUE)
+  # }
+
+  #rm(github_packages, pkg, pkg_name)
 
   # Custom Functions ----
 
@@ -872,21 +918,21 @@ if (rebuild_is_needed) {
       # Flowers, Trees, Shrubs, Ferns
       "Flowers, Trees, Shrubs, Ferns"        , "acute"    , NULL                  , NULL            , "mg/L"                       , c("LD50", "LC50", "EC50")    , expr(new_dur <= 7 * 24)              ,
       "Flowers, Trees, Shrubs, Ferns"        , "chronic"  , expr(effect != "MOR") , NULL            , NULL                         , c("NOEC", "NOEL", "NR-ZERO") , NULL
-    ) %>% 
+    ) %>%
       # Serialize list and expression columns to character strings for DB storage
       # First, explicitly deparse any calls or expressions into character strings
       mutate(across(
-      where(is.list),
-      ~ map_chr(.x, function(item) {
-        if (is.null(item)) {
-          NA_character_
-        } else if (is.call(item) || is.expression(item) || is.symbol(item)) {
-          deparse(item)
-        } else {
-          paste(na.omit(item), collapse = "|")
-        }
-      })
-    ))
+        where(is.list),
+        ~ map_chr(.x, function(item) {
+          if (is.null(item)) {
+            NA_character_
+          } else if (is.call(item) || is.expression(item) || is.symbol(item)) {
+            deparse(item)
+          } else {
+            paste(na.omit(item), collapse = "|")
+          }
+        })
+      ))
 
     dbWriteTable(eco_con, 'dict_test_result_duration', test_result_duration_dictionary, overwrite = TRUE)
 
