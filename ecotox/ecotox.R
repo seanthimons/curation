@@ -568,8 +568,8 @@ if (rebuild_is_needed) {
 
   ## Unit conversion --------------------------------------------------------
   {
-    unit_result <-
-      tibble::tribble(
+    #fmt: table
+    unit_result <- tibble::tribble(
         ~unit          , ~multiplier       , ~unit_conv          , ~type           ,
         "ag"           ,   1e-18           , "g"                 , "mass"          ,
         "fg"           ,   1e-15           , "g"                 , "mass"          ,
@@ -1237,7 +1237,7 @@ if (rebuild_is_needed) {
       # ! Join against dictionary, update here----
       left_join(
         .,
-        unit_result,
+        tbl(eco_con, 'app_unit_conversion') %>% collect(),
         join_by(value == unit)
       ) %>%
       pivot_wider(
