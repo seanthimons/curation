@@ -208,7 +208,7 @@
 
 # !!!!!! Deploy flag -------------------------------------------------------------
 
-deploy = FALSE
+deploy <- FALSE
 
 # Checkpoint -------------------------------------------------------------
 
@@ -284,11 +284,11 @@ deploy = FALSE
           .default = FALSE
         )
       ) %>%
-      filter(latest == TRUE) %>%
+      filter(latest) %>%
       pull(date)
 
     installed <- read.table('installed_version.txt', header = TRUE) %>%
-      filter(installed == TRUE) %>%
+      filter(installed) %>%
       mutate(
         date = lubridate::ymd(date)
       ) %>%
@@ -349,7 +349,8 @@ if (rebuild_is_needed) {
 
     download.file(
       paste0('https://gaftp.epa.gov/ecotox/', resp$file[which.max(resp$date)]),
-      destfile = here('ecotox', 'ecotox.zip')
+      destfile = here('ecotox', 'ecotox.zip'),
+      mode = 'wb'
     )
 
     unzip('ecotox.zip')
@@ -865,7 +866,7 @@ if (rebuild_is_needed) {
           str_detect(tolower(description), "hour") ~ 1,
           str_detect(tolower(description), "day") ~ 24,
           str_detect(tolower(description), "week") ~ 24 * 7,
-          # Average month
+          # ! Average month
           str_detect(tolower(description), "month") ~ 24 * 30.43685,
           .default = 1
         ),
@@ -884,55 +885,56 @@ if (rebuild_is_needed) {
   ## Test-Result Duration dictionary  ------------------------------------------------------------------
   {
     #fmt: table
-    test_result_duration_dictionary <- tribble(
-      # ! table returns test type based upon eco_group, effect, exposure_group, unit, endpoint and duration in hours
-      ~eco_group                            , ~test_type , ~effect               , ~exposure_group , ~unit           , ~endpoint                    , ~duration                            ,
+    # ! table returns test type based upon eco_group, effect, exposure_group, unit, endpoint and duration in hours
+    test_result_duration_dictionary <- tibble::tribble(
+      ~eco_group                            , ~final_test_type , ~effect               , ~exposure_group , ~unit           , ~endpoint                    , ~duration                            ,
       # Mammals
-      "Mammals"                             , "acute"    , "MOR"                 , c("ORAL", NA)   , "g/g"           ,                              , "LD50"                               , NULL ,
-      "Mammals"                             , "chronic"  , "MOR"                 , c("ORAL", NA)   , "g/g/d"         , c("NOEL", "NR-ZERO")         , NULL                                 ,
+      "Mammals"                             , "acute"          , "MOR"                 , c("ORAL", NA)   , "g/g"           , "LD50"                       , NULL                                 ,
+      "Mammals"                             , "chronic"        , "MOR"                 , c("ORAL", NA)   , "g/g/d"         , c("NOEL", "NR-ZERO")         , NULL                                 ,
       # Birds, Amphibians, Reptiles
-      c("Birds", "Amphibians", "Reptiles")  , "acute"    , "MOR"                 , c("ORAL", NA)   , "g/g"           , "LD50"                       , NULL                                 ,
-      c("Birds", "Amphibians", "Reptiles")  , "chronic"  , "MOR"                 , c("ORAL", NA)   , "g/g/d"         , c("NOEL", "NR-ZERO")         , NULL                                 ,
+      c("Birds", "Amphibians", "Reptiles")  , "acute"          , "MOR"                 , c("ORAL", NA)   , "g/g"           , "LD50"                       , NULL                                 ,
+      c("Birds", "Amphibians", "Reptiles")  , "chronic"        , "MOR"                 , c("ORAL", NA)   , "g/g/d"         , c("NOEL", "NR-ZERO")         , NULL                                 ,
       # Fish
-      "Fish"                                , "acute"    , "MOR"                 , NULL            , "g/L"           , c("LD50", "EC50", "LC50")    , expr(new_dur == 96)                  ,
-      "Fish"                                , "chronic"  , "MOR"                 , NULL            , "g/L"           , c("LD50", "EC50", "LC50")    , expr(new_dur >= 144)                 ,
-      "Fish"                                , "chronic"  , "MOR"                 , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 504)                 ,
+      "Fish"                                , "acute"          , "MOR"                 , NULL            , "g/L"           , c("LD50", "EC50", "LC50")    , expr(new_dur == 96)                  ,
+      "Fish"                                , "chronic"        , "MOR"                 , NULL            , "g/L"           , c("LD50", "EC50", "LC50")    , expr(new_dur >= 144)                 ,
+      "Fish"                                , "chronic"        , "MOR"                 , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 504)                 ,
       # Bees
-      "Bees"                                , "acute"    , "MOR"                 , NULL            , "g/bee"         , c("LD50", "LC50")            , expr(new_dur %in% c(24, 28, 72))     ,
-      "Bees"                                , "chronic"  , "MOR"                 , NULL            , "g/bee"         , c("LD50", "LC50")            , expr(new_dur == 240)                 ,
+      "Bees"                                , "acute"          , "MOR"                 , NULL            , "g/bee"         , c("LD50", "LC50")            , expr(new_dur %in% c(24, 28, 72))     ,
+      "Bees"                                , "chronic"        , "MOR"                 , NULL            , "g/bee"         , c("LD50", "LC50")            , expr(new_dur == 240)                 ,
       # Insects/Spiders
-      "Insects/Spiders"                     , "acute"    , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72))     ,
-      "Insects/Spiders"                     , "chronic"  , "MOR"                 , NULL            , c("g/L", "g/g") , c("NOEL", "NOEC", "NR-ZERO") , expr(new_dur %in% c(504, 672))       ,
+      "Insects/Spiders"                     , "acute"          , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72))     ,
+      "Insects/Spiders"                     , "chronic"        , "MOR"                 , NULL            , c("g/L", "g/g") , c("NOEL", "NOEC", "NR-ZERO") , expr(new_dur %in% c(504, 672))       ,
       # Invertebrates, Molluscs
-      c("Invertebrates", "Molluscs")        , "acute"    , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72, 96)) ,
-      c("Invertebrates", "Molluscs")        , "chronic"  , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(504, 672))       ,
+      c("Invertebrates", "Molluscs")        , "acute"          , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(24, 48, 72, 96)) ,
+      c("Invertebrates", "Molluscs")        , "chronic"        , "MOR"                 , NULL            , c("g/L", "g/g") , c("LD50", "LC50", "EC50")    , expr(new_dur %in% c(504, 672))       ,
       # Worms
-      "Worms"                               , "acute"    , "MOR"                 , NULL            , "g/g"           , c("LD50", "LC50", "EC50")    , expr(new_dur == 336)                 ,
-      "Worms"                               , "chronic"  , "MOR"                 , NULL            , "g/g"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur <= 336)                 ,
+      "Worms"                               , "acute"          , "MOR"                 , NULL            , "g/g"           , c("LD50", "LC50", "EC50")    , expr(new_dur == 336)                 ,
+      "Worms"                               , "chronic"        , "MOR"                 , NULL            , "g/g"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur <= 336)                 ,
       # Crustaceans
-      "Crustaceans"                         , "acute"    , "MOR"                 , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 96)                  ,
-      "Crustaceans"                         , "chronic"  , "MOR"                 , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur >= 672)                 ,
+      "Crustaceans"                         , "acute"          , "MOR"                 , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 96)                  ,
+      "Crustaceans"                         , "chronic"        , "MOR"                 , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur >= 672)                 ,
       # Algae, Fungi, Moss, Hornworts
-      c("Algae", "Fungi", "Moss/Hornworts") , "acute"    , NULL                  , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 24 * 7)              ,
-      c("Algae", "Fungi", "Moss/Hornworts") , "chronic"  , NULL                  , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 96)                  ,
+      c("Algae", "Fungi", "Moss/Hornworts") , "acute"          , NULL                  , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 168)                 ,
+      c("Algae", "Fungi", "Moss/Hornworts") , "chronic"        , NULL                  , NULL            , "g/L"           , c("NOEC", "NOEL", "NR-ZERO") , expr(new_dur == 96)                  ,
       # Flowers, Trees, Shrubs, Ferns
-      "Flowers/Trees/Shrubs/Ferns"          , "acute"    , NULL                  , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 7 * 24)              ,
-      "Flowers/Trees/Shrubs/Ferns"          , "chronic"  , expr(effect != "MOR") , NULL            , NULL            , c("NOEC", "NOEL", "NR-ZERO") , NULL
+      "Flowers/Trees/Shrubs/Ferns"          , "acute"          , NULL                  , NULL            , "g/L"           , c("LD50", "LC50", "EC50")    , expr(new_dur <= 168)                 ,
+      "Flowers/Trees/Shrubs/Ferns"          , "chronic"        , expr(effect != "MOR") , NULL            , NULL            , c("NOEC", "NOEL", "NR-ZERO") , NULL
     ) %>%
-      # Serialize list and expression columns to character strings for DB storage
-      # First, explicitly deparse any calls or expressions into character strings
-      mutate(across(
-        where(is.list),
-        ~ map_chr(.x, function(item) {
-          if (is.null(item)) {
-            NA_character_
-          } else if (is.call(item) || is.expression(item) || is.symbol(item)) {
-            deparse(item)
-          } else {
-            paste(na.omit(item), collapse = "|")
-          }
-        })
-      ))
+      relocate(final_test_type, .after = last_col())
+    # Serialize list and expression columns to character strings for DB storage
+    # First, explicitly deparse any calls or expressions into character strings
+    mutate(across(
+      where(is.list),
+      ~ map_chr(.x, function(item) {
+        if (is.null(item)) {
+          NA_character_
+        } else if (is.call(item) || is.expression(item) || is.symbol(item)) {
+          deparse(item)
+        } else {
+          paste(na.omit(item), collapse = "|")
+        }
+      })
+    ))
 
     dbWriteTable(eco_con, 'dict_test_result_duration', test_result_duration_dictionary, overwrite = TRUE)
 

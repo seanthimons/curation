@@ -6,67 +6,39 @@
 
   # Reform the table for R parsing
   reformed_test_type_rules <- serialized_test_type_dictionary %>%
-    mutate(
-      # Reconstruct list-columns: split by '|', convert "NA" to NA, and ensure it's a list-column
-      exposure_group = map(
+    mutate(across(
+      .cols = c(
+        eco_group,
         exposure_group,
-        function(.x) {
-          if (is.na(.x) || .x == "") {
-            NULL # Original was NULL
-          } else {
-            parts <- str_split(.x, fixed("|")) %>%
-              pluck(1)
-            na_if(parts, "NA")
-          }
-        }
-      ),
-      unit = map(
         unit,
-        function(.x) {
-          if (is.na(.x) || .x == "") {
-            NULL
-          } else {
-            parts <- str_split(.x, fixed("|")) %>%
-              pluck(1)
-            na_if(parts, "NA")
-          }
-        }
-      ),
-      endpoint = map(
         endpoint,
-        function(.x) {
-          if (is.na(.x) || .x == "") {
-            NULL
-          } else {
-            parts <- str_split(.x, fixed("|")) %>%
-              pluck(1)
-            na_if(parts, "NA")
-          }
-        }
+        effect,
+        duration
       ),
-      # Reconstruct expression-columns: parse string back to expression, handle NA
-      effect = map(
-        as.character(effect),
-        function(.x) {
-          if (is.na(.x) || .x == "") {
-            NULL
-          } else {
-            rlang::parse_expr(.x)
-          }
+      .fns = ~ map2(.x, cur_column(), function(item, col_name) {
+        # Use map2 to get column name
+        if (is.na(item) || item == "") {
+          return(NULL)
         }
-      ),
-      duration = map(
-        as.character(duration),
-        function(.x) {
-          if (is.na(.x) || .x == "") {
-            NULL
+
+        # Only parse as an R expression if it's the 'duration' column
+        # AND it contains characters indicative of a complex R expression.
+        # This prevents unit strings like "mg/kg/d" from being parsed as expressions.
+        if (col_name == "duration") {
+          if (rlang::is_expression(item)) {
+            rlang::parse_expr(item)
           } else {
-            rlang::parse_expr(.x)
+            # For all other cases, treat as a simple string or a pipe-separated list of strings.
+            na_if(str_split(item, fixed("|"))[[1]], "NA")
           }
+        } else {
+          # For all other columns, treat as a simple string or a pipe-separated list of strings.
+          na_if(str_split(item, fixed("|"))[[1]], "NA")
         }
-      )
-    )
+      })
+    ))
 }
+
 
 # Testing -------------------------------------------------------------------------------
 library(ComptoxR)
@@ -91,19 +63,32 @@ p1 <- post_results(
 )
 
 p1 <- post_results(
-  #casrn = '50-00-0',
-  eco_group = "Flowers, Trees, Shrubs, Ferns",
+  casrn = '1190931-27-1',
+  eco_group = "Flowers/Trees/Shrubs/Ferns",
+	#endpoint = 'default'
   endpoint = c('BCF', 'BAF')
 )
 
-p1 <- post_results(
-	casrn = ComptoxR::testing_chemicals$
-)
+expo_dur <- tbl(eco_con, 'tests') %>%
+  select(test_id, contains('study_duration_')) %>%
+	head(n = 10) %>% 
+	collect() %>% 
+	#select(test_id, contains('application_')) %>% 
+  glimpse()
 
-eco_risk_tbl %>%
-  group_by(eco_group) %>%
-  reframe(
-    ex = unique(exposure_group)
-  ) %>%
-  print(n = Inf)
+expo_dur %>% 
+	pivot_longer(
+    cols = -c(test_id,study_duration_unit, study_duration_comments),
+    names_to = c("study_calc_type", '.value'),
+    names_pattern = "(_op)?",
+		values_drop_na = TRUE
+  )
 
+
+tbl(eco_con, 'tests') %>% glimpse()
+
+tbl(eco_con, 'results') %>% filter(result_id == '2784910') %>% glimpse()
+
+tbl(eco_con, 'duration_conversion') %>%
+	filter(base_unit == 'days') %>% 
+	glimpse()

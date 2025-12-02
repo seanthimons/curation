@@ -251,7 +251,7 @@ health <- function() {
     # timestamp = Sys.time(),
     db = list.files(pattern = "\\.duckdb$"),
     created = tbl(con, "versions") %>%
-      filter(latest == TRUE) %>%
+      filter(latest) %>%
       pull(date),
     db_size_mb = round(file.size(db) / (1024 * 1024), 2)
   )
@@ -366,14 +366,16 @@ post_results <- function(
   species_tbl <- tbl(con, "species")
 
   base_test_cols <- c(
+    'reference_number',
     'test_id',
     'test_cas',
     'species_number',
     'exposure_type',
     'test_type',
     'organism_lifestage',
-    'num_doses_mean_op',
-    'num_doses_mean'
+    'application_freq_mean',
+    'application_freq_unit',
+
   )
 
   base_result_cols <- c(
@@ -398,8 +400,9 @@ post_results <- function(
   # Filtering for test columns + addtional special columns ----
   result_query <- tests_tbl %>%
     select(
-      all_of(base_test_cols), # Strict: these MUST exist
-      any_of(test_cols) # Flexible: adds user columns if valid
+      dplyr::all_of(base_test_cols), # Strict: these MUST exist
+			dplyr::contains('_duration_'),
+      dplyr::any_of(test_cols) # Flexible: adds user columns if valid
     ) %>%
     inner_join(
       species_tbl %>%
@@ -479,14 +482,14 @@ post_results <- function(
 
   # Add species characteristic filters ----
   if (invasive) {
-    result_query <- result_query %>% filter(invasive_species == TRUE)
+    result_query <- result_query %>% filter(invasive_species)
   }
   if (standard) {
-    result_query <- result_query %>% filter(standard_test_species == TRUE)
+    result_query <- result_query %>% filter(standard_test_species)
   }
   if (threatened) {
     result_query <- result_query %>%
-      filter(endangered_threatened_species == TRUE)
+      filter(endangered_threatened_species)
   }
 
   # Filters for additonal results columns ----
@@ -622,7 +625,15 @@ post_results <- function(
       org_lifestage,
       harmonized_life_stage
     ) %>%
-    select(-test_id, -result_id, -species_number)
+    left_join(
+      .,
+      tbl(con, 'app_application_frequencies') %>% rename(application_freq_name = description),
+      join_by(application_freq_unit == term)
+    ) %>%
+    relocate(
+      .after = application_freq_unit,
+      application_freq_name
+    )
 
   # Adding conversion dictionaries -----------------------------------------
 
@@ -641,19 +652,32 @@ post_results <- function(
     ) %>%
     collect() %>%
     mutate(
-      result = case_when(
+			# Concentration conversion ----
+      init_conc = case_when(
         is.na(conc1_mean) ~ geometric_mean(c(conc1_min, conc1_max), na.rm = TRUE),
         .default = conc1_mean,
       ),
-      final_result = result * conversion_factor_unit,
-      duration = coalesce(
+      final_conc = init_conc * conversion_factor_unit,
+			# Duration conversion ----
+      obs_duration = coalesce(
         obs_duration_mean,
         obs_duration_min,
         obs_duration_max
       ) %>%
         as.numeric(),
-      final_duration = duration * conversion_factor_duration
-    )
+      final_obs_duration = obs_duration * conversion_factor_duration
+
+
+    ) %>%
+    relocate(reference_number, test_id, result_id, species_number, .before = test_cas)
 
   return(result)
 }
+
+# get_citation <- function(reference){
+
+# 	tbl(con, 'references') %>% 
+# 		filter(reference_number == reference) %>%
+# 		collect()
+
+# }
