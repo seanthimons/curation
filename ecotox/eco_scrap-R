@@ -74,57 +74,27 @@ expo_dur <-
   tbl(eco_con, 'tests') %>%
   select(test_id, contains('study_duration_')) %>%
   #filter(!is.na(study_duration_min_op)) %>%
-  #slice_sample(n = 20) %>%
+  slice_sample(n = 5) %>%
   collect() %>%
-
-  # Pivot here
-  pivot_longer(
-    cols = -c(test_id, study_duration_unit, study_duration_comments, contains('_op')),
-    names_to = c("stat_type"),
-    names_pattern = "study_duration_(.*)",
-    values_to = 'study_duration',
-    values_drop_na = TRUE
-  ) %>%
-  pivot_longer(
-    cols = contains("_op"),
-    names_to = "op_type",
-    names_pattern = "study_duration_(.*)_op",
-    values_to = 'op_value',
-    values_drop_na = TRUE
-  ) %>%
-  arrange(as.numeric(test_id)) %>%
-  select(-op_type) %>%
-  distinct() %>%
-  #collect() %>%
-  glimpse()
-
-expo_dur <-
-  #	a1 <-
-  tbl(eco_con, 'tests') %>%
-  select(test_id, contains('study_duration_')) %>%
-  #filter(!is.na(study_duration_min_op)) %>%
-  #slice_sample(n = 5) %>%
-  collect()
   pivot_longer(
     cols = -c(test_id, study_duration_unit, study_duration_comments),
     names_to = c("stat_type", ".value"),
     names_pattern = "study_duration_(.*?)_?(op)?",
     values_drop_na = TRUE
   ) %>%
-  # rename(
-  #   study_duration = `NA`,
-  #   operator = op
-  # ) %>%
-  # select(
-  #   test_id,
-  #   stat_type,
-  #   operator,
-  #   study_duration,
-  #   study_duration_unit,
-  #   study_duration_comments
-  # ) %>%
+  rename(
+    study_duration = `NA`,
+    operator = op
+  ) %>%
+  select(
+    test_id,
+    stat_type,
+    operator,
+    study_duration,
+    study_duration_unit,
+    study_duration_comments
+  ) %>%
   glimpse()
-
 
 mutate(
   operator = if_else(operator == "", NA_character_, operator) # Replace NA in operator with empty string for clarity
