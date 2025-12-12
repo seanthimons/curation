@@ -1,19 +1,6 @@
 # packages ---------------------------------------------------------------
 
-{
-	library(here)
-	library(tidyverse)
-	library(janitor)
-	library(rio)
-
-	setwd(here('sswqs'))
-}
-
-# functions --------------------------------------------------------------
-
-pretty_casewhen <- function(var, x) {
-	message(paste0(var, " == '", x, "' ~ '',\n"))
-}
+source(here("load_packages.R"))
 
 
 # Checkpoint -------------------------------------------------------------
@@ -208,7 +195,7 @@ if (rebuild_is_needed) {
 					rm(ctx)
 					return(dat)
 				},
-				.progress = T
+				.progress = TRUE
 			) %>%
 			set_names(., state_vars$abv) %>%
 			# ! NOTE: Removes some empty records that don't have full status yet; some tribes not yet authorized
@@ -567,7 +554,7 @@ if (rebuild_is_needed) {
 			parsed_value = as.numeric(result),
 			num_bool = !is.na(parsed_value)
 		) %>%
-		filter(num_bool == TRUE) %>%
+		filter(num_bool) %>%
 
 		# --- Unit Harmonization ---
 		mutate(
@@ -677,3 +664,7 @@ if (rebuild_is_needed) {
 	rio::export(curated_sswqs, file = here('final', 'sswqs.parquet'))
 	rm(rebuild_is_needed)
 }
+
+
+# Curation ------------------------------------------------------------------------------
+
