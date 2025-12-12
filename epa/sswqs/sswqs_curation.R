@@ -521,6 +521,7 @@ if (rebuild_is_needed) {
     mutate(
       result = str_remove_all(string = result, pattern = ","),
       result = str_trim(result),
+			# ! One-off adjustments
       result = case_when(
         result == '6.90E+0.1' ~ '6.90E+01',
         .default = result
@@ -531,17 +532,11 @@ if (rebuild_is_needed) {
     mutate(
       .id = 1:n(), # Unique identifier for each original row
       result = str_to_lower(orig_result),
-      result = str_replace(result, " million", "e6"),
+      result = str_replace_all(result, " million", "e6"),
       result = str_remove_all(result, "[\\*,]"),
-      result = str_remove_all(result, "[[:space:]]"), # "5.0 e-9" -> "5.0e-9"
+      result = str_remove_all(result, "[[:space:]]"), # "5.0 e-9" -> "5.0e-9",
       result = str_replace_all(result, "x10\\^?", "e"), # "5x10^-9" -> "5e-9"
-      parsed_value = as.numeric(result),
-      # Fix for Fortran-style exponents (e.g., '4.56+02')
-      result = case_when(
-        is.na(parsed_value) ~
-          str_replace(result, "(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))", "e\\1"),
-        .default = result
-      ),
+      result = str_replace(result, "(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))", "e\\1"), # Fix for Fortran-style exponents (e.g., '4.56+02')
       parsed_value = as.numeric(result),
       num_bool = !is.na(parsed_value)
     ) %>%
@@ -559,7 +554,8 @@ if (rebuild_is_needed) {
     ) %>%
     filter(num_bool) %>%
 
-    # --- Unit Harmonization ---
+		# Unit harmonization --------------------------------------------------------------------
+
     mutate(
       # Create a standardized, clean unit name for matching
       cleaned_unit = case_when(

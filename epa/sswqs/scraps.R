@@ -1,3 +1,233 @@
+# Cleaning and Unit Harmonization ----------------------------------------
+
+units_intermediate <- units %>%
+  rename(orig_unit = unit) %>% 
+  mutate(
+		unit = str_remove_all(unit, "of")
+    unit = str_replace_all(
+      orig_unit,
+      {
+        # Create a regex pattern for whole-word matching of symbols.
+        # Symbols are sorted by length (desc) to prioritize longer matches
+        # (e.g., 'mg/L' over 'g').
+        # Lookarounds '(?<!\w)' and '(?!\w)' ensure that symbols are not
+        # part of other words.
+        # 'str_escape' is used to handle special characters in symbols.
+        unit_symbols %>% 
+          arrange(-stringr::str_length(symbol)) %>%
+          pull(symbol) %>%
+          stringr::str_escape() %>%
+          paste0("(?<!\\w)", ., "(?!\\w)") %>%
+          stringr::str_flatten(., "|")
+      },
+      replacement = ""
+    ) %>%
+      str_squish() %>%
+      # NEW: Add a space between numbers and letters where it is missing.
+      # e.g., "25kg" -> "25 kg"
+      str_replace_all(
+        .,
+        pattern = "(?<=\\d)(?=[a-zA-Z])",
+        replacement = " "
+      ) %>%
+      str_replace_all(
+        .,
+        c(
+          "/ " = "/",
+          '% ' = '%_'
+        )
+      ) %>%
+      # The regex replaces a space with an underscore if it is preceded by a number
+      # and followed by either a letter or another number.
+      # e.g., "100 g" -> "100_g"
+      # e.g., "100 2" -> "100_2"
+      str_replace_all(
+        .,
+        pattern = "(\\b\\d*\\.?\\d+) (?=[[:alpha:]]|\\d)",
+        replacement = "\\1_"
+      ) %>%
+      str_replace_all(
+        .,
+        c(
+          " in " = "",
+          " in" = "",
+          ' ' = "/",
+          "//" = "/",
+          "%_v/v" = "%_v_v",
+          "%_w/v" = "%_w_v",
+          "%_w/w" = "%_w_w",
+          "%_g/g" = "%_w_w",
+          '6inpots' = '6 in pots'
+        )
+      ) %>%
+      str_squish() %>%
+      str_remove(., "/$"),
+
+    has_number = str_detect(unit, pattern = '/\\d+')
+  )
+
+
+units_intermediate <- units %>%
+  # Filter out rows with narrative criteria or non-parsable text
+  filter(
+    !str_detect(
+      result,
+      pattern = regex(
+        "\\bsee\\b|\\bwithin\\b|\\busing\\b|\\bmore\\b|\\bincrease\\b|\\bnot\\b|/",
+        ignore_case = TRUE
+      )
+    ),
+    !is.na(result),
+    result != ""
+  ) %>%
+  # Initial cleaning of the result string
+  mutate(
+    orig_result = result,
+    result = str_remove_all(string = result, pattern = ","),
+    result = str_trim(result),
+    # ! One-off adjustments
+    result = case_when(
+      result == '6.90E+0.1' ~ '6.90E+01',
+      .default = result
+    ) %>%
+      str_squish()
+  )
+# Main result parsing pipeline
+mutate(
+  .id = 1:n(), # Unique identifier for each original row
+  result = str_to_lower(orig_result),
+  result = str_replace(result, " million", "e6"),
+  result = str_remove_all(result, "[\\*,]"),
+  result = str_remove_all(result, "[[:space:]]"), # "5.0 e-9" -> "5.0e-9"
+  result = str_replace_all(result, "x10\\^?", "e"), # "5x10^-9" -> "5e-9"
+  parsed_value = as.numeric(result),
+  # Fix for Fortran-style exponents (e.g., '4.56+02')
+  result = case_when(
+    is.na(parsed_value) ~
+      str_replace(result, "(?<=[0-9])(?<!e)([+-])(?=0\\d(?!\\d))", "e\\1"),
+    .default = result
+  ),
+  parsed_value = as.numeric(result),
+  num_bool = !is.na(parsed_value)
+) %>%
+  # Handle ranges (e.g., "5.6-7.8") by splitting into separate rows
+  rowwise() %>%
+  mutate(
+    result = if (!num_bool) str_split(result, pattern = "-") else list(result)
+  ) %>%
+  unnest(result) %>%
+  ungroup() %>%
+  # Re-parse values after splitting
+  mutate(
+    parsed_value = as.numeric(result),
+    num_bool = !is.na(parsed_value)
+  ) %>%
+  filter(num_bool) %>%
+
+  # --- Unit Harmonization ---
+  mutate(
+    # Create a standardized, clean unit name for matching
+    cleaned_unit = case_when(
+      is.na(unit) ~ "[no units]",
+      TRUE ~
+        unit %>%
+        str_replace_all("[\\u00B5\\u03BC]", "u") %>% # Harmonize micro symbol
+        stringi::stri_trans_general("latin-ascii") %>%
+        str_to_lower() %>%
+        str_replace_all("\\s+(per|/)\\s+", "/") %>%
+        str_trim()
+    ),
+
+    # Define the target harmonized unit based on the cleaned unit
+    harmonized_unit = case_when(
+      cleaned_unit %in% c("°c", "°f") ~ "°c",
+      cleaned_unit %in%
+        c(
+          "ug/l",
+          "parts/billion (ppb)",
+          "mg/l",
+          "ppm",
+          "ng/l",
+          "pg/l",
+          "ppq",
+          "fg/l"
+        ) ~
+        "ug/l",
+      cleaned_unit %in% c("mg/kg fish tissue", "mg/kg wet weight") ~
+        "mg/kg (wet weight)",
+      cleaned_unit %in% c("ug/g", "ug/kg") ~ "mg/kg",
+      cleaned_unit %in%
+        c(
+          "count/100ml",
+          "cfu/100 ml or mpn/100 ml",
+          "mpn/100 ml",
+          "organisms/100 ml"
+        ) ~
+        "count/100ml",
+      cleaned_unit %in% c("ph units", "standard units") ~ "ph units",
+      cleaned_unit %in% c("us/cm", "umhos/cm", "ds/m") ~ "us/cm",
+      cleaned_unit %in% c("pci/l", "picocuries/l") ~ "pci/l",
+      cleaned_unit %in% c("meters", "feet") ~ "meters",
+      cleaned_unit %in% c("kg/yr", "lbs/year", "pounds/year") ~ "kg/yr",
+      cleaned_unit %in%
+        c("fibers/l", "million fibers/l", "mf/l", "microfibers/l") ~
+        "fibers/l",
+      cleaned_unit %in% c("ntu", "jtu") ~ "ntu",
+      cleaned_unit %in%
+        c("color units", "platinum cobalt units", "change in pcu") ~
+        "pcu",
+      TRUE ~ cleaned_unit # Default to the cleaned unit if no rule matches
+    ),
+
+    # Define conversion factor string (to accommodate formulas and numbers)
+    conversion_factor_str = case_when(
+      cleaned_unit == "°f" ~ "°C = (°F - 32) * 5/9",
+      cleaned_unit %in% c("mg/l", "ppm") ~ "1000",
+      cleaned_unit == "ng/l" ~ "0.001",
+      cleaned_unit == "pg/l" ~ "1e-6",
+      cleaned_unit %in% c("ppq", "fg/l") ~ "1e-9",
+      cleaned_unit == "ug/g" ~ "1",
+      cleaned_unit == "ug/kg" ~ "0.001",
+      cleaned_unit == "ds/m" ~ "1000",
+      cleaned_unit == "feet" ~ "0.3048",
+      cleaned_unit %in% c("lbs/year", "pounds/year") ~ "0.453592",
+      cleaned_unit %in% c("million fibers/l", "mf/l") ~ "1e6",
+      harmonized_unit == cleaned_unit ~ "1", # If unit is not changed, factor is 1
+      unit == harmonized_unit ~ "1",
+      is.na(unit) ~ NA_character_,
+      TRUE ~ "1" # Default factor is 1
+    )
+  ) %>%
+  # Apply the conversion to create a harmonized numeric value
+  mutate(
+    numeric_conversion_factor = as.numeric(conversion_factor_str),
+    # Overwrite parsed_value with the NEW, HARMONIZED value
+    parsed_value = case_when(
+      # Apply Fahrenheit to Celsius formula
+      cleaned_unit == "°f" ~ (parsed_value - 32) * 5 / 9,
+      # Apply all other numeric conversion factors
+      !is.na(numeric_conversion_factor) ~
+        parsed_value * numeric_conversion_factor,
+      # If no conversion is defined or possible, keep the original value
+      TRUE ~ parsed_value
+    )
+  ) %>%
+  # --- Final Grouping and Calculation ---
+  # Re-group by the original row ID to process ranges correctly
+  group_by(.id) %>%
+  mutate(
+    # Identify if the value is a single value, or the high/low end of a range
+    result_bin = case_when(
+      n() == 1 ~ "as_is",
+      n() > 1 & parsed_value == max(parsed_value) ~ "high",
+      n() > 1 & parsed_value == min(parsed_value) ~ "low",
+    ),
+    # Calculate the final curated result (mean of the harmonized range values)
+    curated_result = mean(parsed_value, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+
 #OLD ---------------------------------------------------------------------
 
 temp <- wqs_temp %>%
