@@ -1,6 +1,6 @@
 # packages ---------------------------------------------------------------
 
-source("epa/sswqs/load_packages.R", echo = FALSE)
+source(here::here("epa", "sswqs", "load_packages.R"), echo = FALSE)
 
 # !!! Deploy flag ---------------------------------------------------------------------------
 
@@ -119,11 +119,16 @@ if (rebuild_is_needed) {
   {
     cli::cli_alert_info('Requesting state data...')
 
-    # TODO: Need to wrap in error handling for dropped connections...
-    state_dat <- state_vars %>%
-      pmap(
-        .,
-        function(abv, json) {
+		get_state_data <- function(abv, json) {
+
+					library(V8)
+					library(purrr)
+					library(dplyr)
+					library(stringr)
+					library(tibble)
+					library(tidyr)
+					library(magrittr)
+			
           # ! NOTE: Can use this as a progress meter
           #cli::cli_inform(abv, "\n")
           ctx <- v8()
@@ -132,10 +137,10 @@ if (rebuild_is_needed) {
           # ! NOTE: JS parsing here
           st_vars <- ctx$eval(
             "
-	Object.keys(this).filter(function(key) {
-		return typeof this[key] !== 'function' && key !== 'global' && key !== 'console';
-	})
-"
+						Object.keys(this).filter(function(key) {
+						return typeof this[key] !== 'function' && key !== 'global' && key !== 'console';
+						})
+						"
           ) %>%
             str_split(., ",") %>%
             pluck(., 1)
@@ -195,17 +200,29 @@ if (rebuild_is_needed) {
               list_rbind(., names_to = "analyte") %>%
               rename(!!!new_names)
           }
-          #rm(ctx)
-					# ! IMPORTANT: Reset context between iterations if needed
-					ctx$reset()
+          rm(ctx)
+					# ! NOTE: ctx$reset() is not needed here because mirai provides
+					# ! an isolated environment for each iteration.
 
           return(dat)
-        },
-        .progress = TRUE
-      ) %>%
-      set_names(., state_vars$abv) %>%
+		}
+
+    # TODO: Need to wrap in error handling for dropped connections...
+    state_dat <-
+			pmap(
+        list(abv = state_vars$abv[1:6,], json = state_vars$json[1:6,]),
+				in_parallel(
+					get_state_data(abv = abv, json = json)
+				),
+				.progress = TRUE
+			)	
+    
+      #set_names(., state_vars$abv) %>%
       # ! TODO : Removes some empty records that don't have full status yet; some tribes not yet authorized
-      compact(.)
+      #compact(.)
+		
+		# Shut down mirai workers
+		mirai::daemons(0)
   }
 
   # Export intermediate files ----------------------------------------------

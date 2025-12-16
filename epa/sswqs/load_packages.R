@@ -32,7 +32,7 @@
       }
       # Load the package
       if (load) {
-        suppressMessages(library(pkg, character.only = TRUE, quietly = TRUE, verbose = FALSE))
+        library(pkg, character.only = TRUE, quietly = TRUE)
       }
     }
   }
@@ -47,7 +47,8 @@
     ## Packages ----
 
     booster_pack <- c(
-      ## IO ----
+      ### IO ----
+
       'fs',
       'here',
       'janitor',
@@ -55,36 +56,41 @@
       'tidyverse',
       # 'data.table',
       'mirai',
-      #'targets',
-      #'crew',
-      'digest',
+      'parallel',
+      # 'targets',
+      # 'crew',
+      'digest', # file/ object hashing
 
-      ## DB ----
+      ### DB ----
+
       # 'arrow',
-      # 'nanoparquet',
+      'nanoparquet',
       # 'duckdb',
       # 'duckplyr',
       # 'dbplyr',
 
-      ## EDA ----
+      ### EDA ----
+
       # 'skimr',
 
-      ## Web ----
-      # 'rvest',
-      # 'polite',
+      ### Web ----
+
+      'rvest',
+      'polite',
       # 'plumber',
-      #	'plumber2', #Still experimental
-      # 'httr',
-      # 'httr2',
+      # 'plumber2', #Still experimental
+      'httr2',
       'V8',
 
-      ## Plot ----
+      ### Plot ----
+
       # 'paletteer',
       # 'ragg',
       # 'camcorder',
       # 'esquisse',
       # 'geofacet',
       # 'patchwork',
+      # 'ggpubr', # Alternative to patchwork
       # 'marquee',
       # 'ggiraph',
       # 'geomtextpath',
@@ -95,25 +101,34 @@
       # 'ggforce',
       # 'gghalves',
       # 'ggtext',
-      # 'ggrepel',   # Suggested for non-overlapping labels
+      # 'ggrepel', # Suggested for non-overlapping labels
       # 'gganimate', # Suggested for animations
       # 'ggsignif',
       # 'ggTimeSeries',
+      # 'tidyheatmaps',
+      # 'ggdendro',
+      # 'ggstatsplot',
 
-      ## Modeling ----
+      ### Modeling ----
+
       # 'tidymodels',
+      # 'MuMIn',
 
-      ## Shiny ----
+      ### Shiny ----
+
       # 'shiny',
       # 'bslib',
       # 'DT',
       # 'plotly',
 
-      ## Reporting ----
+      ### Reporting ----
+
       # 'quarto',
       # 'gt',
+      # 'gtsummary',
 
-      ## Spatial ----
+      ### Spatial ----
+
       # 'sf',
       # 'geoarrow',
       # 'duckdbfs',
@@ -124,12 +139,11 @@
       # 'dataRetrieval', # Needs API
       # 'StreamCatTools',
 
-      ## Misc ----
+      ### Misc ----
+
       # 'devtools',
       # 'usethis',
-      # 'pak',
-      'usethis',
-      'remotes'
+      # 'remotes'
     )
 
     # ! Change load flag to load packages
@@ -161,26 +175,41 @@
   # 	library(pkg_name, character.only = TRUE)
   # }
 
-  #rm(github_packages, pkg, pkg_name)
+  # rm(github_packages, pkg, pkg_name)
 
   # Custom Functions ----
 
-  geometric_mean <- function(x, na.rm = TRUE) {
-    exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
-  }
-
   `%ni%` <- Negate(`%in%`)
 
-  # skim_count <- skim_with(
-  # 	numeric = sfl(
-  # 		n = length,
-  # 		min = ~ min(.x, na.rm = T),
-  # 		median = ~ median(.x, na.rm = T),
-  # 		max = ~ max(.x, na.rm = T)
-  # 	)
+  # geometric_mean <- function(x) {
+  #   exp(mean(log(x[x > 0])))
+  # }
+
+  # my_skim <- skim_with(
+  #   numeric = sfl(
+  #     n = length,
+  #     min = ~ min(.x, na.rm = TRUE),
+  #     p25 = ~ stats::quantile(., probs = .25, na.rm = TRUE, names = FALSE),
+  #     med = ~ median(.x, na.rm = TRUE),
+  #     p75 = ~ stats::quantile(., probs = .75, na.rm = TRUE, names = FALSE),
+  #     max = ~ max(.x, na.rm = TRUE),
+  #     mean = ~ mean(.x, na.rm = TRUE),
+  #     geo_mean = ~ geometric_mean(.x),
+  #     sd = ~ stats::sd(., na.rm = TRUE),
+  #     hist = ~ inline_hist(., 5)
+  #   ),
+  #   append = FALSE
   # )
 
+  # Mirai ----
+
+  daemons(n = parallel::detectCores() - 2)
+
   # Camcorder ----
+
+  # if(!dir.exists(here::here('output'))) {
+  #   dir.create(here::here('output'))
+  # }
 
   # gg_record(
   # 	here::here('output'),
@@ -202,8 +231,7 @@
   # 			strip.background = element_rect(colour = "white"),
   # 			axis.text.x = element_text(angle = 90L)
   # 		)
-
-  # library(ComptoxR)
+  # }
 
   setwd(here("epa", "sswqs"))
 
@@ -212,16 +240,16 @@
   if (!file.exists("air.toml")) {
     writeLines(
       "[format]
-	line-width = 120
-	indent-width = 2
-	indent-style = \"space\"
-	line-ending = \"auto\"
-	persistent-line-breaks = true
-	exclude = []
-	default-exclude = true
-	skip = []
-	table = []
-	default-table = true",
+		line-width = 120
+		indent-width = 2
+		indent-style = \"space\"
+		line-ending = \"auto\"
+		persistent-line-breaks = true
+		exclude = []
+		default-exclude = true
+		skip = []
+		table = []
+		default-table = true",
       "air.toml"
     )
   }
