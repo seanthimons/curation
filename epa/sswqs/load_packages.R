@@ -54,9 +54,10 @@
       'rio',
       'tidyverse',
       # 'data.table',
-      #'mirai',
+      'mirai',
       #'targets',
       #'crew',
+      'digest',
 
       ## DB ----
       # 'arrow',
