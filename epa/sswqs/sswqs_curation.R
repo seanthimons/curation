@@ -1,6 +1,6 @@
 # packages ---------------------------------------------------------------
 
-source(here("epa", "sswqs", "load_packages.R"), echo = FALSE)
+source("epa/sswqs/load_packages.R", echo = FALSE)
 
 # !!! Deploy flag ---------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ deploy <- TRUE
   files_exist_check <- file.exists(files_to_check)
 
   rebuild_is_needed <- if (!all(files_exist_check)) {
-    cli::cli_alert_info(
+    cli::cli_alert_warning(
       "One or more data files are missing. Rebuilding dataset."
     )
     tibble(files_to_check, files_exist_check) %>% print()
@@ -201,7 +201,7 @@ if (rebuild_is_needed) {
         .progress = TRUE
       ) %>%
       set_names(., state_vars$abv) %>%
-      # ! NOTE: Removes some empty records that don't have full status yet; some tribes not yet authorized
+      # ! TODO : Removes some empty records that don't have full status yet; some tribes not yet authorized
       compact(.)
   }
 
@@ -246,75 +246,75 @@ if (rebuild_is_needed) {
       list_rbind(names_to = "area")
 
     # ! NOTE Manual extraction of relevant data, since it is not easy to parse
+    # Create protection code lookup table
+    protection_lookup <- tibble::tribble(
+      ~protection, ~endpoint,
+      '', NA_character_,
+      'H', 'Human Health',
+      'Hw', 'Human Health - Water + Organism',
+      'Ho', 'Human Health - Organism Only',
+      'Ac', 'Aquatic Life - Chronic',
+      'Aa', 'Aquatic Life - Acute',
+      'AFc', 'Aquatic Life - Freshwater - Chronic',
+      'AFa', 'Aquatic Life - Freshwater - Acute',
+      'A', 'Aquatic Life',
+      'HFw', 'Human Health - Freshwater - Water + Organism)',
+      'HFo', 'Human Health - Freshwater - Organism Only',
+      'ASa', 'Aquatic Life - Saltwater - Acute',
+      'ASc', 'Aquatic Life - Saltwater - Chronic',
+      'HF', 'Human Health - Freshwater',
+      'c', 'Chronic',
+      'F', 'Freshwater',
+      'Hc', 'Human Health - Chronic',
+      'HSo', 'Human Health - Saltwater - Organism Only',
+      'S', 'Saltwater',
+      'AF', 'Aquatic Life - Freshwater',
+      'O', 'Organoleptic',
+      'HS', 'Human Health - Saltwate',
+      'a', 'Acute',
+      'AcCCC', 'Aquatic Life - Chronic',
+      'AS', 'Aquatic Life - Saltwater',
+      'AaCMC', 'Aquatic Life - Acute',
+      'AFcCCC', 'Aquatic Life - Freshwater - Chronic',
+      'AScCCC', 'Aquatic Life - Saltwater - Chronic',
+      'AFaCMC', 'Aquatic Life - Freshwater - Acute',
+      'ASaCMC', 'Aquatic Life - Saltwater - Acut',
+      'Fc', 'Freshwater - Chronic',
+      'Fa', 'Freshwater - Acute',
+      'ABa', 'Aquatic Life - Brackish - Acute',
+      'ABc', 'Aquatic Life - Brackish - Chronic',
+      'Sc', 'Aquatic Life - Saltwater - Chronic',
+      'Sa', 'Aquatic Life - Saltwater - Acute',
+      'Ha', 'Human Health - Acute',
+      'Hco', 'Human Health - Chronic - Organism Only',
+      'Hcw', 'Human Health - Chronic - Water + Organism',
+      'Aco', 'Aquatic Life - Chronic - Organism Only',
+      'B', 'Brackish',
+      'Ow', 'Organoleptic - Water + Organism',
+      'AFao', 'Aquatic Life - Freshwater - Acute - Organism Only',
+      'AFo', 'Aquatic Life - Freshwater - Organism Only',
+      'AaCCC', 'Aquatic Life - Acute',
+      'AcCMC', 'Aquatic Life - Chronic',
+      'Haw', 'Human Health - Acute - Water + Organism',
+      'o', 'Organism Only',
+      'ACCC', 'Aquatic Life',
+      'Hao', 'Human Health - Acute - Organism Only',
+      'AB', 'Aquatic Life - Brackish',
+      'AFaCCC', 'Aquatic Life - Freshwater - Acute',
+      'AFaw', 'Aquatic Life - Freshwater - Acute - Water + Organism',
+      'AFco', 'Aquatic Life - Freshwater - Chronic - Organism Only',
+      'AScCMC', 'Aquatic Life - Saltwater - Chronic',
+      'CMC', 'Aquatic Life - Chronic',
+      'HFa', 'Human Health - Freshwater - Acute',
+      'HSa', 'Human Health - Saltwater - Acute',
+      'w', 'Water + Organism'
+    )
+
     protection_dict <- crit_dat %>%
       select(protection) %>%
       distinct(protection) %>%
+      left_join(protection_lookup, by = "protection") %>%
       mutate(
-        # ! NOTE mapped manually here
-        endpoint = case_when(
-          protection == '' ~ NA,
-          protection == 'H' ~ 'Human Health',
-          protection == 'Hw' ~ 'Human Health - Water + Organism',
-          protection == 'Ho' ~ 'Human Health - Organism Only',
-          protection == 'Ac' ~ 'Aquatic Life - Chronic',
-          protection == 'Aa' ~ 'Aquatic Life - Acute',
-          protection == 'AFc' ~ 'Aquatic Life - Freshwater - Chronic',
-          protection == 'AFa' ~ 'Aquatic Life - Freshwater - Acute',
-          protection == 'A' ~ 'Aquatic Life',
-          protection == 'HFw' ~ 'Human Health - Freshwater - Water + Organism)',
-          protection == 'HFo' ~ 'Human Health - Freshwater - Organism Only',
-          protection == 'ASa' ~ 'Aquatic Life - Saltwater - Acute',
-          protection == 'ASc' ~ 'Aquatic Life - Saltwater - Chronic',
-          protection == 'HF' ~ 'Human Health - Freshwater',
-          protection == 'c' ~ 'Chronic',
-          protection == 'F' ~ 'Freshwater',
-          protection == 'Hc' ~ 'Human Health - Chronic',
-          protection == 'HSo' ~ 'Human Health - Saltwater - Organism Only',
-          protection == 'S' ~ 'Saltwater',
-          protection == 'AF' ~ 'Aquatic Life - Freshwater',
-          protection == 'O' ~ 'Organoleptic',
-          protection == 'HS' ~ 'Human Health - Saltwate',
-          protection == 'a' ~ 'Acute',
-          protection == 'AcCCC' ~ 'Aquatic Life - Chronic',
-          protection == 'AS' ~ 'Aquatic Life - Saltwater',
-          protection == 'AaCMC' ~ 'Aquatic Life - Acute',
-          protection == 'AFcCCC' ~ 'Aquatic Life - Freshwater - Chronic',
-          protection == 'AScCCC' ~ 'Aquatic Life - Saltwater - Chronic',
-          protection == 'AFaCMC' ~ 'Aquatic Life - Freshwater - Acute',
-          protection == 'ASaCMC' ~ 'Aquatic Life - Saltwater - Acut',
-          protection == 'Fc' ~ 'Freshwater - Chronic',
-          protection == 'Fa' ~ 'Freshwater - Acute',
-          protection == 'ABa' ~ 'Aquatic Life - Brackish - Acute',
-          protection == 'ABc' ~ 'Aquatic Life - Brackish - Chronic',
-          protection == 'Sc' ~ 'Aquatic Life - Saltwater - Chronic',
-          protection == 'Sa' ~ 'Aquatic Life - Saltwater - Acute',
-          protection == 'Ha' ~ 'Human Health - Acute',
-          protection == 'Hco' ~ 'Human Health - Chronic - Organism Only',
-          protection == 'Hcw' ~ 'Human Health - Chronic - Water + Organism',
-          protection == 'Aco' ~ 'Aquatic Life - Chronic - Organism Only',
-          protection == 'B' ~ 'Brackish',
-          protection == 'Ow' ~ 'Organoleptic - Water + Organism',
-          protection == 'AFao' ~
-            'Aquatic Life - Freshwater - Acute - Organism Only',
-          protection == 'AFo' ~ 'Aquatic Life - Freshwater - Organism Only',
-          protection == 'AaCCC' ~ 'Aquatic Life - Acute',
-          protection == 'AcCMC' ~ 'Aquatic Life - Chronic',
-          protection == 'Haw' ~ 'Human Health - Acute - Water + Organism',
-          protection == 'o' ~ 'Organism Only',
-          protection == 'ACCC' ~ 'Aquatic Life',
-          protection == 'Hao' ~ 'Human Health - Acute - Organism Only',
-          protection == 'AB' ~ 'Aquatic Life - Brackish',
-          protection == 'AFaCCC' ~ 'Aquatic Life - Freshwater - Acute',
-          protection == 'AFaw' ~
-            'Aquatic Life - Freshwater - Acute - Water + Organism',
-          protection == 'AFco' ~
-            'Aquatic Life - Freshwater - Chronic - Organism Only',
-          protection == 'AScCMC' ~ 'Aquatic Life - Saltwater - Chronic',
-          protection == 'CMC' ~ 'Aquatic Life - Chronic',
-          protection == 'HFa' ~ 'Human Health - Freshwater - Acute',
-          protection == 'HSa' ~ 'Human Health - Saltwater - Acute',
-          protection == 'w' ~ 'Water + Organism',
-        ),
         # ! Water
         location = case_when(
           str_detect(endpoint, 'Fresh') ~ 'freshwater',
@@ -3091,7 +3091,7 @@ if (rebuild_is_needed) {
       "5456" , "wildlife use"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      , "Wildlife"             ,
       "5457" , "Reservation Lakes classified as 2A for coldwater habitat protections"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              , "Site-Specific"        ,
       "5458" , "warmwater fisheries use"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           , "Aquatic Life"
-    )
+    ) %>% select(-local)
 
     # ! NOTE Manual categories
     # use_class_super <- read.table(
