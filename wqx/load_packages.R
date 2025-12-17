@@ -65,8 +65,8 @@
 
       # 'arrow',
       'nanoparquet',
-      # 'duckdb',
-      # 'duckplyr',
+      'duckdb',
+      'duckplyr',
       # 'dbplyr',
 
       ### EDA ----

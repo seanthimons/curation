@@ -16,10 +16,11 @@ curation.zip
 *.png
 *.download
 *.css
-ecotox/ecotox.duckdb.wal
+*.duckdb.wal
 ecotox/temp.R
 *.xlsx
 *.csv
+!hash.csv
 *.tsv
 *.html
 *.RData
