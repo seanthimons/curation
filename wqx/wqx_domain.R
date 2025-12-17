@@ -1,16 +1,4 @@
-# packages ----------------------------------------------------------------
 
-{
-	library(here)
-	library(rio)
-	library(tidyverse)
-	library(janitor)
-	library(stringdist)
-	library(fuzzyjoin)
-	library(duckdb)
-
-	setwd(here('wqx'))
-}
 
 con <- dbConnect(duckdb(), dbdir = ":memory:")
 
