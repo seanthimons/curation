@@ -53,6 +53,10 @@ deploy <- TRUE
 if (rebuild_is_needed) {
   cli::cli_alert_info('Rebuilding dataset...')
 
+	#Attempt to snag
+	#if(){}else{}
+
+
   library(V8)
 
   #Download JS----
@@ -119,6 +123,7 @@ if (rebuild_is_needed) {
   {
     cli::cli_alert_info('Requesting state data...')
 
+    # TODO: Need to wrap in error handling for dropped connections...
 		get_state_data <- function(abv, json) {
 
 					library(V8)
@@ -207,12 +212,13 @@ if (rebuild_is_needed) {
           return(dat)
 		}
 
-    # TODO: Need to wrap in error handling for dropped connections...
     state_dat <-
-			pmap(
-        list(abv = state_vars$abv[1:6,], json = state_vars$json[1:6,]),
+			map2(
+        state_vars$abv[1:6],
+				state_vars$json[1:6],
 				in_parallel(
-					get_state_data(abv = abv, json = json)
+					\(abv, json) get_state_data(abv = abv, json = json),
+					get_state_data = get_state_data
 				),
 				.progress = TRUE
 			)	

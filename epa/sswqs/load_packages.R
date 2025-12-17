@@ -80,7 +80,7 @@
       # 'plumber',
       # 'plumber2', #Still experimental
       'httr2',
-      'V8',
+      'V8'
 
       ### Plot ----
 
