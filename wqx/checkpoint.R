@@ -152,9 +152,10 @@ if (run_rebuild) {
   # con <- dbConnect(duckdb(), dbdir = "wqx.duckdb")
 
   # This is all needed because the domain files keep getting shipped with LF characters in them.
-	# TODO Either pivot to removing those problematic lines or parse the file to remove the LF character then re-read? 
+  # TODO Either pivot to removing those problematic lines or parse the file to remove the LF character then re-read?
 
   list.files(here('wqx', 'raw'), full.names = TRUE) %>%
+    # NOTE Not sure why this file is present in the zip, should be a standalone file
     discard(~ basename(.) == 'All Domain Values.csv') %>%
     walk(
       ~ {
@@ -205,6 +206,7 @@ if (run_rebuild) {
     # ! ---
     # ! LOAD DATA
     # ! ---
+		
   } else {
     cli::cli_alert_success(
       'Deploying local connection'
