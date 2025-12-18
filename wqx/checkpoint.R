@@ -149,13 +149,13 @@ if (run_rebuild) {
 
   unlink(here('wqx', 'All_Domains_CSV.zip'))
 
-  # con <- dbConnect(duckdb(), dbdir = "wqx.duckdb")
+  con <- dbConnect(duckdb(), dbdir = "wqx.duckdb")
 
   # This is all needed because the domain files keep getting shipped with LF characters in them.
   # TODO Either pivot to removing those problematic lines or parse the file to remove the LF character then re-read?
 
   list.files(here('wqx', 'raw'), full.names = TRUE) %>%
-    # NOTE Not sure why this file is present in the zip, should be a standalone file
+    # HACK Not sure why this file is present in the zip, should be a standalone file and not included for db building
     discard(~ basename(.) == 'All Domain Values.csv') %>%
     walk(
       ~ {
@@ -164,8 +164,13 @@ if (run_rebuild) {
         # Attempt to read the file, capturing errors and warnings
         data <- tryCatch(
           {
-            # Use fill = TRUE to handle rows with incorrect number of fields
-            readr::read_csv(.x, show_col_types = FALSE, progress = FALSE)
+            # Read the raw text, remove LF characters inside quotes, then parse
+            raw_text <- readr::read_file(.x)
+            # This regex finds a quote, followed by any characters that are not a quote,
+            # and replaces any newline characters within that matched string.
+            # The `perl = TRUE` is necessary for the `\K` (keep) and lookaheads.
+            cleaned_text <- gsub('"[^"]*\\K\\n', "", raw_text, perl = TRUE)
+            readr::read_csv(cleaned_text, show_col_types = FALSE, progress = FALSE)
           },
           warning = function(w) {
             cli::cli_alert_warning("Warning reading {.file {basename(.x)}}: {w$message}")
