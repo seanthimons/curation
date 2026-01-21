@@ -3,14 +3,14 @@ library(ComptoxR)
 all_lists <- ct_lists_all()
 
 query_chems <- ct_list(
-  list_name = c(
+  c(
     'EPAHFR',
     'EPAHFRTABLE2',
     'FRACFOCUS',
     'CALWATERBDS',
     'PRODWATER'
   )
-) %>%
+) 
   ct_details(query = .) %>%
   mutate(casrn = str_remove_all(casrn, "-"))
 
@@ -48,7 +48,7 @@ df <- tibble::tribble(
 oppt <- post_results(
   #latin_name = 'Anastrepha obliqua',
   #eco_group = 'Fish',
-  casrn = '50-00-0'
+  #casrn = '50-00-0'
 ) %>%
 
   left_join(
@@ -105,3 +105,8 @@ group_by(
     unit_domain,
     final_duration,
   )
+
+
+# plots ---------------------------------------------------------------------------------
+
+

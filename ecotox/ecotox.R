@@ -60,49 +60,72 @@ deploy <- FALSE
   # Checks for new updates -------------------------------------------------
 
   if (file.exists('installed_version.txt')) {
-    updates <- GET(url = 'https://gaftp.epa.gov/ecotox/') %>%
-      content(.) %>%
-      html_elements(., 'a') %>%
-      html_attr('href') %>%
-      .[str_detect(., pattern = 'zip')] %>%
-      data.frame(file = .) %>%
-      mutate(
-        date = str_remove_all(file, pattern = 'ecotox_ascii_'),
-        date = str_remove_all(date, pattern = '.zip'),
-        date = lubridate::as_date(date, format = "%m_%d_%Y")
-      ) %>%
-      arrange(desc(date)) %>%
-      mutate(
-        latest = case_when(
-          row_number() == 1 ~ TRUE,
-          .default = FALSE
+    # Try to fetch updates with error handling
+    tryCatch(
+      {
+        response <- GET(url = 'https://gaftp.epa.gov/ecotox/')
+
+        # Check if the request was successful
+        if (httr::http_error(response)) {
+          cli::cli_alert_warning(
+            "Unable to check for updates. The EPA ECOTOX website is currently unreachable (HTTP {httr::status_code(response)})."
+          )
+          return(invisible(NULL))
+        }
+
+        updates <- response %>%
+          content(.) %>%
+          html_elements(., 'a') %>%
+          html_attr('href') %>%
+          .[str_detect(., pattern = 'zip')] %>%
+          data.frame(file = .) %>%
+          mutate(
+            date = str_remove_all(file, pattern = 'ecotox_ascii_'),
+            date = str_remove_all(date, pattern = '. zip'),
+            date = lubridate::as_date(date, format = "%m_%d_%Y")
+          ) %>%
+          arrange(desc(date)) %>%
+          mutate(
+            latest = case_when(
+              row_number() == 1 ~ TRUE,
+              .default = FALSE
+            )
+          ) %>%
+          filter(latest) %>%
+          pull(date)
+
+        installed <- read.table('installed_version.txt', header = TRUE) %>%
+          filter(installed) %>%
+          mutate(
+            date = lubridate::ymd(date)
+          ) %>%
+          pull(date)
+
+        if (as.integer(difftime(updates, installed, units = "days")) > 0) {
+          update_available <- TRUE
+        } else {
+          update_available <- FALSE
+        }
+
+        cli::cat_line()
+
+        if (update_available) {
+          rebuild_is_needed <- usethis::ui_yeah(
+            'Update available! Do you want to update?'
+          )
+        }
+
+        rm(installed, updates, update_available)
+      },
+      error = function(e) {
+        # Handle network errors or other unexpected issues
+        cli::cli_alert_warning(
+          "Unable to check for updates. Please check your internet connection."
         )
-      ) %>%
-      filter(latest) %>%
-      pull(date)
-
-    installed <- read.table('installed_version.txt', header = TRUE) %>%
-      filter(installed) %>%
-      mutate(
-        date = lubridate::ymd(date)
-      ) %>%
-      pull(date)
-
-    if (as.integer(difftime(updates, installed, units = "days")) > 0) {
-      update_available <- TRUE
-    } else {
-      update_available <- FALSE
-    }
-
-    cli::cat_line()
-
-    if (update_available) {
-      rebuild_is_needed <- usethis::ui_yeah(
-        'Update available! Do you want to update?'
-      )
-    }
-
-    rm(installed, updates, update_available)
+        cli::cli_alert_info("Error details: {e$message}")
+        return(invisible(NULL))
+      }
+    )
   }
 }
 

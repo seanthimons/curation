@@ -374,7 +374,7 @@ post_results <- function(
     'test_type',
     'organism_lifestage',
     'application_freq_mean',
-    'application_freq_unit',
+    'application_freq_unit'
 
   )
 
